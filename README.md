@@ -95,7 +95,7 @@ This project currently uses a Zero-Shot Classification approach (relying on the 
 
 ---
 
-## 🛠️ Planned Improvements (План Улучшений)
+## 🛠️ Planned Improvements
 
 * **Strict Output Enforcement (JSON Schema):** Implement a strict JSON output format from the LLM using Pydantic or OpenAI's Response Format to prevent unparseable text.
 * **Add Robust Error Handling:** Implement automatic retries for transient errors (like RateLimitError: 429) before failing the request.
