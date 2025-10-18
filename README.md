@@ -1,59 +1,79 @@
 # 🤖 AI Ticket Classifier API
 
-A lightweight AI-powered backend service built with **Flask**, **OpenAI GPT-4o-mini**, and **Docker**.  
-It classifies incoming support tickets into predefined categories such as *Network Issue*, *Login Problem*, or *Payment Issue*.  
-Ideal for automating customer support triage and routing.
+A lightweight AI-powered backend built with **Flask**, **OpenAI GPT-4o-mini**, and **Docker Compose**.
+It classifies incoming support tickets into categories such as *Network Issue*, *Login Problem*, or *Payment Issue*.
+Ideal for automating support triage in small tech teams or helpdesks.
 
 ---
 
 ## ✨ Features
-- 🧠 **AI-Powered Classification** — uses OpenAI API for zero-shot ticket labeling  
-- ⚙️ **RESTful API** — single endpoint `/classify`  
-- 🐳 **Docker Ready** — easily deployable as a standalone container  
-- 💚 **Health Check** — simple `/health` route for monitoring  
+
+* 🧠 **AI-Powered Classification** using OpenAI GPT models
+* ⚙️ **RESTful API** with `/classify` endpoint
+* 💚 **Health Check** at `/health`
+* 🐳 **Docker & Docker Compose Ready** — deploy anywhere in seconds
+* 🔁 **Automatic restart** and container health monitoring
 
 ---
 
 ## 🛠️ Technologies Used
-- Python 3.10  
-- Flask  
-- Gunicorn  
-- Docker  
-- OpenAI API (GPT-4o-mini)
+
+* Python 3.10
+* Flask
+* Gunicorn
+* Docker + Docker Compose
+* OpenAI API (GPT-4o-mini)
 
 ---
 
 ## 🚀 Quick Start
 
 ### 1️⃣ Clone the repo
+
 ```bash
 git clone https://github.com/ArtemRivnyi/ai-ticket-classifier.git
 cd ai-ticket-classifier
 ```
 
-### 2️⃣ Set up environment
-Create a file `.env`:
+### 2️⃣ Configure API key
+
+Create a `.env` file in the project root:
+
 ```env
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-### 3️⃣ Build and run with Docker
+### 3️⃣ Run with Docker Compose (recommended)
+
+Build and start the service:
+
 ```bash
-docker build -t ai-ticket-classifier .
-docker run --rm --env-file .env -p 5000:5000 ai-ticket-classifier
+docker compose up --build
 ```
 
-Then open [http://127.0.0.1:5000/health](http://127.0.0.1:5000/health) → should return:
-```json
-{"status": "ok"}
+Stop the service:
+
+```bash
+docker compose down
 ```
 
-### 4️⃣ Send test request
+### 4️⃣ Test the API
+
+**Health check:**
+
 ```powershell
-$body = '{"ticket":"I cannot connect to the VPN after Windows update."}'
+Invoke-RestMethod -Uri http://127.0.0.1:5000/health
+```
+
+**Classify a ticket:**
+
+```powershell
+$body = '{"ticket":"I cannot connect to the VPN"}'
 Invoke-RestMethod -Uri http://127.0.0.1:5000/classify -Method Post -ContentType 'application/json' -Body $body
 ```
-Response:
+
+**Expected response:**
+
 ```json
 {"category": "Network Issue"}
 ```
@@ -62,26 +82,28 @@ Response:
 
 ## 🧩 Example Categories
 
-| Category | Example Ticket |
-|-----------|----------------|
-| **Network Issue** | “VPN not connecting”, “Wi-Fi drops constantly” |
-| **Account Problem** | “Can’t log in”, “Password reset fails” |
-| **Payment Issue** | “Refund request”, “Invoice missing” |
-| **Feature Request** | “Add dark mode” |
-| **Other** | Anything else |
+| Category        | Example Ticket                                 |
+| --------------- | ---------------------------------------------- |
+| Network Issue   | “VPN not connecting”, “Wi-Fi drops constantly” |
+| Account Problem | “Can’t log in”, “Password reset fails”         |
+| Payment Issue   | “Refund request”, “Invoice missing”            |
+| Feature Request | “Add dark mode”                                |
+| Other           | Anything else                                  |
 
 ---
 
 ## 🧠 Planned Improvements
-- [ ] JSON Schema validation (Pydantic)
-- [ ] Retry logic for OpenAI rate limits
-- [ ] Add test suite and CI/CD workflow
-- [ ] Online deployment (Render / Railway)
-- [ ] Logging improvements
+
+* JSON Schema validation (Pydantic)
+* Retry logic for OpenAI rate limits
+* GitHub Actions (CI/CD)
+* Cloud deployment (Render / Railway)
+* Structured logging
 
 ---
 
 ## 🧰 Maintainer
-**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast  
-📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
-🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)
+
+**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
+📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)
+🔗 [LinkedIn](https://www.linkedin.com/in/artemrivnyi)
