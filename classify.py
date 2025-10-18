@@ -1,28 +1,40 @@
 import os
-from openai import OpenAI
-from dotenv import load_dotenv
+from openai import OpenAI, OpenAIError
 
-load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def classify_ticket(ticket_text: str) -> str:
-    prompt = f"""
-    You are a tech support assistant. 
-    Classify the following ticket into ONE of the categories:
-    - Network Issue
-    - Software Bug
-    - Login/Access Problem
-    - Payment/Billing Issue
-    - Other
-
-    Ticket: "{ticket_text}"
-    Reply only with the category name.
     """
+    Classify a ticket using OpenAI API
+    Returns: category string
+    """
+    try:
+        prompt = f"""
+        You are a support ticket classifier. Categorize the following ticket:
+        "{ticket_text}"
+        into one of these categories:
+        - Network Issue
+        - Account Problem
+        - Payment Issue
+        - Feature Request
+        - Other
+        Respond ONLY with the category name.
+        """
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
-    )
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=20,
+            timeout=10
+        )
 
-    return response.choices[0].message.content.strip()
+        category = response.choices[0].message.content.strip()
+        return category
+
+    except OpenAIError as e:
+        print(f"[OpenAIError] {e}")
+        return "Error"
+    except Exception as e:
+        print(f"[GeneralError] {e}")
+        return "Error"
