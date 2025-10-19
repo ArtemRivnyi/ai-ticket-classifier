@@ -1,0 +1,62 @@
+name: CI — Build & Healthcheck
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for multi-arch support)
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t ai-ticket-classifier:ci .
+
+      - name: Run container
+        # Run with a dummy OPENAI_API_KEY to avoid calling real API in CI
+        run: |
+          docker run -d --name ai-ticket-ci -p 5000:5000 \
+            -e OPENAI_API_KEY=test \
+            -e FLASK_ENV=development \
+            ai-ticket-classifier:ci
+
+      - name: Wait for /health to respond
+        run: |
+          for i in {1..20}; do
+            if curl -sSf http://localhost:5000/health; then
+              echo "health OK"
+              break
+            else
+              echo "waiting for service..."
+              sleep 2
+            fi
+          done
+
+      - name: Verify health (final check)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health || echo "000")
+          echo "health status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed"
+            docker logs ai-ticket-ci || true
+            exit 1
+          fi
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker stop ai-ticket-ci || true
+          docker rm ai-ticket-ci 2>/dev/null || true
