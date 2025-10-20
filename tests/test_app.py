@@ -1,7 +1,8 @@
 import requests
 import time
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:5000/api/v1"
+# ... then use f"{BASE_URL}/health" and f"{BASE_URL}/classify"
 
 def wait_for_health(timeout=20):
     """Ждём, пока /health вернёт 200"""

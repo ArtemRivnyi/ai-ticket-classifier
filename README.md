@@ -1,81 +1,77 @@
-# 🤖 AI Ticket Classifier API
+# 🤖 AI Ticket Classifier
 
-A lightweight AI-powered backend built with **Flask**, **OpenAI GPT-4o-mini**, and **Docker Compose**.
-It classifies incoming support tickets into categories such as *Network Issue*, *Login Problem*, or *Payment Issue*.
-Ideal for automating support triage in small tech teams or helpdesks.
+**AI Ticket Classifier** is a lightweight, AI-powered backend built with **Flask**, **OpenAI GPT-4o-mini**, and **Docker Compose**.  
+It automatically classifies incoming support tickets into categories such as *Network Issue*, *Account Problem*, or *Payment Issue*, and can generate suggested responses. Ideal for small tech teams, helpdesks, or e-commerce support.
 
 ---
 
 ## ✨ Features
 
-* 🧠 **AI-Powered Classification** using OpenAI GPT models
-* ⚙️ **RESTful API** with `/classify` endpoint
-* 💚 **Health Check** at `/health`
-* 🐳 **Docker & Docker Compose Ready** — deploy anywhere in seconds
-* 🔁 **Automatic restart** and container health monitoring
+- 🧠 **AI-Powered Classification** with GPT-4o-mini
+- ⚙️ **RESTful API** with `/api/v1/classify` and `/api/v1/health` endpoints
+- 🐳 **Docker & Docker Compose Ready** — deploy anywhere in seconds
+- 🔁 Automatic restart and container health monitoring
+- 💡 Easy to extend with new categories or multilingual support
 
 ---
 
 ## 🛠️ Technologies Used
 
-* Python 3.10
-* Flask
-* Gunicorn
-* Docker + Docker Compose
-* OpenAI API (GPT-4o-mini)
+- Python 3.10+
+- Flask
+- Gunicorn
+- Docker + Docker Compose
+- OpenAI API (GPT-4o-mini)
 
 ---
 
 ## 🚀 Quick Start
 
-### 1️⃣ Clone the repo
-
+### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/ArtemRivnyi/ai-ticket-classifier.git
 cd ai-ticket-classifier
 ```
 
 ### 2️⃣ Configure API key
-
 Create a `.env` file in the project root:
-
 ```env
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-### 3️⃣ Run with Docker Compose (recommended)
-
+### 3️⃣ Run with Docker Compose
 Build and start the service:
-
 ```bash
 docker compose up --build
 ```
 
 Stop the service:
-
 ```bash
 docker compose down
 ```
 
+---
+
 ### 4️⃣ Test the API
 
 **Health check:**
-
-```powershell
-Invoke-RestMethod -Uri http://127.0.0.1:5000/health
+```bash
+curl http://127.0.0.1:5000/api/v1/health
 ```
 
 **Classify a ticket:**
-
-```powershell
-$body = '{"ticket":"I cannot connect to the VPN"}'
-Invoke-RestMethod -Uri http://127.0.0.1:5000/classify -Method Post -ContentType 'application/json' -Body $body
+```bash
+curl -X POST http://127.0.0.1:5000/api/v1/classify \
+-H "Content-Type: application/json" \
+-d '{"ticket":"I cannot connect to the VPN"}'
 ```
 
 **Expected response:**
-
 ```json
-{"category": "Network Issue"}
+{
+  "category": "Network Issue",
+  "suggested_response": "Please check your VPN connection and try again..."
+}
 ```
 
 ---
@@ -94,16 +90,18 @@ Invoke-RestMethod -Uri http://127.0.0.1:5000/classify -Method Post -ContentType 
 
 ## 🧠 Planned Improvements
 
-* JSON Schema validation (Pydantic)
-* Retry logic for OpenAI rate limits
-* GitHub Actions (CI/CD)
-* Cloud deployment (Render / Railway)
-* Structured logging
+- JSON Schema validation (Pydantic)
+- Retry logic for OpenAI rate limits
+- GitHub Actions CI/CD
+- Cloud deployment (Render, Railway, or AWS)
+- Structured logging and metrics
+- Multilingual ticket support
+- Web dashboard for ticket review and knowledge base management
 
 ---
 
 ## 🧰 Maintainer
 
-**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
-📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)
+**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast  
+📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
 🔗 [LinkedIn](https://www.linkedin.com/in/artemrivnyi)

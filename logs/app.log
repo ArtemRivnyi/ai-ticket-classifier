@@ -1,0 +1,53 @@
+2025-10-20 12:23:41,651 [INFO] Starting Flask server on port 5000
+2025-10-20 12:28:39,876 [INFO] Starting Flask server on port 5000
+2025-10-20 12:28:39,885 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 12:28:39,886 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 12:29:29,525 [INFO] Health check called
+2025-10-20 12:29:29,526 [INFO] 127.0.0.1 - - [20/Oct/2025 12:29:29] "GET /api/v1/health HTTP/1.1" 200 -
+2025-10-20 12:29:38,088 [INFO] Received ticket for classification
+2025-10-20 12:29:39,671 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-20 12:29:39,671 [INFO] Retrying request to /chat/completions in 0.399568 seconds
+2025-10-20 12:29:40,964 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-20 12:29:40,964 [INFO] Retrying request to /chat/completions in 0.925754 seconds
+2025-10-20 12:29:42,845 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-20 12:29:42,860 [ERROR] Unhandled exception in /api/v1/classify: name 'OpenAIError' is not defined
+Traceback (most recent call last):
+  File "C:\Projects\ai-ticket-classifier\classify.py", line 28, in classify_ticket
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+    ...<3 lines>...
+        timeout=10
+    )
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_utils\_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1156, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<46 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Projects\ai-ticket-classifier\app.py", line 56, in classify
+    category = classify_ticket(ticket_text)
+  File "C:\Projects\ai-ticket-classifier\classify.py", line 39, in classify_ticket
+    except OpenAIError as e:
+           ^^^^^^^^^^^
+NameError: name 'OpenAIError' is not defined
+
+2025-10-20 12:29:42,861 [INFO] 127.0.0.1 - - [20/Oct/2025 12:29:42] "[35m[1mPOST /api/v1/classify HTTP/1.1[0m" 500 -
