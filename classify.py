@@ -1,11 +1,10 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, APIError as OpenAIError
 
-load_dotenv()  # 🔥 Загружает переменные из .env
+load_dotenv()  # Загружает переменные из .env
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 def classify_ticket(ticket_text: str) -> str:
     """
