@@ -1,0 +1,141 @@
+2025-10-20 12:23:41,651 [INFO] Starting Flask server on port 5000
+2025-10-20 12:28:39,876 [INFO] Starting Flask server on port 5000
+2025-10-20 12:28:39,885 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 12:28:39,886 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 12:29:29,525 [INFO] Health check called
+2025-10-20 12:29:29,526 [INFO] 127.0.0.1 - - [20/Oct/2025 12:29:29] "GET /api/v1/health HTTP/1.1" 200 -
+2025-10-20 12:29:38,088 [INFO] Received ticket for classification
+2025-10-20 12:29:39,671 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-20 12:29:39,671 [INFO] Retrying request to /chat/completions in 0.399568 seconds
+2025-10-20 12:29:40,964 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-20 12:29:40,964 [INFO] Retrying request to /chat/completions in 0.925754 seconds
+2025-10-20 12:29:42,845 [INFO] HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 429 Too Many Requests"
+2025-10-20 12:29:42,860 [ERROR] Unhandled exception in /api/v1/classify: name 'OpenAIError' is not defined
+Traceback (most recent call last):
+  File "C:\Projects\ai-ticket-classifier\classify.py", line 28, in classify_ticket
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+    ...<3 lines>...
+        timeout=10
+    )
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_utils\_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\resources\chat\completions\completions.py", line 1156, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/chat/completions",
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<46 lines>...
+        stream_cls=Stream[ChatCompletionChunk],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_base_client.py", line 1259, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Artem Rivnyi\AppData\Local\Programs\Python\Python313\Lib\site-packages\openai\_base_client.py", line 1047, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.RateLimitError: Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Projects\ai-ticket-classifier\app.py", line 56, in classify
+    category = classify_ticket(ticket_text)
+  File "C:\Projects\ai-ticket-classifier\classify.py", line 39, in classify_ticket
+    except OpenAIError as e:
+           ^^^^^^^^^^^
+NameError: name 'OpenAIError' is not defined
+
+2025-10-20 12:29:42,861 [INFO] 127.0.0.1 - - [20/Oct/2025 12:29:42] "[35m[1mPOST /api/v1/classify HTTP/1.1[0m" 500 -
+2025-10-20 18:16:28,911 [INFO] Starting Flask server on port 5000
+2025-10-20 18:16:28,919 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 18:16:28,919 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 18:16:41,917 [INFO] 127.0.0.1 - - [20/Oct/2025 18:16:41] "[33mPOST /classify HTTP/1.1[0m" 404 -
+2025-10-20 18:17:33,363 [INFO] Starting Flask server on port 5000
+2025-10-20 18:17:33,372 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 18:17:33,372 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 18:17:55,101 [INFO] Health check called
+2025-10-20 18:17:55,101 [INFO] 127.0.0.1 - - [20/Oct/2025 18:17:55] "GET /api/v1/health HTTP/1.1" 200 -
+2025-10-20 18:18:28,955 [INFO] Received ticket for classification
+2025-10-20 18:18:29,163 [ERROR] Classification returned invalid result: Error
+2025-10-20 18:18:29,163 [INFO] 127.0.0.1 - - [20/Oct/2025 18:18:29] "[35m[1mPOST /api/v1/classify HTTP/1.1[0m" 502 -
+2025-10-20 18:22:53,591 [INFO] Starting Flask server on port 5000
+2025-10-20 18:22:53,600 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 18:22:53,600 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 18:25:38,523 [INFO] Starting Flask server on port 5000
+2025-10-20 18:25:38,560 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 18:25:38,560 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 18:25:38,562 [INFO]  * Restarting with stat
+2025-10-20 18:25:39,009 [INFO] Starting Flask server on port 5000
+2025-10-20 18:25:39,018 [WARNING]  * Debugger is active!
+2025-10-20 18:25:39,020 [INFO]  * Debugger PIN: 292-045-008
+2025-10-20 18:26:04,212 [INFO] Health check called
+2025-10-20 18:26:04,213 [INFO] 127.0.0.1 - - [20/Oct/2025 18:26:04] "GET /api/v1/health HTTP/1.1" 200 -
+2025-10-20 18:27:14,907 [INFO] Received ticket for classification
+2025-10-20 18:27:15,139 [ERROR] Classification returned invalid result: Error
+2025-10-20 18:27:15,139 [INFO] 127.0.0.1 - - [20/Oct/2025 18:27:15] "[35m[1mPOST /api/v1/classify HTTP/1.1[0m" 502 -
+2025-10-20 18:30:01,626 [INFO]  * Detected change in 'C:\\Projects\\ai-ticket-classifier\\list_models.py', reloading
+2025-10-20 18:30:03,746 [INFO]  * Restarting with stat
+2025-10-20 18:30:04,250 [INFO] Starting Flask server on port 5000
+2025-10-20 18:30:04,260 [WARNING]  * Debugger is active!
+2025-10-20 18:30:04,262 [INFO]  * Debugger PIN: 292-045-008
+2025-10-20 18:32:02,555 [INFO]  * Detected change in 'C:\\Projects\\ai-ticket-classifier\\classify.py', reloading
+2025-10-20 18:32:02,648 [INFO]  * Restarting with stat
+2025-10-20 18:32:03,133 [INFO] Starting Flask server on port 5000
+2025-10-20 18:32:03,143 [WARNING]  * Debugger is active!
+2025-10-20 18:32:03,144 [INFO]  * Debugger PIN: 292-045-008
+2025-10-20 18:33:45,556 [INFO] Starting Flask server on port 5000
+2025-10-20 18:33:45,573 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 18:33:45,573 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 18:33:45,573 [INFO]  * Restarting with stat
+2025-10-20 18:33:46,020 [INFO] Starting Flask server on port 5000
+2025-10-20 18:33:46,031 [WARNING]  * Debugger is active!
+2025-10-20 18:33:46,032 [INFO]  * Debugger PIN: 292-045-008
+2025-10-20 18:34:02,480 [INFO] Received ticket for classification
+2025-10-20 18:34:03,197 [INFO] Ticket classified -> Network Issue
+2025-10-20 18:34:03,198 [INFO] 127.0.0.1 - - [20/Oct/2025 18:34:03] "POST /api/v1/classify HTTP/1.1" 200 -
+2025-10-20 18:36:35,437 [INFO]  * Detected change in 'C:\\Projects\\ai-ticket-classifier\\classify.py', reloading
+2025-10-20 18:36:37,517 [INFO]  * Restarting with stat
+2025-10-20 18:36:37,998 [INFO] Starting Flask server on port 5000
+2025-10-20 18:36:38,007 [WARNING]  * Debugger is active!
+2025-10-20 18:36:38,008 [INFO]  * Debugger PIN: 292-045-008
+2025-10-20 18:37:20,689 [INFO] Starting Flask server on port 5000
+2025-10-20 18:37:20,707 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.100.63:5000
+2025-10-20 18:37:20,707 [INFO] [33mPress CTRL+C to quit[0m
+2025-10-20 18:37:20,709 [INFO]  * Restarting with stat
+2025-10-20 18:37:21,155 [INFO] Starting Flask server on port 5000
+2025-10-20 18:37:21,166 [WARNING]  * Debugger is active!
+2025-10-20 18:37:21,167 [INFO]  * Debugger PIN: 292-045-008
+2025-10-20 18:37:40,416 [INFO] Received ticket for classification
+2025-10-20 18:37:40,956 [INFO] Ticket classified -> Account Problem
+2025-10-20 18:37:40,957 [INFO] 127.0.0.1 - - [20/Oct/2025 18:37:40] "POST /api/v1/classify HTTP/1.1" 200 -
+2025-10-20 18:37:47,151 [INFO] Received ticket for classification
+2025-10-20 18:37:47,664 [INFO] Ticket classified -> Payment Issue
+2025-10-20 18:37:47,664 [INFO] 127.0.0.1 - - [20/Oct/2025 18:37:47] "POST /api/v1/classify HTTP/1.1" 200 -
+2025-10-20 18:37:59,277 [INFO] Health check called
+2025-10-20 18:37:59,277 [INFO] 127.0.0.1 - - [20/Oct/2025 18:37:59] "GET /api/v1/health HTTP/1.1" 200 -
+2025-10-20 18:38:01,334 [INFO] Received ticket for classification
+2025-10-20 18:38:01,791 [INFO] Ticket classified -> Account Problem
+2025-10-20 18:38:01,791 [INFO] 127.0.0.1 - - [20/Oct/2025 18:38:01] "POST /api/v1/classify HTTP/1.1" 200 -

@@ -1,0 +1,52 @@
+name: CI — Build, Healthcheck & Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t ai-ticket-classifier:test .
+
+      - name: Run container in background
+        run: |
+          docker run -d --name ai-ticket-test -p 5000:5000 \
+            -e OPENAI_API_KEY=dummy-key \
+            ai-ticket-classifier:test
+
+      - name: Wait for health endpoint
+        run: |
+          for i in {1..20}; do
+            if curl -sSf http://localhost:5000/health; then
+              echo "health OK"
+              break
+            else
+              echo "waiting..."
+              sleep 2
+            fi
+          done
+
+      - name: Run API tests with pytest
+        run: |
+          pip install pytest requests
+          pytest -v tests/
+
+      - name: Stop and clean up
+        if: always()
+        run: |
+          docker stop ai-ticket-test || true
+          docker rm ai-ticket-test || true
