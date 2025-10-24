@@ -1,5 +1,10 @@
 # 🤖 AI Ticket Classifier (OpenAI API Version)
 
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **AI Ticket Classifier** is a lightweight, AI-powered backend built with **Flask**, **OpenAI GPT-4o-mini**, and **Docker Compose**. It automatically classifies incoming support tickets into categories such as _Network Issue_, _Account Problem_, or _Payment Issue_. Ideal for small tech teams, helpdesks, or e-commerce support operations seeking efficient ticket management.
 
 ## 📝 Table of Contents
