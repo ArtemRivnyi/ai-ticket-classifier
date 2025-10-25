@@ -1,5 +1,11 @@
 # 🤖 AI Ticket Classifier (Gemini API Version)
 
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/gemini-api)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[<image-card alt="CI" src="https://github.com/ArtemRivnyi/ai-ticket-classifier/actions/workflows/ci.yml/badge.svg" ></image-card>](https://github.com/ArtemRivnyi/ai-ticket-classifier/actions/workflows/ci.yml)
+
 **AI Ticket Classifier** is a lightweight, AI-powered backend built with **Flask**, **Google Gemini API**, and **Docker Compose**. It automatically classifies incoming support tickets into categories such as *Network Issue*, *Account Problem*, or *Payment Issue*. Ideal for small tech teams, helpdesks, or e-commerce support operations seeking efficient ticket management.
 
 ---
@@ -33,6 +39,7 @@
 - 💡 **Extensible Design**: Engineered for easy expansion with new classification categories and support for multiple languages.
 - 💰 **Cost-Effective**: Utilizes the Google Gemini API, which offers a generous free tier, making it a budget-friendly solution.
 - ✅ **CI/CD Ready**: Integrated with GitHub Actions for automated testing and deployment workflows.
+- ✅ **Input Validation**: Uses pydantic for robust request validation, ensuring reliable API interactions.
 
 ---
 
@@ -47,6 +54,7 @@ The project is built upon a robust stack of modern technologies:
 - **Google Gemini API**: Specifically `gemini-2.0-flash` for AI-powered text classification.
 - **GitHub Actions**: For Continuous Integration and Continuous Deployment (CI/CD).
 - **Pytest**: A powerful testing framework for Python.
+- **Pydantic**: For data validation and settings management.
 
 ---
 
@@ -121,9 +129,11 @@ curl -X POST http://127.0.0.1:5000/api/v1/classify \
 
 Run the test suite to ensure everything is working as expected:
 
+
+
 ```bash
 # Install test dependencies
-pip install pytest
+pip install -r requirements.txt  # Includes pytest and pytest-mock
 
 # Run all tests
 python -m pytest tests/ -v
@@ -200,7 +210,6 @@ This project uses GitHub Actions for continuous integration, ensuring code quali
 
 Future enhancements are envisioned to further improve the classifier's robustness and feature set:
 
-- **JSON Schema Validation**: Implementation of Pydantic for robust request and response validation.
 - **Retry Logic**: Introduction of retry mechanisms to handle API rate limits gracefully.
 - **Enhanced Error Handling**: Improved error management for more resilient operations.
 - **Cloud Deployment**: Guides and configurations for deployment on platforms like Render, Railway, or AWS.
@@ -220,7 +229,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
 
-* **Email:** [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
+* 📧 [Email] [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
 * 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
 * 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
 * 💻 [GitHub](https://github.com/ArtemRivnyi)

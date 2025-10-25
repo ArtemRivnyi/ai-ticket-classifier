@@ -4,6 +4,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 import traceback
+from pydantic import BaseModel, ValidationError  # Добавляем импорт pydantic
 
 app = Flask(__name__)
 
@@ -19,10 +20,8 @@ handler.setFormatter(formatter)
 # Root logger settings
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
-# avoid duplicate handlers if reloading
 if not any(isinstance(h, RotatingFileHandler) and getattr(h, "baseFilename", None) == os.path.abspath(LOG_PATH) for h in root_logger.handlers):
     root_logger.addHandler(handler)
-# always also log to console
 if not any(isinstance(h, logging.StreamHandler) for h in root_logger.handlers):
     root_logger.addHandler(logging.StreamHandler())
 
@@ -35,6 +34,11 @@ def make_error(message: str, code: int = 500, details: str | None = None):
         body["details"] = details
     return jsonify(body), code
 
+# ===== Pydantic model for validation =====
+class TicketInput(BaseModel):
+    ticket: str
+    priority: str | None = None
+
 # ===== Health endpoint =====
 @app.route("/api/v1/health", methods=["GET"])
 def health():
@@ -46,21 +50,27 @@ def health():
 def classify():
     try:
         data = request.get_json(silent=True)
-        if not data or "ticket" not in data:
-            app.logger.warning("Bad request - missing 'ticket' field")
-            return make_error("Missing 'ticket' field", 400)
+        if not data:
+            app.logger.warning("Bad request - no JSON data")
+            return make_error("Invalid JSON", 400)
 
-        ticket_text = data["ticket"]
-        app.logger.info("Received ticket for classification", extra={"ticket": ticket_text})
+        # Validate input using pydantic
+        try:
+            ticket_input = TicketInput(**data)
+        except ValidationError as e:
+            app.logger.warning(f"Validation error: {e}")
+            return make_error("Invalid input", 400, details=str(e))
+
+        ticket_text = ticket_input.ticket
+        app.logger.info("Received ticket for classification", extra={"ticket": ticket_text, "priority": ticket_input.priority})
 
         category = classify_ticket(ticket_text)
-        # If classify_ticket returns "Error" or similar, treat as 502
         if not category or category.lower() in ("error", "unknown"):
             app.logger.error(f"Classification returned invalid result: {category}")
             return make_error("Classification failed", 502)
 
         app.logger.info(f"Ticket classified -> {category}")
-        return jsonify({"category": category}), 200
+        return jsonify({"category": category, "priority": ticket_input.priority or "medium"}), 200
 
     except Exception as exc:
         tb = traceback.format_exc()
@@ -71,5 +81,4 @@ def classify():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.logger.info(f"Starting Flask server on port {port}")
-    # Временно включаем debug mode
     app.run(host="0.0.0.0", port=port, debug=True)

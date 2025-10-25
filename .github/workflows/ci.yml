@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ GEMINI_API ]
+    branches: [ GEMINI_API ]  
   pull_request:
-    branches: [ GEMINI_API ]
+    branches: [ GEMINI_API ]  
 
 jobs:
   build:
@@ -12,12 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5  
         with:
           python-version: '3.10'
+      - name: Cache pip dependencies  
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip  
+          pip install -r requirements.txt
       - name: Verify imports
         run: |
           python -c "import flask; print('✅ Flask imported')"
           python -c "import google.generativeai; print('✅ Gemini AI imported')"
+      - name: Run tests  # <!-- NEW: Added pytest execution -->
+        run: pytest tests/ -v
+      - name: Run code quality checks  
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics

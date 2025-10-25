@@ -1,46 +1,77 @@
-import requests
-import time
 import sys
+import os
+import pytest
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from flask import Flask
+from app import app
 
-BASE_URL = "http://localhost:5000/api/v1"
+@pytest.fixture
+def client():
+    """Create a test client for the Flask app"""
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
-def wait_for_health(timeout=30):
-    """Wait for /health to return 200"""
-    start = time.time()
-    while time.time() - start < timeout:
-        try:
-            r = requests.get(f"{BASE_URL}/health", timeout=5)
-            if r.status_code == 200:
-                print("✅ Health check passed")
-                return True
-        except requests.exceptions.RequestException as e:
-            print(f"Waiting for server... ({e})")
-        time.sleep(2)
-    print("❌ Health check timeout")
-    return False
+def test_health_endpoint(client):
+    """Test that /api/v1/health returns 200"""
+    response = client.get('/api/v1/health')
+    assert response.status_code == 200
+    assert response.get_json() == {'status': 'ok'}
+    print("✅ Health check passed")
 
-def test_health_check():
-    """Test that /health returns 200"""
-    assert wait_for_health(), "Health check did not return 200 within timeout"
+def test_classify_valid_input(client, mocker):
+    """Test /api/v1/classify with valid input"""
+    mocker.patch('app.classify_ticket', return_value='Account Problem')
+    payload = {'ticket': 'My account is locked', 'priority': 'high'}
+    response = client.post('/api/v1/classify', json=payload)
+    assert response.status_code == 200
+    data = response.get_json()
+    assert 'category' in data
+    assert data['category'] == 'Account Problem'
+    assert data['priority'] == 'high'
+    print(f"✅ Classification test passed - Category: {data['category']}, Priority: {data['priority']}")
 
-def test_classify_endpoint():
-    """Test /classify endpoint"""
-    payload = {"ticket": "I forgot my password"}
-    try:
-        r = requests.post(f"{BASE_URL}/classify", json=payload, timeout=10)
-        assert r.status_code == 200, f"Expected 200, got {r.status_code}"
-        response_json = r.json()
-        assert "category" in response_json, "Response missing 'category' field"
-        print(f"✅ Classification test passed - Category: {response_json['category']}")
-    except Exception as e:
-        print(f"❌ Classification test failed: {e}")
-        raise
+def test_classify_valid_input_no_priority(client, mocker):
+    """Test /api/v1/classify with valid input, no priority"""
+    mocker.patch('app.classify_ticket', return_value='Account Problem')
+    payload = {'ticket': 'My account is locked'}
+    response = client.post('/api/v1/classify', json=payload)
+    assert response.status_code == 200
+    data = response.get_json()
+    assert 'category' in data
+    assert data['category'] == 'Account Problem'
+    assert data['priority'] == 'medium'  # Default value
+    print(f"✅ Classification test passed (no priority) - Category: {data['category']}, Priority: {data['priority']}")
 
-if __name__ == "__main__":
-    try:
-        test_health_check()
-        test_classify_endpoint()
-        print("🎉 All tests passed!")
-    except Exception as e:
-        print(f"💥 Tests failed: {e}")
-        sys.exit(1)
+def test_classify_missing_ticket(client):
+    """Test /api/v1/classify with missing ticket field"""
+    payload = {'priority': 'high'}
+    response = client.post('/api/v1/classify', json=payload)
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'details' in data
+    assert 'ticket' in data['details']
+    assert 'Field required' in data['details']
+    print("✅ Classification test passed - Missing ticket field")
+
+def test_classify_invalid_ticket_type(client):
+    """Test /api/v1/classify with invalid ticket type"""
+    payload = {'ticket': 123, 'priority': 'low'}
+    response = client.post('/api/v1/classify', json=payload)
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'details' in data
+    assert 'ticket' in data['details']
+    assert 'Input should be a valid string' in data['details']
+    print("✅ Classification test passed - Invalid ticket type")
+
+def test_classify_invalid_json(client):
+    """Test /api/v1/classify with invalid JSON"""
+    response = client.post('/api/v1/classify', data="not_json")
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert data['error'] == 'Invalid JSON'
+    print("✅ Classification test passed - Invalid JSON")

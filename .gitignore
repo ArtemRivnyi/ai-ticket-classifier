@@ -1,6 +1,5 @@
 .env
 .git
-.github
 __pycache__
 *.pyc
 *.pyo
