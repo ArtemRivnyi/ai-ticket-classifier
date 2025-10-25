@@ -1,13 +1,21 @@
+# Environment variables
 .env
-.git
+
+# Python
 __pycache__
 *.pyc
 *.pyo
 *.pyd
 .Python
-env
+env/
+venv/
+.venv
+
+# Pip
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Testing and coverage
 .tox
 .coverage
 .coverage.*
@@ -15,9 +23,22 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 *.cover
+.pytest_cache
+
+# Logs
 *.log
-.gitignore
-README.md
-Dockerfile
-docker-compose.yml
-test_*
+logs/*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp

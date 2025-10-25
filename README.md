@@ -129,19 +129,27 @@ curl -X POST http://127.0.0.1:5000/api/v1/classify \
 
 Run the test suite to ensure everything is working as expected:
 
-
-
-```bash
 # Install test dependencies
+```bash
 pip install -r requirements.txt  # Includes pytest and pytest-mock
-
-# Run all tests
-python -m pytest tests/ -v
-
-# Run specific test file
-python -m pytest tests/test_app.py -v
 ```
 
+# Run all tests (test file is in root directory)
+```bash
+python -m pytest test_app.py -v
+```
+# Or run all tests in project
+```bash
+python -m pytest . -v
+```
+
+#Expected Response:
+```json
+{
+  "category": "Network Issue",
+  "priority": "medium"
+}
+```
 ---
 
 ## 🔧 Development
@@ -156,7 +164,7 @@ python app.py
 Running tests during development:
 
 ```bash
-python -m pytest tests/ -v
+python -m pytest test_app.py -v
 ```
 
 Code quality checks:
@@ -164,7 +172,7 @@ Code quality checks:
 ```bash
 pip install flake8 pylint
 flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-pylint app.py classify.py tests/
+pylint app.py classify.py test_app.py
 ```
 
 ---

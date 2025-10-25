@@ -2,7 +2,7 @@ import requests
 
 try:
     response = requests.post(
-        "http://127.0.0.1:5000/classify",
+        "http://127.0.0.1:5000/api/v1/classify",  # ✅ FIXED URL
         json={"ticket": "I can't connect to Wi-Fi on my laptop"},
         timeout=10
     )
@@ -11,7 +11,6 @@ try:
     print(f"Headers: {response.headers}")
     print(f"Content: {response.text}")
     
-    # Пробуем распарсить JSON только если статус код 200
     if response.status_code == 200:
         print(f"JSON: {response.json()}")
     else:

@@ -1,9 +1,13 @@
 import os
+import logging
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
 
 load_dotenv()
+
+# Настройка логгера для этого модуля
+logger = logging.getLogger(__name__)
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
@@ -45,8 +49,8 @@ def classify_ticket(ticket_text: str) -> str:
         return category
 
     except google_exceptions.GoogleAPIError as e:
-        print(f"[GeminiAPIError] {e}")
+        logger.error(f"Gemini API error: {e}")
         return "Error"
     except Exception as e:
-        print(f"[GeneralError] {e}")
+        logger.error(f"Unexpected error in classification: {e}")
         return "Error"
