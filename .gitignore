@@ -44,3 +44,4 @@ Thumbs.db
 *.temp
 logs/app.log
 /logs
+*.log
