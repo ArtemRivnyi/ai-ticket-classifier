@@ -9,8 +9,6 @@
 
 ## 📝 Table of Contents
 
-## 📝 Table of Contents
-
 * [✨ Features](#-features)
 * [🛠️ Technologies Used](#️-technologies-used)
 * [🚀 Quick Start](#-quick-start)
