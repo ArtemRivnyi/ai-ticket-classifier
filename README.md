@@ -9,20 +9,23 @@
 
 ## 📝 Table of Contents
 
-*   [✨ Features]()
-*   [🛠️ Technologies Used]()
-*   [🚀 Quick Start]()
-    *   [1️⃣ Clone the Repository]()
-    *   [2️⃣ Configure API Key]()
-    *   [3️⃣ Run with Docker Compose]()
-    *   [4️⃣ Test the API]()
-*   [🧪 Testing]()
-*   [🔧 Development]()
-*   [🧩 Example Categories]()
-*   [📊 CI/CD Status]()
-*   [🧠 Planned Improvements]()
-*   [📄 License]()
-*   [🧰 Maintainer]()
+## 📝 Table of Contents
+
+* [✨ Features](#-features)
+* [🛠️ Technologies Used](#️-technologies-used)
+* [🚀 Quick Start](#-quick-start)
+  * [1️⃣ Clone the Repository](#1️⃣-clone-the-repository)
+  * [2️⃣ Configure API Key](#2️⃣-configure-api-key)
+  * [3️⃣ Run with Docker Compose](#3️⃣-run-with-docker-compose)
+  * [4️⃣ Test the API](#4️⃣-test-the-api)
+* [🧪 Testing](#-testing)
+* [🔧 Development](#-development)
+* [🧩 Example Categories](#-example-categories)
+* [📊 CI/CD Status](#-cicd-status)
+* [🧠 Planned Improvements](#-planned-improvements)
+* [📄 License](#-license)
+* [🧰 Maintainer](#-maintainer)
+
 
 ## ✨ Features
 
@@ -184,7 +187,7 @@ Future enhancements are envisioned to further improve the classifier's robustnes
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE]() file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🧰 Maintainer
 
