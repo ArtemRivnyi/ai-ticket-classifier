@@ -14,7 +14,7 @@
 
 - [✨ Features](#-features)
 - [🛠️ Technologies Used](#️-technologies-used)
-- [📸 Screenshots](#-📸-Screenshots)
+- [📸 Screenshots](#-Screenshots)
 - [🚀 Quick Start](#-quick-start)
   - [1️⃣ Clone the Repository](#1️⃣-clone-the-repository)
   - [2️⃣ Configure API Key](#2️⃣-configure-api-key)
