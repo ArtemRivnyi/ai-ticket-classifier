@@ -14,6 +14,7 @@
 
 - [✨ Features](#-features)
 - [🛠️ Technologies Used](#️-technologies-used)
+- [📸 Screenshots](#-📸-Screenshots)
 - [🚀 Quick Start](#-quick-start)
   - [1️⃣ Clone the Repository](#1️⃣-clone-the-repository)
   - [2️⃣ Configure API Key](#2️⃣-configure-api-key)
@@ -55,6 +56,56 @@ The project is built upon a robust stack of modern technologies:
 - **GitHub Actions**: For Continuous Integration and Continuous Deployment (CI/CD).
 - **Pytest**: A powerful testing framework for Python.
 - **Pydantic**: For data validation and settings management.
+---
+
+## 📸 Screenshots
+
+### API Functionality
+
+#### Application Startup
+![Docker Compose Up](<img width="554" height="211" alt="01-startup-logs" src="https://github.com/user-attachments/assets/7022a3f9-20d9-47ad-9fef-7341094a58ac" />)
+*Successful application startup with Gunicorn workers initialized*
+
+#### Health Check Endpoint
+![Health Check](<img width="446" height="53" alt="02-health-check" src="https://github.com/user-attachments/assets/4f1cf5ee-e2db-4cad-9f43-7e94e7cc17db" />)
+*API health check confirming the service is running*
+
+#### Network Issue Classification
+![Network Issue](<img width="580" height="67" alt="03-classify-network" src="https://github.com/user-attachments/assets/9d642595-ea33-44db-bc8e-b06d9d1154a0" />)
+*VPN connection problem correctly identified as Network Issue*
+
+#### Account Problem Classification
+![Account Problem](<img width="583" height="63" alt="04-classify-account" src="https://github.com/user-attachments/assets/08ddefee-0b66-408b-a536-f0549eb9d627" />)
+*Password reset request classified as Account Problem*
+
+#### Payment Issue Classification
+![Payment Issue](<img width="582" height="59" alt="05-classify-payment" src="https://github.com/user-attachments/assets/d5702a84-acdb-41f9-b7e0-e100d15fa61d" />)
+*Double charge complaint identified as Payment Issue*
+
+#### Feature Request Classification
+![Feature Request](<img width="583" height="58" alt="06-classify-feature" src="https://github.com/user-attachments/assets/c42aa4f2-2cb8-4377-8d9b-cbc8d2720430" />)
+*Dark mode suggestion classified as Feature Request*
+
+#### Spam Detection
+![Spam Detection](<img width="581" height="59" alt="07-classify-spam" src="https://github.com/user-attachments/assets/715cf4fe-c539-4c82-adb2-9a8171d50fe2" />)
+*Spam message correctly categorized as Other*
+
+### Error Handling
+
+#### Empty Ticket Validation
+![Empty Ticket Error](<img width="594" height="56" alt="08-error-empty" src="https://github.com/user-attachments/assets/2ab22d65-83eb-45bc-bbeb-9d93fb69ea47" />)
+*API properly validates and rejects empty ticket submissions*
+
+#### Invalid JSON Handling
+![Invalid JSON Error](<img width="586" height="44" alt="09-error-invalid-json" src="https://github.com/user-attachments/assets/95dba048-e080-4de3-85f8-9120cb0212a1" />)
+*Malformed JSON requests are caught and handled gracefully*
+
+#### Running Container
+![Docker Container Status](<img width="940" height="53" alt="10-docker-ps" src="https://github.com/user-attachments/assets/9d459009-5712-46f5-92b7-08b45f368806" />)
+*Container running with healthy status after 2 hours uptime*
+
+#### Test Results
+![Test Results](<img width="493" height="176" alt="12-test-results-table" src="https://github.com/user-attachments/assets/149e7e0f-e7ce-4411-843b-09d4ca91eb13" />)
 
 ---
 
