@@ -62,37 +62,37 @@ The project is built upon a robust stack of modern technologies:
 
 #### Application Startup
 
-![Docker Compose Up](https://github.com/user-attachments/assets/7022a3f9-20d9-47ad-9fef-7341094a58ac)  
+![01-startup-logs](./assets/01-startup-logs.png)
 *Successful application startup with Gunicorn workers initialized*
 
 #### Health Check Endpoint
 
-![Health Check](https://github.com/user-attachments/assets/4f1cf5ee-e2db-4cad-9f43-7e94e7cc17db)  
+![02-health-check](./assets/02-health-check.png)
 *API health check confirming the service is running*
 
 #### Network Issue Classification
 
-![Network Issue](https://github.com/user-attachments/assets/9d642595-ea33-44db-bc8e-b06d9d1154a0)  
+![03-classify-network](./assets/03-classify-network.png) 
 *VPN connection problem correctly identified as Network Issue*
 
 #### Account Problem Classification
 
-![Account Problem](https://github.com/user-attachments/assets/08ddefee-0b66-408b-a536-f0549eb9d627)  
+![04-classify-account](./assets/04-classify-account.png)
 *Password reset request classified as Account Problem*
 
 #### Payment Issue Classification
 
-![Payment Issue](https://github.com/user-attachments/assets/d5702a84-acdb-41f9-b7e0-e100d15fa61d)  
+![05-classify-payment](./assets/05-classify-payment.png)
 *Double charge complaint identified as Payment Issue*
 
 #### Feature Request Classification
 
-![Feature Request](https://github.com/user-attachments/assets/c42aa4f2-2cb8-4377-8d9b-cbc8d2720430)  
+![06-classify-feature](./assets/06-classify-feature.png)
 *Dark mode suggestion classified as Feature Request*
 
 #### Spam Detection
 
-![Spam Detection](https://github.com/user-attachments/assets/715cf4fe-c539-4c82-adb2-9a8171d50fe2)  
+![07-classify-spam](./assets/07-classify-spam.png) 
 *Spam message correctly categorized as Other*
 
 ---
@@ -101,22 +101,22 @@ The project is built upon a robust stack of modern technologies:
 
 #### Empty Ticket Validation
 
-![Empty Ticket Error](https://github.com/user-attachments/assets/2ab22d65-83eb-45bc-bbeb-9d93fb69ea47)  
+![08-error-empty](./assets/08-error-empty.png)
 *API properly validates and rejects empty ticket submissions*
 
 #### Invalid JSON Handling
 
-![Invalid JSON Error](https://github.com/user-attachments/assets/95dba048-e080-4de3-85f8-9120cb0212a1)  
+![09-error-invalid-json](./assets/09-error-invalid-json.png)
 *Malformed JSON requests are caught and handled gracefully*
 
 #### Running Container
 
-![Docker Container Status](https://github.com/user-attachments/assets/9d459009-5712-46f5-92b7-08b45f368806)  
+![10-docker-ps](./assets/10-docker-ps.png)
 *Container running with healthy status after 2 hours uptime*
 
 #### Test Results
 
-![Test Results](https://github.com/user-attachments/assets/149e7e0f-e7ce-4411-843b-09d4ca91eb13)  
+![12-test-results-table](./assets/12-test-results-table.png) 
 *All test cases successfully executed with expected classifications*
 
 
