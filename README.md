@@ -5,6 +5,8 @@
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/gemini-api)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [<image-card alt="CI" src="https://github.com/ArtemRivnyi/ai-ticket-classifier/actions/workflows/ci.yml/badge.svg" ></image-card>](https://github.com/ArtemRivnyi/ai-ticket-classifier/actions/workflows/ci.yml)
+[![CI Status](https://github.com/ArtemRivnyi/ai-ticket-classifier/actions/workflows/ci.yml/badge.svg )](https://github.com/ArtemRivnyi/ai-ticket-classifier/actions )
+[![Last Commit](https://img.shields.io/github/last-commit/ArtemRivnyi/ai-ticket-classifier?label=Last%20Update&style=flat-square )](https://github.com/ArtemRivnyi/ai-ticket-classifier/commits/main )
 
 **AI Ticket Classifier** is a lightweight, AI-powered backend built with **Flask**, **Google Gemini API**, and **Docker Compose**. It automatically classifies incoming support tickets into categories such as *Network Issue*, *Account Problem*, or *Payment Issue*. Ideal for small tech teams, helpdesks, or e-commerce support operations seeking efficient ticket management.
 
