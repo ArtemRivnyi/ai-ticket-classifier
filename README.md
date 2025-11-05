@@ -1,6 +1,7 @@
 # 🤖 AI Ticket Classifier (Gemini API Version)
 
 [![CI Status](https://github.com/ArtemRivnyi/ai-ticket-classifier/actions/workflows/ci.yml/badge.svg )](https://github.com/ArtemRivnyi/ai-ticket-classifier/actions )
+![Docker Image](https://img.shields.io/badge/Docker%20Image-Ready-blue?style=flat-square&logo=docker)
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white )
 ![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white )
