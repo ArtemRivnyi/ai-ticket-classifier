@@ -1,5 +1,7 @@
 # Environment variables
 .env
+.env.local
+.env.*.local
 
 # Python
 __pycache__
@@ -10,6 +12,7 @@ __pycache__
 env/
 venv/
 .venv
+ENV/
 
 # Pip
 pip-log.txt
@@ -24,16 +27,19 @@ nosetests.xml
 coverage.xml
 *.cover
 .pytest_cache
+htmlcov/
 
 # Logs
 *.log
-logs/*.log
+logs/
+log/
 
 # IDE
 .vscode
 .idea
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
@@ -42,6 +48,22 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-logs/app.log
-/logs
-*.log
+
+# Redis dumps
+dump.rdb
+appendonly.aof
+
+# Docker volumes data (optional - comment out if you want to keep local data)
+# redis_data/
+# prometheus_data/
+# grafana_data/
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# Build artifacts
+build/
+dist/
+*.egg-info/.env

@@ -139,3 +139,468 @@ NameError: name 'OpenAIError' is not defined
 2025-10-20 18:38:01,334 [INFO] Received ticket for classification
 2025-10-20 18:38:01,791 [INFO] Ticket classified -> Account Problem
 2025-10-20 18:38:01,791 [INFO] 127.0.0.1 - - [20/Oct/2025 18:38:01] "POST /api/v1/classify HTTP/1.1" 200 -
+{"timestamp": "2025-11-14T11:24:30.466409", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:25:00.564492", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:25:10.011786", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:25:30.643230", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:26:00.730826", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:26:30.965013", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:27:01.048233", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:27:11.358056", "level": "WARNING", "message": "Invalid API key attempt", "module": "app", "function": "decorated_function", "line": 132}
+{"timestamp": "2025-11-14T11:27:31.147489", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:28:01.259735", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:28:31.353646", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:28:32.863622", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 232, "ticket_length": 21, "priority": "medium"}
+{"timestamp": "2025-11-14T11:28:33.178078", "level": "ERROR", "message": "Gemini API error: 400 API key not valid. Please pass a valid API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key not valid. Please pass a valid API key.\"\n]", "module": "classify", "function": "classify_ticket", "line": 52}
+{"timestamp": "2025-11-14T11:28:33.179051", "level": "ERROR", "message": "Classification returned invalid result: Error", "module": "app", "function": "classify", "line": 246}
+{"timestamp": "2025-11-14T11:28:33.180272", "level": "ERROR", "message": "Unhandled exception in /api/v1/classify", "module": "app", "function": "classify", "line": 283, "exception": "'function' object has no attribute 'labels'", "exception_type": "AttributeError", "processing_time_ms": 316.8971538543701, "traceback": "Traceback (most recent call last):\n  File \"/app/app.py\", line 247, in classify\n    classification_counter.labels(category='error', status='failed').inc()\nAttributeError: 'function' object has no attribute 'labels'\n"}
+{"timestamp": "2025-11-14T11:28:33.181068", "level": "ERROR", "message": "Exception on /api/v1/classify [POST]", "module": "app", "function": "log_exception", "line": 875}
+{"timestamp": "2025-11-14T11:28:33.182536", "level": "ERROR", "message": "Internal server error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.", "module": "app", "function": "internal_error", "line": 342}
+{"timestamp": "2025-11-14T11:29:01.436615", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:29:31.578584", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:30:01.682116", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:30:30.823185", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 232, "ticket_length": 21, "priority": "medium"}
+{"timestamp": "2025-11-14T11:30:31.074908", "level": "ERROR", "message": "Gemini API error: 400 API key not valid. Please pass a valid API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key not valid. Please pass a valid API key.\"\n]", "module": "classify", "function": "classify_ticket", "line": 52}
+{"timestamp": "2025-11-14T11:30:31.075885", "level": "ERROR", "message": "Classification returned invalid result: Error", "module": "app", "function": "classify", "line": 246}
+{"timestamp": "2025-11-14T11:30:31.077299", "level": "ERROR", "message": "Unhandled exception in /api/v1/classify", "module": "app", "function": "classify", "line": 283, "exception": "'function' object has no attribute 'labels'", "exception_type": "AttributeError", "processing_time_ms": 254.27484512329102, "traceback": "Traceback (most recent call last):\n  File \"/app/app.py\", line 247, in classify\n    classification_counter.labels(category='error', status='failed').inc()\nAttributeError: 'function' object has no attribute 'labels'\n"}
+{"timestamp": "2025-11-14T11:30:31.078166", "level": "ERROR", "message": "Exception on /api/v1/classify [POST]", "module": "app", "function": "log_exception", "line": 875}
+{"timestamp": "2025-11-14T11:30:31.079528", "level": "ERROR", "message": "Internal server error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.", "module": "app", "function": "internal_error", "line": 342}
+{"timestamp": "2025-11-14T11:30:31.758920", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:31:01.849036", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:31:31.930424", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 183}
+{"timestamp": "2025-11-14T11:31:49.825437", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:32:05.916658", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:32:13.871252", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 21, "priority": "medium"}
+{"timestamp": "2025-11-14T11:32:14.162529", "level": "ERROR", "message": "Gemini API error: 400 API key not valid. Please pass a valid API key. [reason: \"API_KEY_INVALID\"\ndomain: \"googleapis.com\"\nmetadata {\n  key: \"service\"\n  value: \"generativelanguage.googleapis.com\"\n}\n, locale: \"en-US\"\nmessage: \"API key not valid. Please pass a valid API key.\"\n]", "module": "classify", "function": "classify_ticket", "line": 52}
+{"timestamp": "2025-11-14T11:32:14.163812", "level": "ERROR", "message": "Classification returned invalid result: Error", "module": "app", "function": "classify", "line": 247}
+{"timestamp": "2025-11-14T11:32:19.908058", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:32:49.996628", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:33:20.068745", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:33:50.156385", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:34:20.242889", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:34:50.499697", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:35:20.611361", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:35:50.718813", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:36:20.814490", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:36:50.899087", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:37:20.979815", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:37:51.052946", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:38:21.142948", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:38:51.245499", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:39:31.018104", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:39:40.317218", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 21, "priority": "medium"}
+{"timestamp": "2025-11-14T11:39:41.206876", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Network Issue", "priority": "medium", "processing_time_ms": 889.8818492889404}
+{"timestamp": "2025-11-14T11:40:01.104108", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:40:31.170620", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:41:01.381333", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:41:15.819550", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:41:35.109641", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 33, "priority": "medium"}
+{"timestamp": "2025-11-14T11:41:35.648216", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Other", "priority": "medium", "processing_time_ms": 538.3930206298828}
+{"timestamp": "2025-11-14T11:41:36.450660", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 57, "priority": "medium"}
+{"timestamp": "2025-11-14T11:41:36.922249", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Other", "priority": "medium", "processing_time_ms": 471.85564041137695}
+{"timestamp": "2025-11-14T11:41:37.662471", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 37, "priority": "medium"}
+{"timestamp": "2025-11-14T11:41:37.997640", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Account Problem", "priority": "medium", "processing_time_ms": 335.2029323577881}
+{"timestamp": "2025-11-14T11:41:45.894245", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:42:16.085096", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:42:46.167161", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:43:16.258059", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:43:46.341416", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:44:16.422898", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:44:46.504744", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:45:16.583190", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:46:32.790192", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:46:47.014742", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 33, "priority": "medium"}
+{"timestamp": "2025-11-14T11:46:47.825691", "level": "INFO", "message": "Classified ticket as: Hardware Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T11:46:47.826483", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Hardware Issue", "priority": "medium", "processing_time_ms": 811.997652053833}
+{"timestamp": "2025-11-14T11:46:48.625521", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 29, "priority": "medium"}
+{"timestamp": "2025-11-14T11:46:49.295878", "level": "INFO", "message": "Classified ticket as: Software Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T11:46:49.296585", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Software Issue", "priority": "medium", "processing_time_ms": 671.4441776275635}
+{"timestamp": "2025-11-14T11:47:02.899280", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:47:32.972891", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:47:35.700868", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 31, "priority": "medium"}
+{"timestamp": "2025-11-14T11:47:36.165034", "level": "INFO", "message": "Classified ticket as: Network Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T11:47:36.165707", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Network Issue", "priority": "medium", "processing_time_ms": 465.5947685241699}
+{"timestamp": "2025-11-14T11:47:36.940552", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 37, "priority": "medium"}
+{"timestamp": "2025-11-14T11:47:37.507682", "level": "INFO", "message": "Classified ticket as: Account Problem", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T11:47:37.508545", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Account Problem", "priority": "medium", "processing_time_ms": 568.2773590087891}
+{"timestamp": "2025-11-14T11:47:38.305171", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 39, "priority": "medium"}
+{"timestamp": "2025-11-14T11:47:38.867359", "level": "INFO", "message": "Classified ticket as: Payment Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T11:47:38.868312", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Payment Issue", "priority": "medium", "processing_time_ms": 563.2202625274658}
+{"timestamp": "2025-11-14T11:47:39.650457", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 233, "ticket_length": 41, "priority": "medium"}
+{"timestamp": "2025-11-14T11:47:40.317859", "level": "INFO", "message": "Classified ticket as: Feature Request", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T11:47:40.319051", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 257, "category": "Feature Request", "priority": "medium", "processing_time_ms": 668.9269542694092}
+{"timestamp": "2025-11-14T11:48:03.063100", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:48:33.135703", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:49:03.203923", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:49:33.282368", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:50:03.346076", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:50:33.436546", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:51:03.513921", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:51:33.606519", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:52:03.684850", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:52:33.753514", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:53:03.821622", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:53:33.900568", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:54:03.971275", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:54:34.055275", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:55:04.140010", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:55:34.218935", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:56:04.288088", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:56:34.572554", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:57:04.662197", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:57:34.738832", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:58:04.839494", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:58:34.918384", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:59:05.023610", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T11:59:35.134500", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:00:05.211499", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:00:35.283127", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:01:05.367742", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:01:35.444077", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:02:05.522193", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:02:35.647537", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:03:05.715662", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:03:35.791926", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:04:05.884067", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:04:35.958717", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:05:06.040295", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:05:36.129919", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:06:06.209291", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:06:36.272726", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:07:06.333837", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:07:36.411310", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:08:06.491971", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:08:36.563763", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:09:06.638089", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:09:36.726672", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:10:06.812022", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:10:36.903369", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:11:06.992856", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:11:37.080995", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:12:07.148173", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:12:37.207027", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:13:07.306746", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T12:13:37.379939", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:49:27.373358", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:49:57.597609", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:50:27.838693", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:50:57.913447", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:51:28.003306", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:51:58.078118", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:52:28.152913", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:52:58.219224", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:53:28.316826", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:53:58.407629", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:54:28.475072", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:54:58.548658", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:55:28.614758", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:55:58.746082", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:56:28.850660", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:56:58.936538", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:57:29.027147", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:57:59.103207", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:58:29.167788", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:58:59.235643", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:59:29.305438", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T13:59:59.401758", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:00:29.472589", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:00:59.554071", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:01:29.630998", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:01:59.742735", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:02:29.820927", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:02:59.895052", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:03:29.963463", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:04:00.035832", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:04:30.122293", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:05:00.201032", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:05:30.282268", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:06:00.382377", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:06:30.462181", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:07:00.554611", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:07:30.624866", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:08:00.729600", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:08:30.861122", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:09:00.941350", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:09:31.009421", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:10:01.162177", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:10:31.245926", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:11:01.356495", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:11:31.428543", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:12:01.501662", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:12:31.585485", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:13:01.692325", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:13:31.772829", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:14:01.850621", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:14:31.939103", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:15:02.008027", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:15:32.087827", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:16:02.163098", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:16:32.235391", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:17:02.318423", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:17:32.419908", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:18:02.527245", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:18:32.608107", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:19:02.704191", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:19:32.797607", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:20:02.885103", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:20:32.967908", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:21:03.105429", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:21:33.217735", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:22:03.294737", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:22:33.394460", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:23:03.516363", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:23:33.606573", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:24:03.689343", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:24:33.765364", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:25:03.850821", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:25:33.929695", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:26:04.019292", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:26:34.109599", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:27:04.190356", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:27:34.269468", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T14:28:04.374085", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T15:29:39.225081", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T15:30:09.309280", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T15:30:39.679210", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T15:31:09.773645", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T15:31:39.877894", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T15:32:10.031032", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 184}
+{"timestamp": "2025-11-14T16:15:22.010495", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:15:34.034119", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:15:34.114595", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:15:34.567925", "level": "WARNING", "message": "Missing API key in request", "module": "app", "function": "decorated_function", "line": 131}
+{"timestamp": "2025-11-14T16:15:34.699228", "level": "WARNING", "message": "Invalid API key attempt", "module": "app", "function": "decorated_function", "line": 135}
+{"timestamp": "2025-11-14T16:15:34.838700", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 14, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:36.007364", "level": "INFO", "message": "Classified ticket as: Network Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:36.008588", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Network Issue", "priority": "medium", "processing_time_ms": 1169.9039936065674}
+{"timestamp": "2025-11-14T16:15:36.106958", "level": "WARNING", "message": "Validation error", "module": "app", "function": "classify", "line": 245, "errors": "1 validation error for TicketInput\nticket\n  String should have at least 1 character [type=string_too_short, input_value='', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_too_short"}
+{"timestamp": "2025-11-14T16:15:36.229767", "level": "WARNING", "message": "Bad request - no JSON data", "module": "app", "function": "classify", "line": 238}
+{"timestamp": "2025-11-14T16:15:36.362408", "level": "WARNING", "message": "Bad request - no JSON data", "module": "app", "function": "classify", "line": 238}
+{"timestamp": "2025-11-14T16:15:36.495220", "level": "WARNING", "message": "Validation error", "module": "app", "function": "classify", "line": 245, "errors": "1 validation error for TicketInput\npriority\n  String should match pattern '^(low|medium|high|critical)$' [type=string_pattern_mismatch, input_value='invalid', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch"}
+{"timestamp": "2025-11-14T16:15:36.642155", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 31, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:37.464599", "level": "INFO", "message": "Classified ticket as: Network Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:37.465683", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Network Issue", "priority": "medium", "processing_time_ms": 823.6792087554932}
+{"timestamp": "2025-11-14T16:15:37.544048", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 33, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:38.111348", "level": "INFO", "message": "Classified ticket as: Hardware Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:38.112543", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Hardware Issue", "priority": "medium", "processing_time_ms": 568.6185359954834}
+{"timestamp": "2025-11-14T16:15:38.180644", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 54, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:38.761507", "level": "INFO", "message": "Classified ticket as: Software Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:38.762380", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Software Issue", "priority": "medium", "processing_time_ms": 581.8195343017578}
+{"timestamp": "2025-11-14T16:15:38.869678", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 37, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:39.462960", "level": "INFO", "message": "Classified ticket as: Account Problem", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:39.464018", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Account Problem", "priority": "medium", "processing_time_ms": 594.6259498596191}
+{"timestamp": "2025-11-14T16:15:39.570088", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 39, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:40.283889", "level": "INFO", "message": "Classified ticket as: Payment Issue", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:40.284862", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Payment Issue", "priority": "medium", "processing_time_ms": 715.193510055542}
+{"timestamp": "2025-11-14T16:15:40.366045", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 41, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:40.882313", "level": "INFO", "message": "Classified ticket as: Feature Request", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:40.883350", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Feature Request", "priority": "medium", "processing_time_ms": 517.7741050720215}
+{"timestamp": "2025-11-14T16:15:40.978343", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 4, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:41.700348", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:41.701120", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 723.1452465057373}
+{"timestamp": "2025-11-14T16:15:41.772748", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 10, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:42.341259", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:42.342510", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 569.756269454956}
+{"timestamp": "2025-11-14T16:15:42.591363", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:43.142705", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:43.144141", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 552.830696105957}
+{"timestamp": "2025-11-14T16:15:43.244171", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:43.799143", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:43.799796", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 555.9396743774414}
+{"timestamp": "2025-11-14T16:15:43.892083", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:44.608559", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:44.609729", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 717.8008556365967}
+{"timestamp": "2025-11-14T16:15:44.723336", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:45.266767", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:45.267489", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 544.8293685913086}
+{"timestamp": "2025-11-14T16:15:45.355604", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:46.039837", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:46.040984", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 685.124397277832}
+{"timestamp": "2025-11-14T16:15:46.122886", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:46.738007", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:46.738725", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 616.2338256835938}
+{"timestamp": "2025-11-14T16:15:46.825262", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:47.498490", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:47.499257", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 674.3364334106445}
+{"timestamp": "2025-11-14T16:15:47.568781", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:48.147106", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:48.148024", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 579.4613361358643}
+{"timestamp": "2025-11-14T16:15:48.236765", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 6, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:48.858364", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:48.859465", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 622.8785514831543}
+{"timestamp": "2025-11-14T16:15:48.931502", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:49.618145", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:49.619364", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 687.6382827758789}
+{"timestamp": "2025-11-14T16:15:49.699340", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:50.317750", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:50.318987", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 619.9424266815186}
+{"timestamp": "2025-11-14T16:15:50.412065", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:51.035400", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:51.036068", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 624.4857311248779}
+{"timestamp": "2025-11-14T16:15:51.116436", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:51.620149", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:51.620796", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 504.63271141052246}
+{"timestamp": "2025-11-14T16:15:51.721195", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:52.111307", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:15:52.321100", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:52.321943", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 600.9409427642822}
+{"timestamp": "2025-11-14T16:15:52.410980", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:52.975402", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:52.976530", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 565.852165222168}
+{"timestamp": "2025-11-14T16:15:53.062097", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:53.618162", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:53.619081", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 557.3241710662842}
+{"timestamp": "2025-11-14T16:15:53.709022", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:54.235920", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:54.237175", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 528.2273292541504}
+{"timestamp": "2025-11-14T16:15:54.321748", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:54.984830", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:54.985785", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 664.4797325134277}
+{"timestamp": "2025-11-14T16:15:55.058230", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:55.677736", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:55.678724", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 620.4566955566406}
+{"timestamp": "2025-11-14T16:15:55.765541", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:56.415989", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:56.417231", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 651.599645614624}
+{"timestamp": "2025-11-14T16:15:56.500537", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:57.154425", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:57.156405", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 655.2391052246094}
+{"timestamp": "2025-11-14T16:15:57.261757", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:58.132055", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:58.132743", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 871.3254928588867}
+{"timestamp": "2025-11-14T16:15:58.209549", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:58.833079", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:58.834160", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 624.5625019073486}
+{"timestamp": "2025-11-14T16:15:58.918316", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:15:59.711915", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:15:59.712833", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 794.7268486022949}
+{"timestamp": "2025-11-14T16:15:59.790818", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:00.341678", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:00.342680", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 552.1786212921143}
+{"timestamp": "2025-11-14T16:16:00.422126", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:00.951157", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:00.951863", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 530.0712585449219}
+{"timestamp": "2025-11-14T16:16:01.036560", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:01.593595", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:01.594798", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 558.3598613739014}
+{"timestamp": "2025-11-14T16:16:01.673653", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:02.352123", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:02.353032", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 679.4753074645996}
+{"timestamp": "2025-11-14T16:16:02.455776", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:03.073757", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:03.074630", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 618.8883781433105}
+{"timestamp": "2025-11-14T16:16:03.168812", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:03.869925", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:03.870686", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 702.3823261260986}
+{"timestamp": "2025-11-14T16:16:03.944495", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:04.469061", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:04.469731", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 525.4530906677246}
+{"timestamp": "2025-11-14T16:16:04.538588", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:05.231239", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:05.232308", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 693.56369972229}
+{"timestamp": "2025-11-14T16:16:05.300373", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:05.936223", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:05.937272", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 636.735200881958}
+{"timestamp": "2025-11-14T16:16:06.030402", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:06.694957", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:06.695675", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 665.7669544219971}
+{"timestamp": "2025-11-14T16:16:06.778334", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:07.351094", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:07.352169", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 573.9071369171143}
+{"timestamp": "2025-11-14T16:16:07.429476", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:08.047569", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:08.048293", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 619.1940307617188}
+{"timestamp": "2025-11-14T16:16:08.123432", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:08.910315", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:08.911090", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 787.818193435669}
+{"timestamp": "2025-11-14T16:16:09.010383", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:09.569031", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:09.569942", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 559.4654083251953}
+{"timestamp": "2025-11-14T16:16:09.667504", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:10.374698", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:10.375946", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 708.7726593017578}
+{"timestamp": "2025-11-14T16:16:10.459904", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:10.976524", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:10.977487", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 517.7795886993408}
+{"timestamp": "2025-11-14T16:16:11.071200", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:11.688417", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:11.689318", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 618.0415153503418}
+{"timestamp": "2025-11-14T16:16:11.760239", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:12.326699", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:12.327929", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 567.558765411377}
+{"timestamp": "2025-11-14T16:16:12.422010", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:13.011937", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:13.013186", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 591.1180973052979}
+{"timestamp": "2025-11-14T16:16:13.110399", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:13.686543", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:13.687647", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 577.268123626709}
+{"timestamp": "2025-11-14T16:16:13.766902", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:14.332663", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:14.333388", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 566.6303634643555}
+{"timestamp": "2025-11-14T16:16:14.409070", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:15.066137", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:15.067450", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 658.1192016601562}
+{"timestamp": "2025-11-14T16:16:15.158162", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:15.792908", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:15.793832", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 635.5679035186768}
+{"timestamp": "2025-11-14T16:16:15.878952", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:16.502965", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:16.503730", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 625.0088214874268}
+{"timestamp": "2025-11-14T16:16:16.593142", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:17.150117", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:17.151595", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 558.2304000854492}
+{"timestamp": "2025-11-14T16:16:17.261595", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:17.850589", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:17.851235", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 589.8153781890869}
+{"timestamp": "2025-11-14T16:16:17.950664", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:18.584275", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:18.586096", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 635.2770328521729}
+{"timestamp": "2025-11-14T16:16:18.671002", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:19.370446", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:19.371524", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 700.5558013916016}
+{"timestamp": "2025-11-14T16:16:19.443191", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:20.082571", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:20.083391", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 640.19775390625}
+{"timestamp": "2025-11-14T16:16:20.172388", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:20.785004", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:20.785685", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 613.5268211364746}
+{"timestamp": "2025-11-14T16:16:20.866673", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:21.520429", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:21.521021", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 654.6156406402588}
+{"timestamp": "2025-11-14T16:16:21.592552", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:22.143899", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:22.145238", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 552.4842739105225}
+{"timestamp": "2025-11-14T16:16:22.232267", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:16:22.330446", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:22.942475", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:22.943606", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 613.5077476501465}
+{"timestamp": "2025-11-14T16:16:23.024222", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:23.660644", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:23.661528", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 637.6571655273438}
+{"timestamp": "2025-11-14T16:16:23.740123", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:24.408038", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:24.408969", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 668.7216758728027}
+{"timestamp": "2025-11-14T16:16:24.527708", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:25.062097", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:25.063222", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 535.4788303375244}
+{"timestamp": "2025-11-14T16:16:25.154385", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:25.760637", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:25.761889", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 607.4044704437256}
+{"timestamp": "2025-11-14T16:16:25.841077", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:26.418221", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:26.418938", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 578.1230926513672}
+{"timestamp": "2025-11-14T16:16:26.505859", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:27.073475", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:27.074277", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 568.4266090393066}
+{"timestamp": "2025-11-14T16:16:27.208712", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:27.784877", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:27.785793", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 577.0049095153809}
+{"timestamp": "2025-11-14T16:16:27.873078", "level": "INFO", "message": "Received ticket for classification", "module": "app", "function": "classify", "line": 251, "ticket_length": 7, "priority": "medium"}
+{"timestamp": "2025-11-14T16:16:28.379392", "level": "INFO", "message": "Classified ticket as: Other", "module": "classify", "function": "classify_ticket", "line": 90}
+{"timestamp": "2025-11-14T16:16:28.380920", "level": "INFO", "message": "Ticket classified successfully", "module": "app", "function": "classify", "line": 276, "category": "Other", "priority": "medium", "processing_time_ms": 507.5960159301758}
+{"timestamp": "2025-11-14T16:16:52.307600", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:17:22.401981", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:17:52.487963", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:18:22.591511", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:18:52.655221", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
+{"timestamp": "2025-11-14T16:19:22.930336", "level": "INFO", "message": "Health check called", "module": "app", "function": "health", "line": 186}
