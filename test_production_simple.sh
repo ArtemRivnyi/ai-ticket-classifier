@@ -1,5 +1,3 @@
-# Упрощённая версия теста без jq
-cat > test_production_simple.sh << 'EOF'
 #!/bin/bash
 
 API_KEY="093b2dc072107a78d7676dca4cec411fae8e3b2ef80c4dca14a605c116ac1201"
@@ -85,7 +83,3 @@ echo "📊 Access Points:"
 echo "  • API:        http://localhost:5000"
 echo "  • Grafana:    http://localhost:3000 (admin/admin123)"
 echo "  • Prometheus: http://localhost:9090"
-EOF
-
-chmod +x test_production_simple.sh
-./test_production_simple.sh
