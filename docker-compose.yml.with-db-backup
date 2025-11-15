@@ -1,0 +1,117 @@
+services:
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-ticket-classifier
+    ports:
+      - "5000:5000"
+    environment:
+      # Application settings
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - TEST_MODE=${TEST_MODE:-false}
+      
+      # API Keys
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - API_KEY=${API_KEY}
+      
+      # Database (optional - only if you use it in code)
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/ticket_classifier
+      
+      # Redis (optional - only if you use it in code)
+      - REDIS_URL=redis://redis:6379/0
+      - RATE_LIMIT_STORAGE=redis://redis:6379/0
+      
+      # Security
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:5000}
+      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+      
+      # Monitoring
+      - ENABLE_METRICS=true
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      
+      # Feature flags
+      - ENABLE_CACHING=true
+      - ENABLE_DB_LOGGING=true
+      - ENABLE_RETRY=true
+    
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    networks:
+      - classifier-network
+
+  # Redis for rate limiting and caching
+  redis:
+    # FIX: Use specific platform for Windows/Mac compatibility
+    image: redis:7-alpine
+    container_name: ticket-classifier-redis
+    platform: linux/amd64
+    command: >
+      sh -c "redis-server 
+      --appendonly yes 
+      --maxmemory 256mb 
+      --maxmemory-policy allkeys-lru"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - classifier-network
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    container_name: ticket-classifier-db
+    platform: linux/amd64
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=ticket_classifier
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --lc-collate=C --lc-ctype=C
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - classifier-network
+
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+
+networks:
+  classifier-network:
+    driver: bridge

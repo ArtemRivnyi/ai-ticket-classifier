@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'ai-ticket-classifier'
+    # The scrape interval is set to 5s, which is faster than the default 15s.
+    # This is to ensure that the metrics are scraped quickly after the application starts.
+    scrape_interval: 5s
+    static_configs:
+      # The target is the 'app' service defined in docker-compose.yml, on port 5000.
+      # This assumes the Prometheus container is on the same Docker network as the 'app' container.
+      - targets: ['app:5000']
+        labels:
+          environment: 'production'
+          service: 'classifier'
+          # Add the metrics path explicitly, although it defaults to /metrics
+          __metrics_path__: '/metrics'

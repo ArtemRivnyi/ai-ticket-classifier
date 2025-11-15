@@ -1,0 +1,34 @@
+{
+  "dashboard": {
+    "title": "Multi-Provider Statistics",
+    "panels": [
+      {
+        "title": "Classifications by Provider",
+        "targets": [
+          {
+            "expr": "sum(rate(classifications_total[5m])) by (provider)"
+          }
+        ],
+        "type": "graph"
+      },
+      {
+        "title": "Success Rate by Provider",
+        "targets": [
+          {
+            "expr": "sum(rate(classifications_total{status=\"success\"}[5m])) by (provider) / sum(rate(classifications_total[5m])) by (provider) * 100"
+          }
+        ],
+        "type": "graph"
+      },
+      {
+        "title": "Circuit Breaker States",
+        "targets": [
+          {
+            "expr": "circuit_breaker_state"
+          }
+        ],
+        "type": "stat"
+      }
+    ]
+  }
+}
