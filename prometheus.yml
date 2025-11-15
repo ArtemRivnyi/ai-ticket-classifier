@@ -1,38 +1,22 @@
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-  external_labels:
-    monitor: 'ai-ticket-classifier'
+  scrape_interval: 5s
+  evaluation_interval: 5s
 
-# Alertmanager configuration
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets: []
-
-# Load rules once and periodically evaluate them
-rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
-
-# Scrape configurations
 scrape_configs:
-  # AI Ticket Classifier app
-  - job_name: 'ai-classifier'
-    static_configs:
-      - targets: ['app:5000']
-        labels:
-          service: 'ai-ticket-classifier'
-          environment: 'production'
-    metrics_path: '/metrics'
-    scrape_interval: 10s
-
-  # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
 
-  # Redis exporter (optional - if you add redis-exporter)
-  # - job_name: 'redis'
-  #   static_configs:
-  #     - targets: ['redis-exporter:9121']
+  - job_name: 'ai-ticket-classifier'
+    # The scrape interval is set to 5s, which is faster than the default 15s.
+    # This is to ensure that the metrics are scraped quickly after the application starts.
+    scrape_interval: 5s
+    static_configs:
+      # The target is the 'app' service defined in docker-compose.yml, on port 5000.
+      # This assumes the Prometheus container is on the same Docker network as the 'app' container.
+      - targets: ['app:5000']
+        labels:
+          environment: 'production'
+          service: 'classifier'
+          # Add the metrics path explicitly, although it defaults to /metrics
+          __metrics_path__: '/metrics'

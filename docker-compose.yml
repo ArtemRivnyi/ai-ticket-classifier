@@ -1,83 +1,91 @@
 services:
-  # Redis для rate limiting
   redis:
-    image: redis:7
-    container_name: ai-classifier-redis
-    restart: always
+    image: redis:7-alpine
+    container_name: ai-ticket-classifier-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
+      - redis-data:/data
     networks:
       - classifier-network
 
-  # Основное приложение
-  app:
-    build: .
-    container_name: ai-ticket-classifier
-    restart: always
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - API_KEY=${API_KEY}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
-      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS:-60}
-      - RATE_LIMIT_WINDOW=${RATE_LIMIT_WINDOW:-60}
-      - REDIS_URL=redis://redis:6379/0
-    volumes:
-      - ./logs:/app/logs
-    depends_on:
-      - redis
-    networks:
-      - classifier-network
-
-  # Prometheus для мониторинга
   prometheus:
     image: prom/prometheus:latest
-    container_name: ai-classifier-prometheus
-    restart: always
+    container_name: ai-ticket-classifier-prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=30d'
     networks:
       - classifier-network
+    depends_on:
+      - app
 
-  # Grafana для визуализации
   grafana:
     image: grafana/grafana:latest
-    container_name: ai-classifier-grafana
-    restart: always
+    container_name: ai-ticket-classifier-grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin123
-      - GF_INSTALL_PLUGINS=redis-datasource
+      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-    depends_on:
-      - prometheus
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     networks:
       - classifier-network
+    depends_on:
+      - prometheus
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-ticket-classifier
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - ./logs:/app/logs:rw
+    networks:
+      - classifier-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:
 
 networks:
   classifier-network:
     driver: bridge
-
-volumes:
-  redis_data:
-  prometheus_data:
-  grafana_data:
