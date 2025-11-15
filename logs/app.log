@@ -4824,3 +4824,10 @@ NameError: name 'OpenAIError' is not defined
 2025-11-15 19:11:14,180 [INFO] Request completed
 2025-11-15 19:11:19,178 [INFO] Request completed
 2025-11-15 19:11:24,175 [INFO] Request completed
+2025-11-15 19:11:28,792 [INFO] Health check called
+2025-11-15 19:11:28,793 [INFO] Request completed
+2025-11-15 19:11:29,178 [INFO] Request completed
+2025-11-15 19:11:34,179 [INFO] Request completed
+2025-11-15 19:11:39,179 [INFO] Request completed
+2025-11-15 19:11:44,178 [INFO] Request completed
+2025-11-15 19:11:49,178 [INFO] Request completed
