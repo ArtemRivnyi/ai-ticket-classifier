@@ -67,3 +67,4 @@ backups/
 build/
 dist/
 *.egg-info/.env
+logs/app.log
