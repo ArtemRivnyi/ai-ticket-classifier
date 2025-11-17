@@ -274,6 +274,5 @@ curl -X POST http://localhost:5000/api/v1/batch \
 
 ---
 
-**Generated:** 2025-01-17  
 **Version:** 2.0.0
 
