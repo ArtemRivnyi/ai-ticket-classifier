@@ -6,7 +6,7 @@ Script to manually add an API key to Redis
 import os
 import sys
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add the project root to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -30,7 +30,7 @@ def add_manual_key():
         'name': 'Manual Admin Key', 
         'tier': 'enterprise',
         'is_active': 'true',
-        'created_at': datetime.utcnow().isoformat(),
+        'created_at': datetime.now(timezone.utc).isoformat(),
         'last_used': '',
         'requests_count': '0',
         'rate_limit': '-1'

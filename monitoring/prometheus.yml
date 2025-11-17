@@ -7,13 +7,16 @@ global:
 scrape_configs:
   - job_name: 'classifier-api'
     static_configs:
-      - targets: ['app:5000']
+      - targets: ['app:5000']  # Docker container
+      - targets: ['host.docker.internal:5000']  # Local app (Windows/Mac)
     metrics_path: '/metrics'
     scrape_interval: 5s
 
-  - job_name: 'redis'
-    static_configs:
-      - targets: ['redis:6379']
+  # Redis doesn't export Prometheus metrics by default
+  # Uncomment and configure redis_exporter if needed
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
 
   - job_name: 'prometheus'
     static_configs:

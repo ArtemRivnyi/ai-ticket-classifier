@@ -18,7 +18,7 @@ request_duration = Histogram(
 classification_count = Counter(
     'classifications_total',
     'Total classifications',
-    ['category', 'provider']
+    ['category', 'provider', 'status']
 )
 
 error_count = Counter(

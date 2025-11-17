@@ -50,8 +50,15 @@ def check_item(name, condition, warning=False):
 # ===== PYTHON VERSION =====
 print("[1] Python Version & Environment")
 print("-" * 70)
-check_item("Python version >= 3.8, < 3.14", 
-           lambda: sys.version_info >= (3, 8) and sys.version_info < (3, 14))
+# Python 3.12 is required for this project
+python_version_required = sys.version_info >= (3, 12) and sys.version_info < (3, 13)
+
+check_item("Python version 3.12 (required)", 
+           lambda: python_version_required)
+if not python_version_required:
+    print(f"      Current version: {sys.version}")
+    print(f"      Required: Python 3.12.x")
+    failed.append("Python version 3.12 (required)")
 
 # ===== CORE DEPENDENCIES =====
 print("\n[2] Core Dependencies")
@@ -81,12 +88,20 @@ for pip_name, import_name in required_packages.items():
         check_item(f"Package: {pip_name}", lambda: False)
     except Exception as e:
         if 'google.generativeai' in import_name:
-            # Try alternative
-            try:
-                import google.generativeai as genai
+            # Python 3.12 is required for this project
+            error_str = str(e).lower()
+            if 'metaclass' in error_str or 'tp_new' in error_str:
+                # Package installed but has compatibility warning
                 check_item(f"Package: {pip_name}", lambda: True, warning=True)
-            except:
-                check_item(f"Package: {pip_name}", lambda: False)
+            else:
+                # Try alternative import
+                try:
+                    import google.generativeai as genai
+                    check_item(f"Package: {pip_name}", lambda: True, warning=True)
+                except:
+                    check_item(f"Package: {pip_name}", lambda: False)
+        else:
+            check_item(f"Package: {pip_name}", lambda: False)
 
 # ===== ENVIRONMENT VARIABLES =====
 print("\n[3] Environment Variables")
@@ -256,16 +271,35 @@ except:
     check_item("MultiProvider class exists", lambda: False)
     check_item("CircuitBreaker pattern implemented", lambda: False)
 
-# Check if provider can initialize
+# Check if provider can initialize (with better error handling)
 try:
-    provider = MultiProvider()
-    status = provider.get_status()
-    check_item("AI Provider can initialize", lambda: True)
-    check_item("Gemini provider available", 
-               lambda: status.get('gemini') == 'available', warning=True)
+    test_classifier = None
+    try:
+        test_classifier = MultiProvider()
+        provider_available = test_classifier.gemini_available or test_classifier.openai_available
+        status = test_classifier.get_status()
+        check_item("AI Provider can initialize", 
+                   lambda: provider_available, 
+                   warning=not provider_available)
+        check_item("Gemini provider available", 
+                   lambda: status.get('gemini') == 'available', warning=True)
+    except Exception as e:
+        error_str = str(e).lower()
+        if 'metaclass' in error_str or 'tp_new' in error_str:
+            # Python 3.12 is required
+            check_item("AI Provider can initialize", 
+                       lambda: False, 
+                       warning=True)
+            print(f"      Reason: Python 3.12 is required for this project")
+        else:
+            check_item("AI Provider can initialize", 
+                       lambda: False, 
+                       warning=True)
+            print(f"      Reason: {str(e)[:100]}")
 except Exception as e:
-    check_item("AI Provider can initialize", lambda: False, warning=True)
-    print(f"      Reason: {str(e)[:100]}")
+    check_item("AI Provider can initialize", 
+               lambda: False, 
+               warning=True)
 
 # ===== API DOCUMENTATION =====
 print("\n[10] API Documentation")

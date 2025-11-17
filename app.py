@@ -9,7 +9,7 @@ import time
 import logging
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from functools import wraps
 
@@ -18,7 +18,7 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flasgger import Swagger, swag_from
-from pydantic import BaseModel, Field, ValidationError, EmailStr, validator
+from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
 import jwt
@@ -116,7 +116,7 @@ CORS(app,
      allow_headers=['Content-Type', 'Authorization', 'X-API-Key'],
      expose_headers=['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'])
 
-# Initialize rate limiter
+# Initialize rate limiter with fallback to memory storage
 def get_limiter_key():
     """Get key for rate limiting (API key or IP)"""
     api_key = request.headers.get('X-API-Key')
@@ -124,22 +124,58 @@ def get_limiter_key():
         return f"api_key:{api_key}"
     return get_remote_address()
 
-limiter = Limiter(
-    app=app,
-    key_func=get_limiter_key,
-    storage_uri=os.getenv('REDIS_URL', 'redis://redis:6379/0'),
-    default_limits=["1000 per day", "100 per hour"],
-    strategy="fixed-window",
-    headers_enabled=True
-)
+# Try Redis first, fallback to memory storage
+redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+redis_available = False
+try:
+    import redis
+    redis_client_test = redis.from_url(redis_url, decode_responses=True, socket_connect_timeout=1)
+    redis_client_test.ping()
+    redis_available = True
+    # Use Redis storage with error handling
+    limiter = Limiter(
+        app=app,
+        key_func=get_limiter_key,
+        storage_uri=redis_url,
+        default_limits=["1000 per day", "100 per hour"],
+        strategy="fixed-window",
+        headers_enabled=True,
+        storage_options={
+            "socket_connect_timeout": 1,
+            "socket_timeout": 1,
+            "retry_on_timeout": False,
+            "health_check_interval": 30
+        },
+        # Don't fail if Redis goes down after initialization
+        fail_on_first_request=False
+    )
+    logger.info("✅ Rate limiter using Redis storage")
+except Exception as e:
+    logger.warning(f"⚠️ Redis not available, using memory storage for rate limiting: {e}")
+    redis_available = False
+    limiter = Limiter(
+        app=app,
+        key_func=get_limiter_key,
+        default_limits=["1000 per day", "100 per hour"],
+        strategy="fixed-window",
+        headers_enabled=True
+    )
 
 # Import providers and middleware
 try:
     from providers.multi_provider import MultiProvider
     classifier = MultiProvider()
-    logger.info("✅ Multi-Provider system initialized")
+    if classifier.gemini_available or classifier.openai_available:
+        logger.info("✅ Multi-Provider system initialized")
+    else:
+        logger.warning("⚠️ Multi-Provider initialized but no providers available")
 except Exception as e:
-    logger.error(f"❌ Failed to initialize provider: {e}")
+    error_str = str(e).lower()
+    if 'metaclass' in error_str or 'tp_new' in error_str:
+        logger.warning(f"⚠️ Provider initialization issue (Python version compatibility): {e}")
+        logger.warning("⚠️ Application will run but classification may not work")
+    else:
+        logger.error(f"❌ Failed to initialize provider: {e}")
     classifier = None
 
 try:
@@ -186,7 +222,8 @@ class TicketRequest(BaseModel):
     """Request model for single ticket classification"""
     ticket: str = Field(..., min_length=1, max_length=5000, description="Ticket text to classify")
     
-    @validator('ticket')
+    @field_validator('ticket')
+    @classmethod
     def sanitize_ticket(cls, v):
         """Sanitize ticket text - remove potentially harmful content"""
         # Remove null bytes
@@ -198,10 +235,11 @@ class TicketRequest(BaseModel):
 
 class BatchTicketRequest(BaseModel):
     """Request model for batch classification"""
-    tickets: List[str] = Field(..., min_items=1, max_items=100, description="List of tickets to classify")
+    tickets: List[str] = Field(..., min_length=1, max_length=100, description="List of tickets to classify")
     webhook_url: Optional[str] = Field(None, description="Optional webhook URL for async results")
     
-    @validator('tickets')
+    @field_validator('tickets')
+    @classmethod
     def sanitize_tickets(cls, v):
         """Sanitize batch tickets"""
         return [re.sub(r'\s+', ' ', ticket.replace('\x00', ''))[:5000].strip() for ticket in v if ticket.strip()]
@@ -260,6 +298,7 @@ def before_request():
     
     # Log request
     logger.info(f"Request: {request.method} {request.path}")
+    
 
 @app.after_request
 def after_request(response):
@@ -268,8 +307,8 @@ def after_request(response):
     if active_requests:
         active_requests.dec()
     
-    # Record metrics
-    if request_count and request_duration:
+    # Record metrics (only if start_time was set in before_request)
+    if request_count and request_duration and hasattr(request, 'start_time'):
         duration = time.time() - request.start_time
         
         endpoint = request.endpoint or request.path
@@ -292,6 +331,7 @@ def after_request(response):
 # ===== HEALTH & STATUS ENDPOINTS =====
 
 @app.route('/api/v1/health', methods=['GET'])
+@limiter.exempt
 @optional_api_key
 @swag_from({
     'tags': ['Health'],
@@ -323,7 +363,7 @@ def health():
         return jsonify({
             'status': 'healthy',
             'version': '2.0.0',
-            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'environment': os.getenv('FLASK_ENV', 'development'),
             'provider_status': provider_status
         }), 200
@@ -340,13 +380,24 @@ def status():
     """Get detailed status including provider health"""
     try:
         if not classifier:
-            return jsonify({'error': 'Service unavailable'}), 503
+            return jsonify({
+                'error': 'Classification service unavailable',
+                'message': 'AI provider not initialized. Please check GEMINI_API_KEY or OPENAI_API_KEY'
+            }), 503
+        
+        # Check if any provider is available
+        if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
+            if not classifier.gemini_available and not classifier.openai_available:
+                return jsonify({
+                    'error': 'No AI providers available',
+                    'message': 'Please configure GEMINI_API_KEY or OPENAI_API_KEY'
+                }), 503
         
         return jsonify({
             'status': 'operational',
             'providers': classifier.get_status(),
             'api_version': '2.0.0',
-            'timestamp': datetime.utcnow().isoformat() + 'Z'
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }), 200
     except Exception as e:
         logger.error(f"Status error: {e}")
@@ -412,15 +463,40 @@ def classify():
     start_time = time.time()
     
     try:
-        # Validate request
-        try:
-            data = TicketRequest(**request.json)
-        except ValidationError as e:
+        # Check if request has JSON
+        if not request.is_json:
             if error_count:
                 error_count.labels(error_type='validation_error').inc()
             return jsonify({
-                'error': 'Validation error',
-                'details': e.errors()
+                'error': 'Invalid request',
+                'message': 'Request must be JSON'
+            }), 400
+        
+        # Validate request
+        try:
+            if request.json is None:
+                raise ValueError("JSON body is required")
+            data = TicketRequest(**request.json)
+        except (ValidationError, ValueError, TypeError) as e:
+            if error_count:
+                error_count.labels(error_type='validation_error').inc()
+            if isinstance(e, ValidationError):
+                return jsonify({
+                    'error': 'Validation error',
+                    'details': e.errors()
+                }), 400
+            else:
+                return jsonify({
+                    'error': 'Invalid request',
+                    'message': str(e) if str(e) else 'Invalid JSON or missing required fields'
+                }), 400
+        except Exception as e:
+            # Handle JSON decode errors
+            if error_count:
+                error_count.labels(error_type='validation_error').inc()
+            return jsonify({
+                'error': 'Invalid JSON',
+                'message': 'Failed to parse JSON. Please check your request format.'
             }), 400
         
         # Sanitize input
@@ -430,7 +506,18 @@ def classify():
         
         # Classify
         if not classifier:
-            return jsonify({'error': 'Classification service unavailable'}), 503
+            return jsonify({
+                'error': 'Classification service unavailable',
+                'message': 'AI provider not initialized. Please check GEMINI_API_KEY or OPENAI_API_KEY'
+            }), 503
+        
+        # Check if any provider is available
+        if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
+            if not classifier.gemini_available and not classifier.openai_available:
+                return jsonify({
+                    'error': 'No AI providers available',
+                    'message': 'Please configure GEMINI_API_KEY or OPENAI_API_KEY'
+                }), 503
         
         result = classifier.classify(ticket)
         
@@ -438,7 +525,8 @@ def classify():
         if classification_count:
             classification_count.labels(
                 category=result.get('category', 'unknown'),
-                provider=result.get('provider', 'unknown')
+                provider=result.get('provider', 'unknown'),
+                status='success'
             ).inc()
         
         duration = time.time() - start_time
@@ -553,7 +641,18 @@ def batch_classify():
         
         # Classify all tickets
         if not classifier:
-            return jsonify({'error': 'Classification service unavailable'}), 503
+            return jsonify({
+                'error': 'Classification service unavailable',
+                'message': 'AI provider not initialized. Please check GEMINI_API_KEY or OPENAI_API_KEY'
+            }), 503
+        
+        # Check if any provider is available
+        if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
+            if not classifier.gemini_available and not classifier.openai_available:
+                return jsonify({
+                    'error': 'No AI providers available',
+                    'message': 'Please configure GEMINI_API_KEY or OPENAI_API_KEY'
+                }), 503
         
         results = []
         errors = []
@@ -567,7 +666,8 @@ def batch_classify():
                 if classification_count:
                     classification_count.labels(
                         category=result.get('category', 'unknown'),
-                        provider=result.get('provider', 'unknown')
+                        provider=result.get('provider', 'unknown'),
+                        status='success'
                     ).inc()
                     
             except Exception as e:
@@ -677,7 +777,7 @@ def create_webhook():
             'url': data.url,
             'events': data.events,
             'status': 'active',
-            'created_at': datetime.utcnow().isoformat() + 'Z'
+            'created_at': datetime.now(timezone.utc).isoformat()
         }), 201
     except ValidationError as e:
         return jsonify({'error': 'Validation error', 'details': e.errors()}), 400
@@ -688,6 +788,7 @@ def create_webhook():
 # ===== METRICS ENDPOINT =====
 
 @app.route('/metrics', methods=['GET'])
+@limiter.exempt
 @swag_from({
     'tags': ['Monitoring'],
     'summary': 'Prometheus metrics endpoint',
@@ -740,6 +841,31 @@ def validation_error_handler(e):
         'error': 'Validation error',
         'details': e.errors()
     }), 400
+
+@app.errorhandler(400)
+def bad_request_handler(e):
+    """Handle 400 Bad Request errors (including JSON decode errors)"""
+    if error_count:
+        error_count.labels(error_type='bad_request').inc()
+    error_msg = str(e.description) if hasattr(e, 'description') and e.description else 'Invalid request format'
+    return jsonify({
+        'error': 'Bad request',
+        'message': error_msg
+    }), 400
+
+# Handle Redis connection errors gracefully
+try:
+    import redis.exceptions
+    @app.errorhandler(redis.exceptions.ConnectionError)
+    @app.errorhandler(redis.exceptions.TimeoutError)
+    def redis_error_handler(e):
+        """Handle Redis connection errors - allow requests to proceed without rate limiting"""
+        logger.warning(f"Redis connection error, proceeding without rate limiting: {e}")
+        # Don't return error - let request proceed
+        # This will be handled by Flask-Limiter's fallback mechanism
+        return None
+except ImportError:
+    pass
 
 # ===== MAIN =====
 

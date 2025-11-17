@@ -1,71 +1,93 @@
-# Environment variables
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+venv312/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
 .env
 .env.local
 .env.*.local
 
-# Python
-__pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-venv312/
-.venv
-ENV/
+# Logs
+logs/
+*.log
 
-# Pip
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Testing and coverage
-.tox
+# Testing
+.pytest_cache/
 .coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.pytest_cache
+htmlcov/
+.tox/
+.hypothesis/
+
+# Jupyter
+.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+backups/
+*.db
+*.sqlite
 htmlcov/
 
-# Logs
-*.log
-logs/
-log/
+# Docker
+.dockerignore
 
-# IDE
-.vscode
-.idea
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# Temporary files
+*.tmp
+*.bak
 *.swp
-*.swo
 *~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
-*.tmp
-*.temp
+# IDE
+.vscode/
+.idea/
+*.sublime-*
 
-# Redis dumps
-dump.rdb
-appendonly.aof
-
-# Docker volumes data (optional - comment out if you want to keep local data)
-# redis_data/
-# prometheus_data/
-# grafana_data/
-
-# Backups
-backups/
-*.backup
-*.bak
-
-# Build artifacts
-build/
-dist/
-*.egg-info/.env
-logs/app.log
+# Documentation (temporary fix files)
+FIX_*.md
+QUICK_FIX_*.md
+TEST_NOW.md

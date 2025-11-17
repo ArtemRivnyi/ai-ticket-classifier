@@ -5,7 +5,7 @@ Provides JWT token generation and validation as an alternative to API keys
 
 import os
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import request, jsonify
 import logging
@@ -33,8 +33,8 @@ def generate_jwt_token(user_id: str, tier: str = 'free', email: str = None) -> s
         'user_id': user_id,
         'tier': tier,
         'email': email,
-        'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
+        'iat': datetime.now(timezone.utc),
+        'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS),
         'type': 'access'
     }
     

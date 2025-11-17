@@ -79,17 +79,18 @@ for pip_name, import_name in package_map.items():
         check(f"Package: {pip_name}", lambda: False)
         missing_packages.append(pip_name)
     except Exception as e:
-        # Special case for google.generativeai which might have issues with Python 3.14
+        # Special case for google.generativeai - requires Python 3.12
         if 'google.generativeai' in import_name:
             try:
                 # Try alternative import
                 import google.generativeai as genai
                 check(f"Package: {pip_name}", lambda: True)
             except Exception as genai_error:
-                # Python 3.14 has issues with metaclasses, but package might still work
+                # Python 3.12 is required
                 if "Metaclasses with custom tp_new are not supported" in str(genai_error):
-                    print(f"[WARN] Package: {pip_name} - Python 3.14 metaclass issue (may still work at runtime)")
-                    warnings.append(f"{pip_name}: Python 3.14 compatibility issue")
+                    print(f"[ERROR] Package: {pip_name} - Requires Python 3.12")
+                    errors.append(f"{pip_name}: Python 3.12 required")
+                    check(f"Package: {pip_name}", lambda: False)
                 else:
                     check(f"Package: {pip_name}", lambda: False)
                     missing_packages.append(pip_name)

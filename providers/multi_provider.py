@@ -79,13 +79,52 @@ class MultiProvider:
         try:
             import google.generativeai as genai
             api_key = os.getenv('GEMINI_API_KEY')
-            if api_key:
-                genai.configure(api_key=api_key)
-                self.gemini_model = genai.GenerativeModel('gemini-2.0-flash-exp')
-                self.gemini_available = True
-                logger.info("✅ Gemini provider initialized")
-            else:
+            if not api_key:
                 logger.warning("⚠️ GEMINI_API_KEY not found")
+            else:
+                try:
+                    genai.configure(api_key=api_key)
+                    # Try different models in order of preference
+                    models_to_try = [
+                        'gemini-2.0-flash-exp',
+                        'gemini-2.0-flash',
+                        'gemini-1.5-pro',
+                        'gemini-1.5-flash',
+                        'gemini-pro'
+                    ]
+                    
+                    model_initialized = False
+                    for model_name in models_to_try:
+                        try:
+                            self.gemini_model = genai.GenerativeModel(model_name)
+                            self.gemini_available = True
+                            logger.info(f"✅ Gemini provider initialized with {model_name}")
+                            model_initialized = True
+                            break
+                        except Exception as model_error:
+                            logger.debug(f"Failed to initialize {model_name}: {model_error}")
+                            continue
+                    
+                    if not model_initialized:
+                        raise Exception("Could not initialize any Gemini model")
+                        
+                except Exception as config_error:
+                    error_str = str(config_error).lower()
+                    if 'metaclass' in error_str or 'tp_new' in error_str:
+                        # Python version compatibility issue - try to work around
+                        logger.warning(f"⚠️ Gemini provider has Python version compatibility issue: {config_error}")
+                        logger.warning("⚠️ Trying alternative initialization...")
+                        try:
+                            # Try simpler model initialization
+                            self.gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+                            self.gemini_available = True
+                            logger.info("✅ Gemini provider initialized (workaround applied)")
+                        except:
+                            logger.error(f"❌ Gemini provider failed even with workaround: {config_error}")
+                    else:
+                        raise
+        except ImportError as import_error:
+            logger.warning(f"⚠️ google-generativeai not available: {import_error}")
         except Exception as e:
             logger.warning(f"⚠️ Gemini provider failed: {e}")
         
@@ -100,13 +139,19 @@ class MultiProvider:
         except Exception as e:
             logger.info(f"ℹ️ OpenAI not configured (optional): {e}")
         
+        # Don't raise error if no providers - allow app to start and return 503 on requests
         if not self.gemini_available and not self.openai_available:
-            raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
-        
-        logger.info(f"🚀 MultiProvider initialized (Gemini: {self.gemini_available}, OpenAI: {self.openai_available})")
+            logger.warning("⚠️ No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
+            logger.warning("⚠️ Application will start but classification endpoints will return 503")
+        else:
+            logger.info(f"🚀 MultiProvider initialized (Gemini: {self.gemini_available}, OpenAI: {self.openai_available})")
     
     def classify(self, ticket_text: str) -> Dict:
         """Classify ticket using available provider"""
+        
+        # Check if any provider is available
+        if not self.gemini_available and not self.openai_available:
+            raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
         
         prompt = f"""Classify this support ticket into ONE of these categories:
 - Network Issue

@@ -1,6 +1,9 @@
 from database.models import SessionLocal, APIKey, UsageLog
-from datetime import datetime
+from datetime import datetime, timezone
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DatabaseManager:
     def __init__(self):
@@ -24,12 +27,12 @@ class DatabaseManager:
             api_key_obj = self.session.query(APIKey).filter_by(key_hash=key_hash).first()
             if api_key_obj:
                 api_key_obj.total_requests += 1
-                api_key_obj.last_used = datetime.utcnow()
+                api_key_obj.last_used = datetime.now(timezone.utc)
             
             self.session.commit()
         except Exception as e:
             self.session.rollback()
-            print(f"DB Error: {e}")
+            logger.error(f"DB Error: {e}")
     
     def get_usage_stats(self, api_key_hash):
         """Get usage statistics"""

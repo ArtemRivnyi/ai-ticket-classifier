@@ -9,7 +9,7 @@ import redis
 import os
 import hashlib
 import secrets
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ class APIKeyManager:
             'name': name,
             'tier': tier,
             'is_active': 'true',
-            'created_at': datetime.utcnow().isoformat(),
+            'created_at': datetime.now(timezone.utc).isoformat(),
             'last_used': '',
             'requests_count': '0',
             'rate_limit': str(TIER_LIMITS[tier]['requests_per_hour'])
@@ -235,7 +235,7 @@ def require_api_key(f):
         
         if redis_client:
             key_hash = APIKeyManager.hash_key(api_key)
-            redis_client.hset(f"api_key:{key_hash}", 'last_used', datetime.utcnow().isoformat())
+            redis_client.hset(f"api_key:{key_hash}", 'last_used', datetime.now(timezone.utc).isoformat())
             redis_client.hincrby(f"api_key:{key_hash}", 'requests_count', 1)
         
         request.user_id = user_id
@@ -272,7 +272,13 @@ def optional_api_key(f):
             
             if redis_client:
                 ip_key = f"rate_limit:ip:{ip}"
+                try:
                 ip_count = redis_client.incr(ip_key)
+                    # Ensure ip_count is an integer
+                    if not isinstance(ip_count, int):
+                        ip_count = int(ip_count) if ip_count else 0
+                except Exception:
+                    ip_count = 0
                 
                 if ip_count == 1:
                     redis_client.expire(ip_key, 3600)

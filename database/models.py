@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, Column, String, Integer, DateTime, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 
 Base = declarative_base()
@@ -12,7 +12,7 @@ class APIKey(Base):
     id = Column(Integer, primary_key=True)
     key_hash = Column(String(64), unique=True, nullable=False)
     tier = Column(String(20), default='free')
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     last_used = Column(DateTime)
     total_requests = Column(Integer, default=0)
 
@@ -24,7 +24,7 @@ class UsageLog(Base):
     endpoint = Column(String(100))
     category = Column(String(50))
     duration = Column(Float)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     status_code = Column(Integer)
 
 # Database connection
