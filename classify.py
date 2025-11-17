@@ -6,7 +6,7 @@ from google.api_core import exceptions as google_exceptions
 
 load_dotenv()
 
-# Настройка логгера для этого модуля
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
 api_key = os.getenv("GEMINI_API_KEY")

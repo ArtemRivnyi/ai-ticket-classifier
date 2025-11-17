@@ -33,5 +33,5 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
 def init_db():
-    """Инициализация БД"""
+    """Initialize database"""
     Base.metadata.create_all(engine)

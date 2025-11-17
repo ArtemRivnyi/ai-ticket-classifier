@@ -146,7 +146,7 @@ Respond with ONLY the category name, nothing else."""
                     response = self.openai_client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
-                            {"role": "system", "content": "You are a ticket classification system."},
+                            {"role": "system", "content": "You are a ticket classification system. Respond with ONLY the category name."},
                             {"role": "user", "content": prompt}
                         ],
                         max_tokens=50,
@@ -164,8 +164,11 @@ Respond with ONLY the category name, nothing else."""
                 
             except Exception as e:
                 logger.error(f"OpenAI classification failed: {e}")
-                raise
+                # If both providers failed, raise error
+                if not self.gemini_available:
+                    raise
         
+        # If we get here, all providers failed
         raise Exception("All providers failed")
     
     def _determine_priority(self, category: str) -> str:
@@ -187,7 +190,7 @@ Respond with ONLY the category name, nothing else."""
         }
 
 
-# Alias для обратной совместимости
+# Alias for backward compatibility
 class MultiProviderClassifier(MultiProvider):
     """
     Wrapper class for backward compatibility

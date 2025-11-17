@@ -3,11 +3,11 @@ from flask_limiter.util import get_remote_address
 import os
 
 def get_api_key():
-    """Получаем API key для rate limiting"""
+    """Get API key for rate limiting"""
     from flask import request
     return request.headers.get('X-API-Key', get_remote_address())
 
-# Инициализация
+# Initialize rate limiter
 limiter = Limiter(
     key_func=get_api_key,
     storage_uri=os.getenv('REDIS_URL', 'redis://redis:6379'),
@@ -16,7 +16,7 @@ limiter = Limiter(
     strategy="fixed-window"
 )
 
-# Rate limits по tier
+# Rate limits by tier
 TIER_LIMITS = {
     'free': "100 per hour",
     'starter': "1000 per hour", 
@@ -25,7 +25,7 @@ TIER_LIMITS = {
 }
 
 def tier_rate_limit():
-    """Динамический rate limit по tier"""
+    """Dynamic rate limit by tier"""
     from flask import request
     tier = getattr(request, 'user_tier', 'free')
     return TIER_LIMITS.get(tier, TIER_LIMITS['free'])

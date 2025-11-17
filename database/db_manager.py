@@ -7,7 +7,7 @@ class DatabaseManager:
         self.session = SessionLocal()
     
     def log_usage(self, api_key, endpoint, category, duration, status_code):
-        """Логирование usage"""
+        """Log API usage"""
         try:
             key_hash = hashlib.sha256(api_key.encode()).hexdigest()
             
@@ -32,7 +32,7 @@ class DatabaseManager:
             print(f"DB Error: {e}")
     
     def get_usage_stats(self, api_key_hash):
-        """Получить статистику использования"""
+        """Get usage statistics"""
         logs = self.session.query(UsageLog).filter_by(api_key_hash=api_key_hash).all()
         return {
             'total_requests': len(logs),

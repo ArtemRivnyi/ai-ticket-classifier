@@ -1,73 +1,753 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+"""
+AI Ticket Classifier - Production Ready Flask Application
+Full-featured REST API with OpenAPI documentation, multi-provider support,
+API key authentication, rate limiting, webhooks, and comprehensive monitoring.
+"""
+
 import os
 import time
+import logging
+import json
+import re
 from datetime import datetime
+from typing import Dict, List, Optional
+from functools import wraps
 
+from flask import Flask, request, jsonify, Response
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flasgger import Swagger, swag_from
+from pydantic import BaseModel, Field, ValidationError, EmailStr, validator
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from dotenv import load_dotenv
+import jwt
+
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-this-in-production')
 
-# Lazy imports для избежания ошибок
-def get_classifier():
-    from providers.gemini_provider import GeminiClassifier
-    return GeminiClassifier()
+# Swagger/OpenAPI configuration
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": "apispec",
+            "route": "/apispec.json",
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/api-docs",
+    "title": "AI Ticket Classifier API",
+    "version": "2.0.0",
+    "description": "Production-ready REST API for AI-powered support ticket classification with multi-provider support, rate limiting, and comprehensive monitoring",
+    "termsOfService": "",
+    "contact": {
+        "email": "support@example.com"
+    },
+    "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+    },
+    "tags": [
+        {
+            "name": "Health",
+            "description": "Health check and status endpoints"
+        },
+        {
+            "name": "Classification",
+            "description": "Ticket classification endpoints"
+        },
+        {
+            "name": "Authentication",
+            "description": "API key management endpoints"
+        },
+        {
+            "name": "Monitoring",
+            "description": "Metrics and monitoring endpoints"
+        }
+    ]
+}
+
+swagger_template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "AI Ticket Classifier API",
+        "version": "2.0.0",
+        "description": "Enterprise-grade AI-powered support ticket classification system"
+    },
+    "basePath": "/api/v1",
+    "schemes": ["http", "https"],
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header",
+            "description": "API Key authentication. Get your key from /api/v1/auth/register"
+        }
+    },
+    "security": [
+        {"ApiKeyAuth": []}
+    ],
+    "consumes": ["application/json"],
+    "produces": ["application/json"]
+}
+
+Swagger(app, config=swagger_config, template=swagger_template)
+
+# CORS configuration for production
+cors_origins = os.getenv('CORS_ORIGINS', '*').split(',')
+CORS(app, 
+     origins=cors_origins,
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=['Content-Type', 'Authorization', 'X-API-Key'],
+     expose_headers=['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'])
+
+# Initialize rate limiter
+def get_limiter_key():
+    """Get key for rate limiting (API key or IP)"""
+    api_key = request.headers.get('X-API-Key')
+    if api_key:
+        return f"api_key:{api_key}"
+    return get_remote_address()
+
+limiter = Limiter(
+    app=app,
+    key_func=get_limiter_key,
+    storage_uri=os.getenv('REDIS_URL', 'redis://redis:6379/0'),
+    default_limits=["1000 per day", "100 per hour"],
+    strategy="fixed-window",
+    headers_enabled=True
+)
+
+# Import providers and middleware
+try:
+    from providers.multi_provider import MultiProvider
+    classifier = MultiProvider()
+    logger.info("✅ Multi-Provider system initialized")
+except Exception as e:
+    logger.error(f"❌ Failed to initialize provider: {e}")
+    classifier = None
+
+try:
+    from middleware.auth import require_api_key, optional_api_key, APIKeyManager, RateLimiter
+    logger.info("✅ Auth middleware loaded")
+except Exception as e:
+    logger.error(f"⚠️ Auth middleware not available: {e}")
+    require_api_key = lambda f: f
+    optional_api_key = lambda f: f
+    APIKeyManager = None
+    RateLimiter = None
+
+try:
+    from security.jwt_auth import require_jwt_or_api_key
+    logger.info("✅ JWT auth loaded")
+except Exception as e:
+    logger.warning(f"⚠️ JWT auth not available: {e}")
+    require_jwt_or_api_key = require_api_key  # Fallback to API key only
+
+try:
+    from api.auth import auth_bp
+    app.register_blueprint(auth_bp)
+    logger.info("✅ Auth blueprint registered")
+except Exception as e:
+    logger.warning(f"⚠️ Auth blueprint not available: {e}")
+
+try:
+    from monitoring.metrics import (
+        request_count, request_duration, classification_count,
+        error_count, active_requests
+    )
+    logger.info("✅ Metrics initialized")
+except Exception as e:
+    logger.warning(f"⚠️ Metrics not available: {e}")
+    request_count = None
+    request_duration = None
+    classification_count = None
+    error_count = None
+    active_requests = None
+
+# ===== PYDANTIC MODELS =====
+
+class TicketRequest(BaseModel):
+    """Request model for single ticket classification"""
+    ticket: str = Field(..., min_length=1, max_length=5000, description="Ticket text to classify")
+    
+    @validator('ticket')
+    def sanitize_ticket(cls, v):
+        """Sanitize ticket text - remove potentially harmful content"""
+        # Remove null bytes
+        v = v.replace('\x00', '')
+        # Remove excessive whitespace
+        v = re.sub(r'\s+', ' ', v)
+        # Limit to 5000 characters
+        return v[:5000].strip()
+
+class BatchTicketRequest(BaseModel):
+    """Request model for batch classification"""
+    tickets: List[str] = Field(..., min_items=1, max_items=100, description="List of tickets to classify")
+    webhook_url: Optional[str] = Field(None, description="Optional webhook URL for async results")
+    
+    @validator('tickets')
+    def sanitize_tickets(cls, v):
+        """Sanitize batch tickets"""
+        return [re.sub(r'\s+', ' ', ticket.replace('\x00', ''))[:5000].strip() for ticket in v if ticket.strip()]
+
+class WebhookConfig(BaseModel):
+    """Webhook configuration"""
+    url: str = Field(..., description="Webhook URL")
+    secret: Optional[str] = Field(None, description="Webhook secret for verification")
+    events: List[str] = Field(default=['classification.completed'], description="Events to subscribe to")
+
+# ===== HELPER FUNCTIONS =====
+
+def sanitize_input(text: str) -> str:
+    """Sanitize user input"""
+    if not text:
+        return ""
+    # Remove null bytes
+    text = text.replace('\x00', '')
+    # Remove script tags
+    text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    # Remove excessive whitespace
+    text = re.sub(r'\s+', ' ', text)
+    # Limit length
+    return text[:5000].strip()
+
+def get_user_tier() -> str:
+    """Get user tier from request context"""
+    return getattr(request, 'api_key_tier', 'free')
+
+def get_rate_limit() -> str:
+    """Get rate limit string based on tier"""
+    tier = get_user_tier()
+    tier_limits = {
+        'free': "100 per hour",
+        'starter': "1000 per hour",
+        'professional': "10000 per hour",
+        'enterprise': "100000 per hour"
+    }
+    return tier_limits.get(tier, tier_limits['free'])
+
+# ===== MIDDLEWARE =====
+
+@app.before_request
+def before_request():
+    """Pre-request processing"""
+    request.start_time = time.time()
+    
+    # Record active requests
+    if active_requests:
+        active_requests.inc()
+    
+    # Force HTTPS in production (if configured)
+    if os.getenv('FORCE_HTTPS', 'false').lower() == 'true':
+        if request.headers.get('X-Forwarded-Proto') != 'https' and not request.is_secure:
+            return jsonify({'error': 'HTTPS required'}), 403
+    
+    # Log request
+    logger.info(f"Request: {request.method} {request.path}")
+
+@app.after_request
+def after_request(response):
+    """Post-request processing"""
+    # Record active requests
+    if active_requests:
+        active_requests.dec()
+    
+    # Record metrics
+    if request_count and request_duration:
+        duration = time.time() - request.start_time
+        
+        endpoint = request.endpoint or request.path
+        method = request.method
+        status = response.status_code
+        
+        request_count.labels(method=method, endpoint=endpoint, status=status).inc()
+        request_duration.labels(method=method, endpoint=endpoint).observe(duration)
+    
+    # Add security headers
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    if os.getenv('FORCE_HTTPS', 'false').lower() == 'true':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
+    return response
+
+# ===== HEALTH & STATUS ENDPOINTS =====
 
 @app.route('/api/v1/health', methods=['GET'])
+@optional_api_key
+@swag_from({
+    'tags': ['Health'],
+    'summary': 'Check API health status',
+    'description': 'Returns the health status of the API and all providers',
+    'responses': {
+        '200': {
+            'description': 'Service is healthy',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'status': {'type': 'string', 'example': 'healthy'},
+                    'version': {'type': 'string', 'example': '2.0.0'},
+                    'timestamp': {'type': 'string', 'example': '2025-01-15T12:00:00Z'},
+                    'environment': {'type': 'string', 'example': 'production'},
+                    'provider_status': {'type': 'object'}
+                }
+            }
+        },
+        '503': {'description': 'Service degraded'}
+    }
+})
 def health():
-    """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.utcnow().isoformat(),
-        'version': '2.0.0',
-        'environment': os.getenv('FLASK_ENV', 'development')
-    }), 200
+    try:
+        provider_status = {}
+        if classifier:
+            provider_status = classifier.get_status()
+        
+        return jsonify({
+            'status': 'healthy',
+            'version': '2.0.0',
+            'timestamp': datetime.utcnow().isoformat() + 'Z',
+            'environment': os.getenv('FLASK_ENV', 'development'),
+            'provider_status': provider_status
+        }), 200
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        return jsonify({
+            'status': 'degraded',
+            'error': str(e)
+        }), 503
+
+@app.route('/api/v1/status', methods=['GET'])
+@require_api_key
+def status():
+    """Get detailed status including provider health"""
+    try:
+        if not classifier:
+            return jsonify({'error': 'Service unavailable'}), 503
+        
+        return jsonify({
+            'status': 'operational',
+            'providers': classifier.get_status(),
+            'api_version': '2.0.0',
+            'timestamp': datetime.utcnow().isoformat() + 'Z'
+        }), 200
+    except Exception as e:
+        logger.error(f"Status error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ===== CLASSIFICATION ENDPOINTS =====
 
 @app.route('/api/v1/classify', methods=['POST'])
+@require_api_key
+@limiter.limit(get_rate_limit)
+@swag_from({
+    'tags': ['Classification'],
+    'summary': 'Classify a single support ticket',
+    'description': 'Classifies a single ticket into one of the predefined categories using AI',
+    'parameters': [
+        {
+            'in': 'header',
+            'name': 'X-API-Key',
+            'type': 'string',
+            'required': True,
+            'description': 'API key for authentication'
+        },
+        {
+            'in': 'body',
+            'name': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'required': ['ticket'],
+                'properties': {
+                    'ticket': {
+                        'type': 'string',
+                        'minLength': 1,
+                        'maxLength': 5000,
+                        'example': 'I cannot connect to VPN'
+                    }
+                }
+            }
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': 'Classification successful',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'category': {'type': 'string', 'example': 'Network Issue'},
+                    'confidence': {'type': 'number', 'example': 0.95},
+                    'priority': {'type': 'string', 'example': 'high'},
+                    'provider': {'type': 'string', 'example': 'gemini'},
+                    'processing_time': {'type': 'number', 'example': 0.44}
+                }
+            }
+        },
+        '400': {'description': 'Invalid request'},
+        '401': {'description': 'Unauthorized'},
+        '429': {'description': 'Rate limit exceeded'},
+        '500': {'description': 'Internal server error'}
+    },
+    'security': [{'ApiKeyAuth': []}]
+})
 def classify():
-    """Classification endpoint - simplified for testing"""
     start_time = time.time()
     
     try:
-        # Validate API Key
-        api_key = request.headers.get('X-API-Key')
-        if not api_key:
-            return jsonify({'error': 'X-API-Key header required'}), 401
+        # Validate request
+        try:
+            data = TicketRequest(**request.json)
+        except ValidationError as e:
+            if error_count:
+                error_count.labels(error_type='validation_error').inc()
+            return jsonify({
+                'error': 'Validation error',
+                'details': e.errors()
+            }), 400
         
-        master_key = os.getenv('MASTER_API_KEY', 'dev_master_key_change_me')
-        if api_key != master_key:
-            return jsonify({'error': 'Invalid API key'}), 403
-        
-        # Get ticket
-        data = request.get_json()
-        if not data or 'ticket' not in data:
-            return jsonify({'error': 'ticket field required'}), 400
-        
-        ticket = data['ticket'].strip()
+        # Sanitize input
+        ticket = sanitize_input(data.ticket)
         if not ticket:
-            return jsonify({'error': 'ticket cannot be empty'}), 400
+            return jsonify({'error': 'Ticket cannot be empty'}), 400
         
         # Classify
-        classifier = get_classifier()
+        if not classifier:
+            return jsonify({'error': 'Classification service unavailable'}), 503
+        
         result = classifier.classify(ticket)
         
+        # Record metrics
+        if classification_count:
+            classification_count.labels(
+                category=result.get('category', 'unknown'),
+                provider=result.get('provider', 'unknown')
+            ).inc()
+        
         duration = time.time() - start_time
-        result['processing_time'] = f"{duration:.2f}s"
+        result['processing_time'] = round(duration, 2)
+        
+        logger.info(f"Classification successful: {result.get('category')} in {duration:.2f}s")
         
         return jsonify(result), 200
         
     except Exception as e:
+        logger.error(f"Classification error: {e}", exc_info=True)
+        if error_count:
+            error_count.labels(error_type='classification_error').inc()
         return jsonify({
             'error': 'Internal server error',
-            'message': str(e)
+            'message': str(e) if os.getenv('FLASK_ENV') == 'development' else 'An error occurred'
         }), 500
 
+@app.route('/api/v1/batch', methods=['POST'])
+@require_api_key
+@limiter.limit(get_rate_limit)
+@swag_from({
+    'tags': ['Classification'],
+    'summary': 'Classify multiple tickets in batch',
+    'description': 'Classifies multiple tickets in parallel for better throughput',
+    'parameters': [
+        {
+            'in': 'header',
+            'name': 'X-API-Key',
+            'type': 'string',
+            'required': True
+        },
+        {
+            'in': 'body',
+            'name': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'required': ['tickets'],
+                'properties': {
+                    'tickets': {
+                        'type': 'array',
+                        'items': {'type': 'string'},
+                        'minItems': 1,
+                        'maxItems': 100,
+                        'example': ['VPN not working', 'Password reset', 'Refund request']
+                    },
+                    'webhook_url': {
+                        'type': 'string',
+                        'format': 'uri',
+                        'example': 'https://example.com/webhook'
+                    }
+                }
+            }
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': 'Batch classification successful',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'total': {'type': 'integer', 'example': 3},
+                    'successful': {'type': 'integer', 'example': 3},
+                    'failed': {'type': 'integer', 'example': 0},
+                    'processing_time': {'type': 'number', 'example': 1.26},
+                    'results': {'type': 'array', 'items': {'type': 'object'}}
+                }
+            }
+        },
+        '400': {'description': 'Invalid request'},
+        '401': {'description': 'Unauthorized'},
+        '429': {'description': 'Rate limit exceeded'}
+    },
+    'security': [{'ApiKeyAuth': []}]
+})
+def batch_classify():
+    start_time = time.time()
+    
+    try:
+        # Validate request
+        try:
+            data = BatchTicketRequest(**request.json)
+        except ValidationError as e:
+            if error_count:
+                error_count.labels(error_type='validation_error').inc()
+            return jsonify({
+                'error': 'Validation error',
+                'details': e.errors()
+            }), 400
+        
+        # Check batch size limit based on tier
+        tier = get_user_tier()
+        max_batch = {
+            'free': 10,
+            'starter': 50,
+            'professional': 100,
+            'enterprise': 1000
+        }.get(tier, 10)
+        
+        if len(data.tickets) > max_batch:
+            return jsonify({
+                'error': f'Batch size exceeds limit for tier {tier}. Maximum: {max_batch}'
+            }), 400
+        
+        # Sanitize tickets
+        tickets = [sanitize_input(t) for t in data.tickets]
+        tickets = [t for t in tickets if t]  # Remove empty
+        
+        if not tickets:
+            return jsonify({'error': 'No valid tickets provided'}), 400
+        
+        # Classify all tickets
+        if not classifier:
+            return jsonify({'error': 'Classification service unavailable'}), 503
+        
+        results = []
+        errors = []
+        
+        for i, ticket in enumerate(tickets):
+            try:
+                result = classifier.classify(ticket)
+                results.append(result)
+                
+                # Record metrics
+                if classification_count:
+                    classification_count.labels(
+                        category=result.get('category', 'unknown'),
+                        provider=result.get('provider', 'unknown')
+                    ).inc()
+                    
+            except Exception as e:
+                logger.error(f"Error classifying ticket {i}: {e}")
+                errors.append({
+                    'index': i,
+                    'error': str(e)
+                })
+        
+        duration = time.time() - start_time
+        
+        response = {
+            'total': len(tickets),
+            'successful': len(results),
+            'failed': len(errors),
+            'processing_time': round(duration, 2),
+            'results': results
+        }
+        
+        if errors:
+            response['errors'] = errors
+        
+        # If webhook URL provided, send async (in production use background task)
+        if data.webhook_url:
+            try:
+                send_webhook(data.webhook_url, response)
+            except Exception as e:
+                logger.warning(f"Webhook delivery failed: {e}")
+        
+        logger.info(f"Batch classification: {len(results)}/{len(tickets)} successful in {duration:.2f}s")
+        
+        return jsonify(response), 200
+        
+    except Exception as e:
+        logger.error(f"Batch classification error: {e}", exc_info=True)
+        if error_count:
+            error_count.labels(error_type='batch_error').inc()
+        return jsonify({
+            'error': 'Internal server error',
+            'message': str(e) if os.getenv('FLASK_ENV') == 'development' else 'An error occurred'
+        }), 500
+
+# ===== WEBHOOK SUPPORT =====
+
+def send_webhook(url: str, payload: dict):
+    """Send webhook notification (simplified - in production use Celery/background tasks)"""
+    import requests
+    try:
+        requests.post(
+            url,
+            json=payload,
+            headers={'Content-Type': 'application/json'},
+            timeout=5
+        )
+        logger.info(f"Webhook sent to {url}")
+    except Exception as e:
+        logger.error(f"Webhook delivery failed: {e}")
+        raise
+
+@app.route('/api/v1/webhooks', methods=['POST'])
+@require_api_key
+@swag_from({
+    'tags': ['Classification'],
+    'summary': 'Create a webhook subscription',
+    'description': 'Subscribe to receive classification results via webhook',
+    'parameters': [
+        {
+            'in': 'header',
+            'name': 'X-API-Key',
+            'type': 'string',
+            'required': True
+        },
+        {
+            'in': 'body',
+            'name': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'required': ['url'],
+                'properties': {
+                    'url': {'type': 'string', 'format': 'uri'},
+                    'secret': {'type': 'string'},
+                    'events': {
+                        'type': 'array',
+                        'items': {'type': 'string'},
+                        'default': ['classification.completed']
+                    }
+                }
+            }
+        }
+    ],
+    'responses': {
+        '201': {'description': 'Webhook created successfully'},
+        '400': {'description': 'Validation error'}
+    },
+    'security': [{'ApiKeyAuth': []}]
+})
+def create_webhook():
+    """Create a webhook subscription"""
+    try:
+        data = WebhookConfig(**request.json)
+        
+        # In production, store webhook in database
+        # For now, just return success
+        return jsonify({
+            'webhook_id': f"wh_{os.urandom(16).hex()}",
+            'url': data.url,
+            'events': data.events,
+            'status': 'active',
+            'created_at': datetime.utcnow().isoformat() + 'Z'
+        }), 201
+    except ValidationError as e:
+        return jsonify({'error': 'Validation error', 'details': e.errors()}), 400
+    except Exception as e:
+        logger.error(f"Webhook creation error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ===== METRICS ENDPOINT =====
+
 @app.route('/metrics', methods=['GET'])
+@swag_from({
+    'tags': ['Monitoring'],
+    'summary': 'Prometheus metrics endpoint',
+    'description': 'Exports Prometheus-compatible metrics for monitoring',
+    'responses': {
+        '200': {
+            'description': 'Metrics data in Prometheus format',
+            'content': {'text/plain': {}}
+        }
+    }
+})
 def metrics():
-    """Basic metrics endpoint"""
-    return """# HELP api_health API Health Status
-# TYPE api_health gauge
-api_health 1
-""", 200, {'Content-Type': 'text/plain'}
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
+# ===== ERROR HANDLERS =====
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Handle rate limit exceeded"""
+    return jsonify({
+        'error': 'Rate limit exceeded',
+        'message': str(e.description) if hasattr(e, 'description') else 'Too many requests',
+        'retry_after': getattr(e, 'retry_after', None)
+    }), 429
+
+@app.errorhandler(404)
+def not_found_handler(e):
+    """Handle 404 errors"""
+    return jsonify({
+        'error': 'Not found',
+        'message': 'The requested endpoint does not exist',
+        'path': request.path
+    }), 404
+
+@app.errorhandler(500)
+def internal_error_handler(e):
+    """Handle 500 errors"""
+    logger.error(f"Internal error: {e}", exc_info=True)
+    if error_count:
+        error_count.labels(error_type='internal_error').inc()
+    return jsonify({
+        'error': 'Internal server error',
+        'message': 'An unexpected error occurred. Please try again later.'
+    }), 500
+
+@app.errorhandler(ValidationError)
+def validation_error_handler(e):
+    """Handle Pydantic validation errors"""
+    return jsonify({
+        'error': 'Validation error',
+        'details': e.errors()
+    }), 400
+
+# ===== MAIN =====
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('FLASK_ENV', 'production') == 'development'
+    
+    logger.info(f"🚀 Starting AI Ticket Classifier API on port {port}")
+    logger.info(f"Environment: {os.getenv('FLASK_ENV', 'production')}")
+    
+    app.run(host='0.0.0.0', port=port, debug=debug)

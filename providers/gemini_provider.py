@@ -13,7 +13,7 @@ class GeminiClassifier:
         
         genai.configure(api_key=api_key)
         
-        # Пробуем разные модели
+        # Try different models
         try:
             self.model = genai.GenerativeModel('models/gemini-1.5-pro')
             logger.info("Using gemini-1.5-pro")

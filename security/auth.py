@@ -7,7 +7,7 @@ import os
 
 class APIKeyManager:
     def __init__(self):
-        # В проде это будет в БД
+        # In production this will be in database
         self.api_keys = {
             os.getenv('MASTER_API_KEY', 'dev_master_key_change_me'): {
                 'tier': 'enterprise',
@@ -16,23 +16,23 @@ class APIKeyManager:
         }
     
     def generate_key(self, tier='free'):
-        """Генерация нового API ключа"""
+        """Generate a new API key"""
         key = f"sk_{secrets.token_urlsafe(32)}"
         key_hash = hashlib.sha256(key.encode()).hexdigest()
         return key, key_hash
     
     def validate_key(self, api_key):
-        """Валидация API ключа"""
+        """Validate API key"""
         return api_key in self.api_keys
     
     def get_tier(self, api_key):
-        """Получить tier пользователя"""
+        """Get user tier"""
         return self.api_keys.get(api_key, {}).get('tier', 'free')
 
 api_key_manager = APIKeyManager()
 
 def require_api_key(f):
-    """Декоратор для защиты endpoint'ов"""
+    """Decorator to protect endpoints"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get('X-API-Key')
@@ -49,7 +49,7 @@ def require_api_key(f):
                 'message': 'Check your API key'
             }), 403
         
-        # Добавляем tier в request context
+        # Add tier to request context
         request.user_tier = api_key_manager.get_tier(api_key)
         return f(*args, **kwargs)
     

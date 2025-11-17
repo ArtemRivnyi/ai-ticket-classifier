@@ -1,78 +1,124 @@
 version: '3.8'
 
 services:
-  # Main App
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - MASTER_API_KEY=${MASTER_API_KEY}
-      - DATABASE_URL=postgresql://classifier:secure_pass@postgres:5432/classifier_db
-      - REDIS_URL=redis://redis:6379
-      - FLASK_ENV=production
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # PostgreSQL
   postgres:
-    image: postgres:16-alpine
+    image: postgres:15-alpine
+    container_name: ai-ticket-classifier-postgres
     environment:
-      - POSTGRES_DB=classifier_db
-      - POSTGRES_USER=classifier
-      - POSTGRES_PASSWORD=secure_pass
+      POSTGRES_DB: classifier_db
+      POSTGRES_USER: classifier
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_pass}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U classifier"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: always
+    networks:
+      - classifier-network
 
-  # Redis для rate limiting
   redis:
     image: redis:7-alpine
-    command: redis-server --requirepass redis_secure_pass
+    container_name: ai-ticket-classifier-redis
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-    restart: always
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - classifier-network
+    ports:
+      - "6379:6379"
 
-  # Prometheus
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-ticket-classifier
+    ports:
+      - "5000:5000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - DATABASE_URL=postgresql://classifier:${POSTGRES_PASSWORD:-secure_pass}@postgres:5432/classifier_db
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+      - JWT_SECRET=${JWT_SECRET:-${SECRET_KEY:-change-this-in-production}}
+      - FORCE_HTTPS=${FORCE_HTTPS:-false}
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PORT=5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - classifier-network
+    volumes:
+      - ./logs:/app/logs
+
   prometheus:
     image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+    container_name: ai-ticket-classifier-prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-    restart: always
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    networks:
+      - classifier-network
+    depends_on:
+      - app
 
-  # Grafana
   grafana:
     image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
+    container_name: ai-ticket-classifier-grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_SERVER_ROOT_URL=http://localhost:3000
     volumes:
       - grafana_data:/var/lib/grafana
-    restart: always
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - classifier-network
+    depends_on:
+      - prometheus
+
+networks:
+  classifier-network:
+    driver: bridge
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
   prometheus_data:
+    driver: local
   grafana_data:
+    driver: local
