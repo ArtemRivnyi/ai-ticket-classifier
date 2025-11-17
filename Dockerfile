@@ -1,35 +1,26 @@
-FROM python:3.11-slim AS base
-
-# Security labels
-LABEL maintainer="artemrivnyi@outlook.com"
-LABEL description="AI Ticket Classifier Service"
-LABEL version="1.0.0"
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+FROM python:3.11-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Create non-root user
+# Create user and directories
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app /app/logs && \
     chown -R appuser:appuser /app
 
 WORKDIR /app
 
-# Copy and install dependencies
-COPY --chown=appuser:appuser requirements.txt .
+# Copy requirements
+COPY --chown=appuser:appuser requirements.docker.txt requirements.txt
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy application code
 COPY --chown=appuser:appuser . .
 
 # Switch to non-root user
@@ -39,20 +30,8 @@ USER appuser
 EXPOSE 5000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:5000/api/v1/health || exit 1
 
-# Production command
-CMD ["gunicorn", \
-     "--bind", "0.0.0.0:5000", \
-     "--workers", "4", \
-     "--threads", "2", \
-     "--worker-class", "gthread", \
-     "--worker-tmp-dir", "/dev/shm", \
-     "--timeout", "120", \
-     "--graceful-timeout", "30", \
-     "--keep-alive", "5", \
-     "--log-level", "info", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-", \
-     "app:app"]
+# Run with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
