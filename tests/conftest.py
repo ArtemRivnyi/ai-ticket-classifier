@@ -15,6 +15,15 @@ sys.path.insert(0, str(project_root))
 from dotenv import load_dotenv
 load_dotenv()
 
+from config.settings import get_settings
+
+@pytest.fixture(autouse=True)
+def clear_settings_cache():
+    """Clear settings cache before each test to ensure env var changes take effect"""
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
+
 @pytest.fixture(scope="session")
 def app():
     """Create Flask app for testing"""

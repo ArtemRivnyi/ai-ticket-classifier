@@ -78,6 +78,7 @@ function classifyRequest() {
   const headers = {
     'Content-Type': 'application/json',
     'X-API-Key': API_KEY,
+    'X-Forwarded-Proto': 'https',
   };
   const response = http.post(`${BASE_URL}/api/v1/classify`, payload, { headers });
 

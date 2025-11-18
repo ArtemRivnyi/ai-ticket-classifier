@@ -28,14 +28,13 @@ def test_before_request_force_https_enabled(client, mocker):
 
 def test_after_request_records_metrics(client):
     """Test after_request hook records metrics"""
-    response = client.get('/api/v1/health')
+    response = client.get('/api/v1/health', headers={'X-Forwarded-Proto': 'https'})
     assert response.status_code == 200
-    # Metrics should be recorded (check headers)
     assert 'X-Content-Type-Options' in response.headers
 
 def test_after_request_security_headers(client):
     """Test after_request adds security headers"""
-    response = client.get('/api/v1/health')
+    response = client.get('/api/v1/health', headers={'X-Forwarded-Proto': 'https'})
     assert response.status_code == 200
     assert response.headers.get('X-Content-Type-Options') == 'nosniff'
     assert response.headers.get('X-Frame-Options') == 'DENY'
@@ -44,19 +43,22 @@ def test_after_request_security_headers(client):
 def test_after_request_hsts_header(client, mocker):
     """Test after_request adds HSTS header when FORCE_HTTPS is enabled"""
     mocker.patch.dict(os.environ, {'FORCE_HTTPS': 'true'})
-    
     from importlib import reload
     import app as app_module
     reload(app_module)
-    
-    response = client.get('/api/v1/health')
+
+    response = client.get(
+        '/api/v1/health',
+        headers={'X-Forwarded-Proto': 'https'}
+    )
     if response.status_code == 200:
         assert 'Strict-Transport-Security' in response.headers
+
 
 def test_after_request_without_start_time(client):
     """Test after_request handles missing start_time gracefully"""
     # This should not crash even if start_time is not set
-    response = client.get('/api/v1/health')
+    response = client.get('/api/v1/health', headers={'X-Forwarded-Proto': 'https'})
     assert response.status_code == 200
 
 def test_get_limiter_key_with_api_key(client):

@@ -40,7 +40,7 @@ from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from flask import Flask, request, jsonify, Response, g
+from flask import Flask, request, jsonify, Response, g, current_app
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -52,6 +52,7 @@ import jwt
 
 from config.logging_config import setup_logging, logger as structured_logger
 from config.env_validation import validate_environment
+from config.settings import get_settings
 
 # Load environment variables
 load_dotenv()
@@ -372,8 +373,10 @@ def before_request():
         active_requests.inc()
     
     # Force HTTPS in production (if configured)
-    if os.getenv('FORCE_HTTPS', 'false').lower() == 'true':
-        if request.headers.get('X-Forwarded-Proto') != 'https' and not request.is_secure:
+    settings = get_settings()
+    if settings.FORCE_HTTPS and not current_app.testing:
+        forwarded_proto = request.headers.get('X-Forwarded-Proto', '').lower()
+        if forwarded_proto != 'https' and not request.is_secure:
             return jsonify(include_request_id({'error': 'HTTPS required'})), 403
     
     # Log request

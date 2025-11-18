@@ -74,7 +74,10 @@ def register_api_key(email: str = None, name: str = None, organization: str = No
                 "name": name,
                 "organization": organization
             },
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "X-Forwarded-Proto": "https"
+            },
             timeout=10
         )
         if response.status_code == 201:
@@ -99,7 +102,10 @@ def register_api_key(email: str = None, name: str = None, organization: str = No
                     "name": name,
                     "organization": organization
                 },
-                headers={"Content-Type": "application/json"},
+                headers={
+                    "Content-Type": "application/json",
+                    "X-Forwarded-Proto": "https"
+                },
                 timeout=10
             )
             if response.status_code == 201:
@@ -130,7 +136,8 @@ def classify_ticket(api_key: str, ticket: str) -> bool:
             json={"ticket": ticket},
             headers={
                 "Content-Type": "application/json",
-                "X-API-Key": api_key
+                "X-API-Key": api_key,
+                "X-Forwarded-Proto": "https"
             },
             timeout=30
         )
@@ -156,7 +163,8 @@ def batch_classify(api_key: str, tickets: list, batch_size: int = 5) -> int:
                 json={"tickets": batch},
                 headers={
                     "Content-Type": "application/json",
-                    "X-API-Key": api_key
+                    "X-API-Key": api_key,
+                    "X-Forwarded-Proto": "https"
                 },
                 timeout=60
             )
@@ -174,7 +182,11 @@ def batch_classify(api_key: str, tickets: list, batch_size: int = 5) -> int:
 def check_health() -> bool:
     """Check if API is healthy"""
     try:
-        response = requests.get(f"{BASE_URL}/api/v1/health", timeout=5)
+        response = requests.get(
+            f"{BASE_URL}/api/v1/health",
+            headers={"X-Forwarded-Proto": "https"},
+            timeout=5
+        )
         response.raise_for_status()
         data = response.json()
         print(f"[OK] API Status: {data.get('status', 'unknown')}")
