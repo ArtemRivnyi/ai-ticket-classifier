@@ -70,27 +70,27 @@
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Client Application                    │
-│              (REST API / SDK / Webhook)                  │
+│                    Client Application                   │
+│              (REST API / SDK / Webhook)                 │
 └────────────────────┬────────────────────────────────────┘
                      │ HTTPS (X-API-Key Auth)
                      ▼
-┌─────────────────────────────────────────────────────────┐
-│                   Flask API Gateway                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │
-│  │ Rate Limiter │  │ Auth Middle. │  │   Logging    │ │
-│  └──────────────┘  └──────────────┘  └──────────────┘ │
-└────────────────────┬────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                   Flask API Gateway                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
+│  │ Rate Limiter │  │ Auth Middle. │  │   Logging    │     │
+│  └──────────────┘  └──────────────┘  └──────────────┘     │
+└────────────────────┬──────────────────────────────────────┘
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────┐
-│              Multi-Provider Classifier                   │
-│  ┌──────────────────────────────────────────────────┐  │
+│              Multi-Provider Classifier                  │
+│  ┌───────────────────────────────────────────────────┐  │
 │  │           Circuit Breaker Manager                 │  │
-│  │  ┌──────────────┐         ┌──────────────┐      │  │
-│  │  │   Gemini AI  │ Primary │  OpenAI GPT  │Backup│  │
-│  │  └──────────────┘────────▶└──────────────┘      │  │
-│  └──────────────────────────────────────────────────┘  │
+│  │  ┌──────────────┐         ┌──────────────┐        │  │
+│  │  │   Gemini AI  │ Primary │  OpenAI GPT  │Backup  │  │
+│  │  └──────────────┘────────▶└──────────────┘       │  │
+│  └───────────────────────────────────────────────────┘  │
 └────────────────────┬────────────────────────────────────┘
                      │
       ┌──────────────┼──────────────┐
@@ -281,9 +281,6 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## 🧑‍💻 Contributors
 
-**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
-
-* 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
-* 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
-* 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
-* 💻 [GitHub](https://github.com/ArtemRivnyi)
+| Contributor | Role | Contact | Links |
+| :--- | :--- | :--- | :--- |
+| **Artem Rivnyi** | Project Maintainer / Junior Technical Support / DevOps Enthusiast | [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com) | [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/) \| [Personal Projects](https://personal-page-devops.onrender.com/) \| [GitHub](https://github.com/ArtemRivnyi) |
