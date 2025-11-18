@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2025-11-18 - Full Prod Readiness
+
+### Added
+- ✅ Structured JSON logging with trace IDs and request correlation
+- ✅ `/ready` endpoint backed by strict environment validation
+- ✅ Rule-based classifier + prompt templates for deterministic cases
+- ✅ Automated evaluation CLI (`scripts/eval_on_dataset.py`) writing reports to `reports/`
+- ✅ Zendesk integration endpoint + adapter
+
+### Fixed
+- 🐛 Added request ID propagation to all API responses
+- 🐛 Normalized LLM output categories + blacklist handling
+- 🐛 Enforced provider availability + env guards before startup
+
+### Documentation
+- 📝 Updated README + production report to 100% readiness
+- 📝 Added `reports/README.md` and `prompts/few_shot_template.md`
+
 ## [2.0.0] - 2025-01-17
 
 ### ✅ Production Ready Release

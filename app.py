@@ -35,14 +35,12 @@ if sys.version_info[:2] != (3, 12):
 
 import os
 import time
-import logging
-import json
 import re
+from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
-from functools import wraps
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, g
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -52,15 +50,27 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
 import jwt
 
+from config.logging_config import setup_logging, logger as structured_logger
+from config.env_validation import validate_environment
+
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Structured logging setup
+setup_logging()
+logger = structured_logger.bind(component="app")
+
+# Validate environment configuration
+env_status = validate_environment(skip_failure=_is_testing)
+for warning in env_status.warnings:
+    logger.warning(warning)
+
+if not env_status.is_valid:
+    logger.error("Missing required environment variables", missing=env_status.missing)
+    if not _is_testing:
+        sys.exit(1)
+
+REQUEST_ID_HEADER = 'X-Request-ID'
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -198,6 +208,7 @@ try:
         logger.info("✅ Multi-Provider system initialized")
     else:
         logger.warning("⚠️ Multi-Provider initialized but no providers available")
+    app.config['CLASSIFIER'] = classifier
 except Exception as e:
     error_str = str(e).lower()
     if 'metaclass' in error_str or 'tp_new' in error_str:
@@ -206,6 +217,7 @@ except Exception as e:
     else:
         logger.error(f"❌ Failed to initialize provider: {e}")
     classifier = None
+    app.config['CLASSIFIER'] = None
 
 try:
     from middleware.auth import require_api_key, optional_api_key, APIKeyManager, RateLimiter
@@ -244,6 +256,13 @@ except Exception as e:
     classification_count = None
     error_count = None
     active_requests = None
+
+try:
+    from api.integrations import integrations_bp
+    app.register_blueprint(integrations_bp)
+    logger.info("✅ Integrations blueprint registered")
+except Exception as e:
+    logger.warning(f"⚠️ Integrations blueprint not available: {e}")
 
 # ===== PYDANTIC MODELS =====
 
@@ -309,11 +328,43 @@ def get_rate_limit() -> str:
     }
     return tier_limits.get(tier, tier_limits['free'])
 
+
+def include_request_id(payload: Dict) -> Dict:
+    """Attach request_id to payload if available"""
+    if not isinstance(payload, dict):
+        return payload
+    data = dict(payload)
+    request_id = getattr(g, 'request_id', None)
+    if request_id and 'request_id' not in data:
+        data['request_id'] = request_id
+    return data
+
+
+def make_response(payload: Dict, status_code: int = 200):
+    """Convenience helper for JSON responses with request IDs"""
+    return jsonify(include_request_id(payload)), status_code
+
+
+def get_trace_logger():
+    """Return a logger bound with trace/request context"""
+    return getattr(g, 'trace_logger', logger)
+
 # ===== MIDDLEWARE =====
 
 @app.before_request
 def before_request():
     """Pre-request processing"""
+    incoming_request_id = (
+        request.headers.get(REQUEST_ID_HEADER)
+        or request.headers.get('X-Correlation-ID')
+    )
+    g.request_id = incoming_request_id or f"req_{uuid4().hex}"
+    g.trace_logger = logger.bind(
+        trace_id=g.request_id,
+        path=request.path,
+        method=request.method
+    )
+
     request.start_time = time.time()
     
     # Record active requests
@@ -323,10 +374,10 @@ def before_request():
     # Force HTTPS in production (if configured)
     if os.getenv('FORCE_HTTPS', 'false').lower() == 'true':
         if request.headers.get('X-Forwarded-Proto') != 'https' and not request.is_secure:
-            return jsonify({'error': 'HTTPS required'}), 403
+            return jsonify(include_request_id({'error': 'HTTPS required'})), 403
     
     # Log request
-    logger.info(f"Request: {request.method} {request.path}")
+    g.trace_logger.info("request_received")
     
 
 @app.after_request
@@ -354,6 +405,8 @@ def after_request(response):
     
     if os.getenv('FORCE_HTTPS', 'false').lower() == 'true':
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+
+    response.headers[REQUEST_ID_HEADER] = getattr(g, 'request_id', 'unknown')
     
     return response
 
@@ -381,11 +434,11 @@ def after_request(response):
 })
 def root():
     """Root endpoint with API information"""
-    return jsonify({
+    return make_response({
         'message': 'AI Ticket Classifier API',
         'version': '2.0.0',
         'docs': '/api-docs'
-    }), 200
+    }, 200)
 
 # ===== HEALTH & STATUS ENDPOINTS =====
 
@@ -419,19 +472,44 @@ def health():
         if classifier:
             provider_status = classifier.get_status()
         
-        return jsonify({
+        return make_response({
             'status': 'healthy',
             'version': '2.0.0',
             'timestamp': datetime.now(timezone.utc).isoformat(),
             'environment': os.getenv('FLASK_ENV', 'development'),
             'provider_status': provider_status
-        }), 200
+        }, 200)
     except Exception as e:
         logger.error(f"Health check error: {e}")
-        return jsonify({
+        return make_response({
             'status': 'degraded',
             'error': str(e)
-        }), 503
+        }, 503)
+
+
+@app.route('/ready', methods=['GET'])
+@app.route('/api/v1/ready', methods=['GET'])
+@limiter.exempt
+@optional_api_key
+def readiness():
+    """Readiness probe ensuring environment + providers are healthy"""
+    providers_available = False
+    provider_status = {}
+    if classifier:
+        provider_status = classifier.get_status()
+        providers_available = any(
+            status == 'available' for status in provider_status.values()
+        )
+    status_ok = env_status.is_valid and providers_available
+    response_status = 200 if status_ok else 503
+
+    return make_response({
+        'status': 'ready' if status_ok else 'not_ready',
+        'env_valid': env_status.is_valid,
+        'warnings': env_status.warnings,
+        'providers': provider_status,
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    }, response_status)
 
 @app.route('/api/v1/status', methods=['GET'])
 @require_api_key
@@ -439,28 +517,28 @@ def status():
     """Get detailed status including provider health"""
     try:
         if not classifier:
-            return jsonify({
+            return make_response({
                 'error': 'Classification service unavailable',
                 'message': 'AI provider not initialized. Please check GEMINI_API_KEY or OPENAI_API_KEY'
-            }), 503
+            }, 503)
         
         # Check if any provider is available
         if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
             if not classifier.gemini_available and not classifier.openai_available:
-                return jsonify({
+                return make_response({
                     'error': 'No AI providers available',
                     'message': 'Please configure GEMINI_API_KEY or OPENAI_API_KEY'
-                }), 503
+                }, 503)
         
-        return jsonify({
+        return make_response({
             'status': 'operational',
             'providers': classifier.get_status(),
             'api_version': '2.0.0',
             'timestamp': datetime.now(timezone.utc).isoformat()
-        }), 200
+        }, 200)
     except Exception as e:
         logger.error(f"Status error: {e}")
-        return jsonify({'error': str(e)}), 500
+        return make_response({'error': str(e)}, 500)
 
 # ===== CLASSIFICATION ENDPOINTS =====
 
@@ -520,16 +598,17 @@ def status():
 })
 def classify():
     start_time = time.time()
+    trace_logger = get_trace_logger()
     
     try:
         # Check if request has JSON
         if not request.is_json:
             if error_count:
                 error_count.labels(error_type='validation_error').inc()
-            return jsonify({
+            return make_response({
                 'error': 'Invalid request',
                 'message': 'Request must be JSON'
-            }), 400
+            }, 400)
         
         # Validate request
         try:
@@ -540,43 +619,43 @@ def classify():
             if error_count:
                 error_count.labels(error_type='validation_error').inc()
             if isinstance(e, ValidationError):
-                return jsonify({
+                return make_response({
                     'error': 'Validation error',
                     'details': e.errors()
-                }), 400
+                }, 400)
             else:
-                return jsonify({
+                return make_response({
                     'error': 'Invalid request',
                     'message': str(e) if str(e) else 'Invalid JSON or missing required fields'
-                }), 400
+                }, 400)
         except Exception as e:
             # Handle JSON decode errors
             if error_count:
                 error_count.labels(error_type='validation_error').inc()
-            return jsonify({
+            return make_response({
                 'error': 'Invalid JSON',
                 'message': 'Failed to parse JSON. Please check your request format.'
-            }), 400
+            }, 400)
         
         # Sanitize input
         ticket = sanitize_input(data.ticket)
         if not ticket:
-            return jsonify({'error': 'Ticket cannot be empty'}), 400
+            return make_response({'error': 'Ticket cannot be empty'}, 400)
         
         # Classify
         if not classifier:
-            return jsonify({
+            return make_response({
                 'error': 'Classification service unavailable',
                 'message': 'AI provider not initialized. Please check GEMINI_API_KEY or OPENAI_API_KEY'
-            }), 503
+            }, 503)
         
         # Check if any provider is available
         if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
             if not classifier.gemini_available and not classifier.openai_available:
-                return jsonify({
+                return make_response({
                     'error': 'No AI providers available',
                     'message': 'Please configure GEMINI_API_KEY or OPENAI_API_KEY'
-                }), 503
+                }, 503)
         
         result = classifier.classify(ticket)
         
@@ -591,18 +670,23 @@ def classify():
         duration = time.time() - start_time
         result['processing_time'] = round(duration, 2)
         
-        logger.info(f"Classification successful: {result.get('category')} in {duration:.2f}s")
+        trace_logger.info(
+            "classification_success",
+            category=result.get('category'),
+            provider=result.get('provider'),
+            duration=duration
+        )
         
-        return jsonify(result), 200
+        return make_response(result, 200)
         
     except Exception as e:
-        logger.error(f"Classification error: {e}", exc_info=True)
+        trace_logger.error("classification_error", error=str(e))
         if error_count:
             error_count.labels(error_type='classification_error').inc()
-        return jsonify({
+        return make_response({
             'error': 'Internal server error',
             'message': str(e) if os.getenv('FLASK_ENV') == 'development' else 'An error occurred'
-        }), 500
+        }, 500)
 
 @app.route('/api/v1/batch', methods=['POST'])
 @require_api_key
@@ -664,6 +748,7 @@ def classify():
 })
 def batch_classify():
     start_time = time.time()
+    trace_logger = get_trace_logger()
     
     try:
         # Validate request
@@ -672,10 +757,10 @@ def batch_classify():
         except ValidationError as e:
             if error_count:
                 error_count.labels(error_type='validation_error').inc()
-            return jsonify({
+            return make_response({
                 'error': 'Validation error',
                 'details': e.errors()
-            }), 400
+            }, 400)
         
         # Check batch size limit based on tier
         tier = get_user_tier()
@@ -687,31 +772,31 @@ def batch_classify():
         }.get(tier, 10)
         
         if len(data.tickets) > max_batch:
-            return jsonify({
+            return make_response({
                 'error': f'Batch size exceeds limit for tier {tier}. Maximum: {max_batch}'
-            }), 400
+            }, 400)
         
         # Sanitize tickets
         tickets = [sanitize_input(t) for t in data.tickets]
         tickets = [t for t in tickets if t]  # Remove empty
         
         if not tickets:
-            return jsonify({'error': 'No valid tickets provided'}), 400
+            return make_response({'error': 'No valid tickets provided'}, 400)
         
         # Classify all tickets
         if not classifier:
-            return jsonify({
+            return make_response({
                 'error': 'Classification service unavailable',
                 'message': 'AI provider not initialized. Please check GEMINI_API_KEY or OPENAI_API_KEY'
-            }), 503
+            }, 503)
         
         # Check if any provider is available
         if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
             if not classifier.gemini_available and not classifier.openai_available:
-                return jsonify({
+                return make_response({
                     'error': 'No AI providers available',
                     'message': 'Please configure GEMINI_API_KEY or OPENAI_API_KEY'
-                }), 503
+                }, 503)
         
         results = []
         errors = []
@@ -756,18 +841,23 @@ def batch_classify():
             except Exception as e:
                 logger.warning(f"Webhook delivery failed: {e}")
         
-        logger.info(f"Batch classification: {len(results)}/{len(tickets)} successful in {duration:.2f}s")
+        trace_logger.info(
+            "batch_classification_complete",
+            total=len(tickets),
+            success=len(results),
+            duration=duration
+        )
         
-        return jsonify(response), 200
+        return make_response(response, 200)
         
     except Exception as e:
-        logger.error(f"Batch classification error: {e}", exc_info=True)
+        trace_logger.error("batch_classification_error", error=str(e))
         if error_count:
             error_count.labels(error_type='batch_error').inc()
-        return jsonify({
+        return make_response({
             'error': 'Internal server error',
             'message': str(e) if os.getenv('FLASK_ENV') == 'development' else 'An error occurred'
-        }), 500
+        }, 500)
 
 # ===== WEBHOOK SUPPORT =====
 
@@ -831,18 +921,18 @@ def create_webhook():
         
         # In production, store webhook in database
         # For now, just return success
-        return jsonify({
+        return make_response({
             'webhook_id': f"wh_{os.urandom(16).hex()}",
             'url': data.url,
             'events': data.events,
             'status': 'active',
             'created_at': datetime.now(timezone.utc).isoformat()
-        }), 201
+        }, 201)
     except ValidationError as e:
-        return jsonify({'error': 'Validation error', 'details': e.errors()}), 400
+        return make_response({'error': 'Validation error', 'details': e.errors()}, 400)
     except Exception as e:
         logger.error(f"Webhook creation error: {e}")
-        return jsonify({'error': str(e)}), 500
+        return make_response({'error': str(e)}, 500)
 
 # ===== METRICS ENDPOINT =====
 
@@ -867,20 +957,20 @@ def metrics():
 @app.errorhandler(429)
 def ratelimit_handler(e):
     """Handle rate limit exceeded"""
-    return jsonify({
+    return make_response({
         'error': 'Rate limit exceeded',
         'message': str(e.description) if hasattr(e, 'description') else 'Too many requests',
         'retry_after': getattr(e, 'retry_after', None)
-    }), 429
+    }, 429)
 
 @app.errorhandler(404)
 def not_found_handler(e):
     """Handle 404 errors"""
-    return jsonify({
+    return make_response({
         'error': 'Not found',
         'message': 'The requested endpoint does not exist',
         'path': request.path
-    }), 404
+    }, 404)
 
 @app.errorhandler(500)
 def internal_error_handler(e):
@@ -888,18 +978,18 @@ def internal_error_handler(e):
     logger.error(f"Internal error: {e}", exc_info=True)
     if error_count:
         error_count.labels(error_type='internal_error').inc()
-    return jsonify({
+    return make_response({
         'error': 'Internal server error',
         'message': 'An unexpected error occurred. Please try again later.'
-    }), 500
+    }, 500)
 
 @app.errorhandler(ValidationError)
 def validation_error_handler(e):
     """Handle Pydantic validation errors"""
-    return jsonify({
+    return make_response({
         'error': 'Validation error',
         'details': e.errors()
-    }), 400
+    }, 400)
 
 @app.errorhandler(400)
 def bad_request_handler(e):
@@ -907,10 +997,10 @@ def bad_request_handler(e):
     if error_count:
         error_count.labels(error_type='bad_request').inc()
     error_msg = str(e.description) if hasattr(e, 'description') and e.description else 'Invalid request format'
-    return jsonify({
+    return make_response({
         'error': 'Bad request',
         'message': error_msg
-    }), 400
+    }, 400)
 
 # Handle Redis connection errors gracefully
 try:

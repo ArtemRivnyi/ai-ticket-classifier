@@ -134,9 +134,19 @@ def test_multi_provider_classify_with_gemini(mocker):
     mock_model.generate_content.return_value = mock_response
     provider.gemini_model = mock_model
     
-    result = provider.classify("I cannot connect to VPN")
+    result = provider.classify("Application dashboard throws error code 42")
     assert 'category' in result
     assert result['provider'] == 'gemini'
+
+def test_multi_provider_rule_engine_short_circuit():
+    """Rule engine should classify obvious tickets without hitting providers"""
+    provider = MultiProvider()
+    provider.gemini_available = True
+    provider.openai_available = True
+
+    result = provider.classify("I cannot connect to VPN and the network is down")
+    assert result['provider'] == 'rule_engine'
+    assert result['category'] == 'Network Issue'
 
 def test_multi_provider_classify_fallback_to_openai(mocker):
     """Test classification fallback to OpenAI when Gemini fails"""

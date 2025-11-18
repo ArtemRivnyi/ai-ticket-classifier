@@ -5,12 +5,96 @@ Supports Gemini as primary and OpenAI as fallback
 
 import os
 import logging
-import time
-from typing import Dict, Optional
+import re
+from typing import Dict, Optional, List
 from datetime import datetime, timedelta
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+
+VALID_CATEGORIES = [
+    'Network Issue',
+    'Account Problem',
+    'Payment Issue',
+    'Feature Request',
+    'Spam / Abuse',
+    'Other'
+]
+
+CATEGORY_SYNONYMS = {
+    'network': 'Network Issue',
+    'vpn issue': 'Network Issue',
+    'connectivity': 'Network Issue',
+    'account': 'Account Problem',
+    'login': 'Account Problem',
+    'password': 'Account Problem',
+    'billing': 'Payment Issue',
+    'refund': 'Payment Issue',
+    'charge': 'Payment Issue',
+    'idea': 'Feature Request',
+    'suggestion': 'Feature Request',
+    'spam': 'Spam / Abuse',
+    'abuse': 'Spam / Abuse',
+    'phishing': 'Spam / Abuse'
+}
+
+PRIORITY_MAP = {
+    'Network Issue': 'high',
+    'Account Problem': 'high',
+    'Payment Issue': 'high',
+    'Spam / Abuse': 'medium',
+    'Feature Request': 'low',
+    'Other': 'medium'
+}
+
+BLACKLIST_KEYWORDS = [
+    r'free money',
+    r'visit .*bitcoin',
+    r'click here',
+    r'phishing',
+    r'buy now'
+]
+
+
+class RuleBasedClassifier:
+    """Deterministic regex/keyword rules for obvious cases."""
+
+    def __init__(self):
+        self.rules: List[Dict] = [
+            {
+                'category': 'Network Issue',
+                'patterns': [r'\bvpn\b', r'\bnetwork\b', r'\binternet\b', r'\bwifi\b', r'latency']
+            },
+            {
+                'category': 'Account Problem',
+                'patterns': [r'password', r'login', r'sign[\s-]?in', r'locked account']
+            },
+            {
+                'category': 'Payment Issue',
+                'patterns': [r'invoice', r'charge', r'billing', r'payment', r'refund']
+            },
+            {
+                'category': 'Feature Request',
+                'patterns': [r'would like', r'feature request', r'could you add', r'enhancement']
+            },
+            {
+                'category': 'Spam / Abuse',
+                'patterns': [r'unsubscribe', r'spam', r'phishing', r'crypto', r'promo']
+            },
+        ]
+
+    def classify(self, ticket_text: str) -> Optional[Dict]:
+        text = ticket_text.lower()
+        for rule in self.rules:
+            if any(re.search(pattern, text) for pattern in rule['patterns']):
+                category = rule['category']
+                return {
+                    'category': category,
+                    'confidence': 1.0,
+                    'priority': PRIORITY_MAP.get(category, 'medium'),
+                    'provider': 'rule_engine'
+                }
+        return None
 
 
 class CircuitState(Enum):
@@ -74,6 +158,7 @@ class MultiProvider:
         self.openai_available = False
         self.gemini_circuit = CircuitBreaker()
         self.openai_circuit = CircuitBreaker()
+        self.rule_classifier = RuleBasedClassifier()
         
         # Initialize Gemini
         try:
@@ -153,16 +238,32 @@ class MultiProvider:
         if not self.gemini_available and not self.openai_available:
             raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
         
-        prompt = f"""Classify this support ticket into ONE of these categories:
-- Network Issue
-- Account Problem  
-- Payment Issue
-- Feature Request
-- Other
+        prompt = f"""
+You are an AI assistant that classifies support tickets into EXACTLY one of the approved categories.
+
+Allowed categories (respond with one of them verbatim):
+1. Network Issue — connectivity, VPN, latency, networking
+2. Account Problem — login, password, user profile
+3. Payment Issue — billing, charges, refunds, invoices
+4. Feature Request — enhancements, suggestions, roadmap asks
+5. Spam / Abuse — phishing, unsolicited promos, abuse
+6. Other — anything that does not match above
+
+Examples:
+- "VPN is down for the whole office" -> Network Issue
+- "Please refund the duplicate charge from yesterday" -> Payment Issue
+- "I need to reset my password again" -> Account Problem
+- "Could you add dark mode to the dashboard?" -> Feature Request
+- "Click here to claim free crypto" -> Spam / Abuse
 
 Ticket: {ticket_text}
 
-Respond with ONLY the category name, nothing else."""
+Respond with ONLY the category name from the approved list."""
+
+        # Deterministic rules first
+        rule_match = self.rule_classifier.classify(ticket_text)
+        if rule_match:
+            return self._post_process_result(rule_match, ticket_text)
 
         # Try Gemini first
         if self.gemini_available:
@@ -173,11 +274,11 @@ Respond with ONLY the category name, nothing else."""
                     return {
                         'category': category,
                         'confidence': 0.95,
-                        'priority': self._determine_priority(category),
                         'provider': 'gemini'
                     }
                 
-                return self.gemini_circuit.call(classify_with_gemini)
+                result = self.gemini_circuit.call(classify_with_gemini)
+                return self._post_process_result(result, ticket_text)
                 
             except Exception as e:
                 logger.error(f"Gemini classification failed: {e}")
@@ -201,11 +302,11 @@ Respond with ONLY the category name, nothing else."""
                     return {
                         'category': category,
                         'confidence': 0.90,
-                        'priority': self._determine_priority(category),
                         'provider': 'openai'
                     }
                 
-                return self.openai_circuit.call(classify_with_openai)
+                result = self.openai_circuit.call(classify_with_openai)
+                return self._post_process_result(result, ticket_text)
                 
             except Exception as e:
                 logger.error(f"OpenAI classification failed: {e}")
@@ -216,16 +317,46 @@ Respond with ONLY the category name, nothing else."""
         # If we get here, all providers failed
         raise Exception("All providers failed")
     
-    def _determine_priority(self, category: str) -> str:
-        """Determine priority based on category"""
-        priority_map = {
-            'Network Issue': 'high',
-            'Account Problem': 'high',
-            'Payment Issue': 'high',
-            'Feature Request': 'low',
-            'Other': 'medium'
-        }
-        return priority_map.get(category, 'medium')
+    def _post_process_result(self, result: Dict, ticket_text: str) -> Dict:
+        """Normalize category names and apply blacklist corrections"""
+        category = result.get('category', 'Other')
+        normalized = self._normalize_category(category)
+
+        if self._matches_blacklist(ticket_text):
+            normalized = 'Spam / Abuse'
+
+        if normalized not in VALID_CATEGORIES:
+            normalized = 'Other'
+
+        result['category'] = normalized
+        result['priority'] = PRIORITY_MAP.get(normalized, 'medium')
+        if 'confidence' not in result or result['confidence'] is None:
+            result['confidence'] = 0.75
+        return result
+
+    def _determine_priority(self, category: Optional[str]) -> str:
+        """Backward-compatible priority helper used in tests."""
+        normalized = self._normalize_category(category or 'Other')
+        return PRIORITY_MAP.get(normalized, 'medium')
+
+    def _normalize_category(self, category: Optional[str]) -> str:
+        if not category:
+            return 'Other'
+        cleaned = category.strip()
+        key = cleaned.lower()
+        if key in CATEGORY_SYNONYMS:
+            return CATEGORY_SYNONYMS[key]
+        # Try partial matches
+        for synonym, canonical in CATEGORY_SYNONYMS.items():
+            if synonym in key:
+                return canonical
+        if cleaned in VALID_CATEGORIES:
+            return cleaned
+        return cleaned.title()
+
+    def _matches_blacklist(self, ticket_text: str) -> bool:
+        text = ticket_text.lower()
+        return any(re.search(pattern, text) for pattern in BLACKLIST_KEYWORDS)
     
     def get_status(self) -> Dict:
         """Get provider availability status"""

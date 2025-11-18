@@ -35,6 +35,7 @@ SQLAlchemy==2.0.31
 requests==2.32.3
 python-dotenv==1.0.1
 tenacity==9.0.0
+structlog==24.4.0
 
 # Testing
 pytest==8.3.3
