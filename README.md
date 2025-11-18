@@ -29,7 +29,7 @@
 - [📄 License](#-license)
 - [🤝 Contributing](#-contributing)
 - [📚 Documentation](#-documentation)
-- [🧑‍💻 Contributors](#-contributors)
+- [🧰 Maintainer](#-maintainer)
 
 ---
 
@@ -279,8 +279,11 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ---
 
-## 🧑‍💻 Contributors
+## 🧰 Maintainer
 
-| Contributor | Role | Contact | Links |
-| :--- | :--- | :--- | :--- |
-| **Artem Rivnyi** | Project Maintainer / Junior Technical Support / DevOps Enthusiast | [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com) | [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/) \| [Personal Projects](https://personal-page-devops.onrender.com/) \| [GitHub](https://github.com/ArtemRivnyi) |
+**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
+
+* 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
+* 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
+* 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
+* 💻 [GitHub](https://github.com/ArtemRivnyi)
