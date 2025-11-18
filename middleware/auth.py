@@ -273,7 +273,7 @@ def optional_api_key(f):
             if redis_client:
                 ip_key = f"rate_limit:ip:{ip}"
                 try:
-                ip_count = redis_client.incr(ip_key)
+                    ip_count = redis_client.incr(ip_key)
                     # Ensure ip_count is an integer
                     if not isinstance(ip_count, int):
                         ip_count = int(ip_count) if ip_count else 0

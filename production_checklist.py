@@ -9,6 +9,18 @@ import io
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Python version check - MUST be 3.12
+if sys.version_info[:2] != (3, 12):
+    print("=" * 70)
+    print("❌ ERROR: Python 3.12 is REQUIRED for this project")
+    print("=" * 70)
+    print(f"Current version: {sys.version}")
+    print(f"Required: Python 3.12.x")
+    print()
+    print("Please use Python 3.12. Run: python check_python_version.py")
+    print("=" * 70)
+    sys.exit(1)
+
 # Fix Windows encoding
 if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')

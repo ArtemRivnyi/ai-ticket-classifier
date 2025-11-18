@@ -17,41 +17,55 @@ class TestErrorHandlers:
     
     def test_ratelimit_handler_with_description(self, client):
         """Test rate limit handler with description"""
-        # Test through actual rate limit trigger
+        # FIXED: Update import for flask-limiter 4.0+
         from flask_limiter.errors import RateLimitExceeded
-        from flask_limiter import Limit
         
-        # Create a proper RateLimitExceeded error
-        limit = Limit("100 per hour")
-        error = RateLimitExceeded(limit)
-        error.description = "Rate limit exceeded: 100 per hour"
+        # Create a mock Limit object with all required attributes
+        class MockLimit:
+            def __init__(self, limit_str):
+                self.limit_str = limit_str
+                self.limit = limit_str  # Required by flask-limiter
+                self.error_message = None  # Required by flask-limiter
         
-        # Use app's actual handler
-        from app import app
-        handler = app.error_handler_spec[None][429]
+        # Create error with description
+        error = RateLimitExceeded(MockLimit("100 per hour"))
+        error.description = "1 per 1 minute"
+        
+        # Import the handler function directly
+        from app import ratelimit_handler
+        
         with app.test_request_context():
-            result = handler(error)
+            # Call the handler
+            result = ratelimit_handler(error)
             assert result[1] == 429
             data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'message' in data
+            assert 'error' in data
+            assert data['error'] == 'Rate limit exceeded'
     
     def test_ratelimit_handler_without_description(self, client):
         """Test rate limit handler without description"""
+        # FIXED: Update import for flask-limiter 4.0+
         from flask_limiter.errors import RateLimitExceeded
-        from flask_limiter import Limit
         
-        # Create a proper RateLimitExceeded error
-        limit = Limit("100 per hour")
-        error = RateLimitExceeded(limit)
-        # No description attribute
+        # Create a mock Limit object with all required attributes
+        class MockLimit:
+            def __init__(self, limit_str):
+                self.limit_str = limit_str
+                self.limit = limit_str  # Required by flask-limiter
+                self.error_message = None  # Required by flask-limiter
         
-        from app import app
-        handler = app.error_handler_spec[None][429]
+        # Create error without description
+        error = RateLimitExceeded(MockLimit("100 per hour"))
+        
+        # Import the handler function directly
+        from app import ratelimit_handler
+        
         with app.test_request_context():
-            result = handler(error)
+            result = ratelimit_handler(error)
             assert result[1] == 429
             data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'message' in data or 'error' in data
+            assert 'error' in data
+            assert data['error'] == 'Rate limit exceeded'
     
     def test_not_found_handler(self):
         """Test 404 handler"""
@@ -64,31 +78,33 @@ class TestErrorHandlers:
     
     def test_internal_error_handler_with_error_count(self, client):
         """Test 500 handler with error_count available"""
-        from app import app
-        from werkzeug.exceptions import InternalServerError
+        # Import the handler function directly
+        from app import internal_error_handler
         
-        error = InternalServerError("Test error")
+        # Create a mock exception
+        test_error = Exception("Test internal error")
         
-        handler = app.error_handler_spec[None][500]
         with app.test_request_context():
-            result = handler(error)
+            result = internal_error_handler(test_error)
             assert result[1] == 500
             data = result[0] if isinstance(result[0], dict) else result[0].get_json()
             assert 'error' in data
+            assert data['error'] == 'Internal server error'
     
     def test_internal_error_handler_without_error_count(self, client):
         """Test 500 handler without error_count"""
-        from app import app
-        from werkzeug.exceptions import InternalServerError
+        # Import the handler function directly
+        from app import internal_error_handler
         
-        error = InternalServerError("Test error")
+        # Create a mock exception
+        test_error = Exception("Test internal error 2")
         
-        handler = app.error_handler_spec[None][500]
         with app.test_request_context():
-            result = handler(error)
+            result = internal_error_handler(test_error)
             assert result[1] == 500
             data = result[0] if isinstance(result[0], dict) else result[0].get_json()
             assert 'error' in data
+            assert data['error'] == 'Internal server error'
     
     def test_validation_error_handler(self, client, headers):
         """Test ValidationError handler"""

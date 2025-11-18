@@ -254,29 +254,68 @@ def test_jwt_auth_api_key_validation_error(mocker):
         response = client.get('/test-jwt-validation-error', headers={'X-API-Key': 'test_key'})
         assert response.status_code == 401
 
-def test_rate_limiter_daily_limit_exceeded(mock_redis_client):
+def test_rate_limiter_daily_limit_exceeded(mocker):
     """Test rate limiter when daily limit is exceeded"""
+    from unittest.mock import MagicMock, patch
     from middleware.auth import RateLimiter
-    
-    call_count = [0]
-    def incr_side_effect(key):
-        call_count[0] += 1
-        if 'hour' in key:
-            return 50   # Hourly OK
-        else:
-            return 1001  # Daily exceeded (free tier daily limit is 1000)
-    mock_redis_client.incr.side_effect = incr_side_effect
-    mock_redis_client.ttl.return_value = 86400
-    
     import middleware.auth
-    middleware.auth.redis_client = mock_redis_client
     
+    # IMPORTANT: This test needs to call the REAL RateLimiter.check_rate_limit method
+    # The conftest.py fixture patches it, so we need to stop that patch first
+    # Stop all active patches from unittest.mock to access the real method
+    import unittest.mock
+    unittest.mock.patch.stopall()
+    
+    # Mock incr to return different values for hour and day keys
+    # Use a list to track calls since side_effect needs to be callable
+    incr_results = []
+    def incr_side_effect(key):
+        incr_results.append(key)
+        # Keys are: "rate_limit:hour:user123" and "rate_limit:day:user123"
+        if ':hour:' in key:
+            return 50   # Hourly OK (50 <= 100, free tier hourly limit is 100)
+        elif ':day:' in key:
+            return 1001  # Daily exceeded (1001 > 1000, free tier daily limit is 1000)
+        else:
+            return 1  # Default for any other key
+    
+    # Create a completely new mock (not using the fixture)
+    new_mock_redis = MagicMock()
+    new_mock_redis.ping.return_value = True
+    new_mock_redis.incr = MagicMock(side_effect=incr_side_effect)
+    new_mock_redis.expire.return_value = True
+    new_mock_redis.ttl.return_value = 86400
+    new_mock_redis.hgetall.return_value = {}
+    new_mock_redis.hset.return_value = True
+    new_mock_redis.sadd.return_value = True
+    new_mock_redis.smembers.return_value = set()
+    new_mock_redis.get.return_value = None
+    new_mock_redis.hincrby.return_value = 1
+    
+    # Directly set redis_client in the module (bypassing any patches)
+    # This is the same approach as test_middleware_auth.py
+    middleware.auth.redis_client = new_mock_redis
+    
+    # Verify redis_client is actually set
+    assert middleware.auth.redis_client is not None, "redis_client is None!"
+    assert middleware.auth.redis_client == new_mock_redis, "redis_client not set!"
+    
+    # Now call the real method directly (patches are stopped)
     allowed, info = RateLimiter.check_rate_limit('user123', 'free')
+    
     # Daily limit is checked after hourly
-    # Hourly: 50 < 100 (OK)
-    # Daily: 1001 > 1000 (EXCEEDED)
+    # Hourly: 50 <= 100 (OK, continues to daily check)
+    # Daily: 1001 > 1000 (EXCEEDED, should return False)
     # So should be False
-    assert allowed is False, f"Expected False but got {allowed}. Info: {info}"
+    assert allowed is False, (
+        f"Expected False but got {allowed}. "
+        f"Info: {info}. "
+        f"incr was called with keys: {incr_results}. "
+        f"mock incr call_count: {new_mock_redis.incr.call_count}. "
+        f"redis_client type: {type(middleware.auth.redis_client)}. "
+        f"redis_client id: {id(middleware.auth.redis_client)}. "
+        f"new_mock_redis id: {id(new_mock_redis)}"
+    )
     assert 'limit' in info or 'remaining' in info or 'daily_limit' in info
 
 def test_rate_limiter_first_request_sets_expire(mock_redis_client):

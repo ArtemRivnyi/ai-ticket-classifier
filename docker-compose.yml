@@ -1,20 +1,20 @@
 services:
   redis:
     image: redis:7-alpine
-    container_name: ai-ticket-classifier-redis
-    command: redis-server --appendonly yes
+    container_name: ai-ticket-redis
+    ports:
+      - "6379:6379"
     volumes:
-      - redis_data:/data
-    restart: unless-stopped
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
     networks:
-      - classifier-network
-    ports:
-      - "6379:6379"
+      - ai-ticket-network
 
   app:
     build:
@@ -24,11 +24,14 @@ services:
     ports:
       - "5000:5000"
     environment:
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET:-${SECRET_KEY}}
       - ENVIRONMENT=production
-      - API_HOST=localhost:5000
+      - API_HOST=0.0.0.0:5000
       - LOG_LEVEL=INFO
     depends_on:
       redis:
@@ -41,7 +44,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - classifier-network
+      - ai-ticket-network
     volumes:
       - ./logs:/app/logs
 
@@ -58,7 +61,7 @@ services:
       - "9090:9090"
     restart: unless-stopped
     networks:
-      - classifier-network
+      - ai-ticket-network
     depends_on:
       - app
 
@@ -75,17 +78,16 @@ services:
       - "3000:3000"
     restart: unless-stopped
     networks:
-      - classifier-network
+      - ai-ticket-network
     depends_on:
       - prometheus
 
 networks:
-  classifier-network:
+  ai-ticket-network:
     driver: bridge
 
 volumes:
-  redis_data:
-    driver: local
+  redis-data:
   prometheus_data:
     driver: local
   grafana_data:

@@ -4,28 +4,21 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
 venv/
 venv312/
-ENV/
 env/
+ENV/
 .venv
+*.egg-info/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.cover
 
 # IDE
 .vscode/
@@ -33,6 +26,10 @@ env/
 *.swp
 *.swo
 *~
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Environment
 .env
@@ -43,51 +40,24 @@ env/
 logs/
 *.log
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.hypothesis/
+# Documentation (temporary files)
+*_STATUS.md
+*_COMPLETION*.md
+*_TEST*.md
+*_COVERAGE*.md
+*_FINAL*.md
+PRODUCTION_READINESS_REPORT.md
+PYTHON312_SETUP.md
 
-# Jupyter
-.ipynb_checkpoints
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Project specific
-backups/
-*.db
-*.sqlite
-htmlcov/
+# Keep essential docs
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+!DOCKER_QUICKSTART.md
 
 # Docker
 .dockerignore
 
-# Coverage reports
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-
-# Temporary files
-*.tmp
-*.bak
-*.swp
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.sublime-*
-
-# Documentation (temporary fix files)
-FIX_*.md
-QUICK_FIX_*.md
-TEST_NOW.md
+# Project specific
+backups/
+assets/

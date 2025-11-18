@@ -15,7 +15,7 @@ RUN useradd -m -u 1000 appuser && \
 WORKDIR /app
 
 # Copy requirements
-COPY --chown=appuser:appuser requirements.docker.txt requirements.txt
+COPY --chown=appuser:appuser requirements.txt requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt

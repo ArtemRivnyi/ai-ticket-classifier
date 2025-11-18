@@ -4,6 +4,35 @@ Full-featured REST API with OpenAPI documentation, multi-provider support,
 API key authentication, rate limiting, webhooks, and comprehensive monitoring.
 """
 
+import sys
+
+# Python version check - MUST be 3.12
+# Skip exit during testing (pytest imports modules)
+_is_testing = 'pytest' in sys.modules or any('pytest' in arg for arg in sys.argv)
+
+if sys.version_info[:2] != (3, 12):
+    try:
+        print("=" * 70)
+        print("ERROR: Python 3.12 is REQUIRED for this project")
+        print("=" * 70)
+        print(f"Current version: {sys.version}")
+        print(f"Required: Python 3.12.x")
+        print()
+        print("Please use Python 3.12. Run: python check_python_version.py")
+        print("=" * 70)
+    except UnicodeEncodeError:
+        # Fallback for Windows console encoding issues
+        print("=" * 70)
+        print("ERROR: Python 3.12 is REQUIRED for this project")
+        print("=" * 70)
+        print(f"Current version: {sys.version}")
+        print(f"Required: Python 3.12.x")
+        print()
+        print("Please use Python 3.12. Run: python check_python_version.py")
+        print("=" * 70)
+    if not _is_testing:
+        sys.exit(1)
+
 import os
 import time
 import logging
@@ -327,6 +356,36 @@ def after_request(response):
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     
     return response
+
+# ===== ROOT ENDPOINT =====
+
+@app.route('/', methods=['GET'])
+@limiter.exempt
+@swag_from({
+    'tags': ['Health'],
+    'summary': 'API root endpoint',
+    'description': 'Returns basic API information',
+    'responses': {
+        '200': {
+            'description': 'API information',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {'type': 'string', 'example': 'AI Ticket Classifier API'},
+                    'version': {'type': 'string', 'example': '2.0.0'},
+                    'docs': {'type': 'string', 'example': '/api-docs'}
+                }
+            }
+        }
+    }
+})
+def root():
+    """Root endpoint with API information"""
+    return jsonify({
+        'message': 'AI Ticket Classifier API',
+        'version': '2.0.0',
+        'docs': '/api-docs'
+    }), 200
 
 # ===== HEALTH & STATUS ENDPOINTS =====
 

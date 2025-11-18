@@ -1,10 +1,10 @@
 # 📚 API Examples
 
-Полная документация API доступна по адресу: `http://localhost:5000/api-docs`
+Complete API documentation is available at: `http://localhost:5000/api-docs`
 
-## Базовые примеры
+## Basic Examples
 
-### 1. Регистрация нового пользователя
+### 1. Register New User
 
 ```bash
 curl -X POST http://localhost:5000/api/v1/auth/register \
@@ -16,7 +16,7 @@ curl -X POST http://localhost:5000/api/v1/auth/register \
   }'
 ```
 
-**Ответ:**
+**Response:**
 ```json
 {
   "user_id": "usr_abc123xyz",
@@ -37,7 +37,7 @@ curl -X POST http://localhost:5000/api/v1/auth/register \
 }
 ```
 
-### 2. Классификация одного тикета (API Key)
+### 2. Classify Single Ticket (API Key)
 
 ```bash
 curl -X POST http://localhost:5000/api/v1/classify \
@@ -48,7 +48,7 @@ curl -X POST http://localhost:5000/api/v1/classify \
   }'
 ```
 
-**Ответ:**
+**Response:**
 ```json
 {
   "category": "Network Issue",
@@ -59,14 +59,14 @@ curl -X POST http://localhost:5000/api/v1/classify \
 }
 ```
 
-### 3. Классификация с JWT токеном
+### 3. Classify with JWT Token
 
 ```bash
-# Сначала получите JWT токен
+# First, get JWT token
 curl -X POST http://localhost:5000/api/v1/auth/jwt/login \
   -H "X-API-Key: atc_your_api_key_here"
 
-# Используйте JWT токен
+# Use JWT token
 curl -X POST http://localhost:5000/api/v1/classify \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
@@ -75,7 +75,7 @@ curl -X POST http://localhost:5000/api/v1/classify \
   }'
 ```
 
-### 4. Batch классификация
+### 4. Batch Classification
 
 ```bash
 curl -X POST http://localhost:5000/api/v1/batch \
@@ -93,7 +93,7 @@ curl -X POST http://localhost:5000/api/v1/batch \
   }'
 ```
 
-**Ответ:**
+**Response:**
 ```json
 {
   "total": 5,
@@ -135,14 +135,14 @@ curl -X POST http://localhost:5000/api/v1/batch \
 }
 ```
 
-### 5. Проверка использования API
+### 5. Check API Usage
 
 ```bash
 curl -X GET http://localhost:5000/api/v1/auth/usage \
   -H "X-API-Key: atc_your_api_key_here"
 ```
 
-**Ответ:**
+**Response:**
 ```json
 {
   "tier": "free",
@@ -156,7 +156,7 @@ curl -X GET http://localhost:5000/api/v1/auth/usage \
 }
 ```
 
-### 6. Создание webhook подписки
+### 6. Create Webhook Subscription
 
 ```bash
 curl -X POST http://localhost:5000/api/v1/webhooks \
@@ -169,7 +169,7 @@ curl -X POST http://localhost:5000/api/v1/webhooks \
   }'
 ```
 
-## Примеры на Python
+## Python Examples
 
 ```python
 import requests
@@ -177,7 +177,7 @@ import requests
 API_BASE = "http://localhost:5000/api/v1"
 API_KEY = "atc_your_api_key_here"
 
-# Классификация одного тикета
+# Classify single ticket
 response = requests.post(
     f"{API_BASE}/classify",
     headers={"X-API-Key": API_KEY, "Content-Type": "application/json"},
@@ -190,13 +190,13 @@ print(f"Confidence: {result['confidence']}")
 print(f"Priority: {result['priority']}")
 ```
 
-## Примеры на JavaScript
+## JavaScript Examples
 
 ```javascript
 const API_BASE = 'http://localhost:5000/api/v1';
 const API_KEY = 'atc_your_api_key_here';
 
-// Классификация одного тикета
+// Classify single ticket
 async function classifyTicket(ticketText) {
   const response = await fetch(`${API_BASE}/classify`, {
     method: 'POST',
@@ -211,7 +211,7 @@ async function classifyTicket(ticketText) {
   return result;
 }
 
-// Использование
+// Usage
 classifyTicket("VPN not working")
   .then(result => {
     console.log(`Category: ${result.category}`);
@@ -220,7 +220,7 @@ classifyTicket("VPN not working")
   .catch(error => console.error(error));
 ```
 
-## Примеры на Go
+## Go Examples
 
 ```go
 package main
@@ -280,35 +280,35 @@ func main() {
 }
 ```
 
-## Категории тикетов
+## Ticket Categories
 
-Система классифицирует тикеты в следующие категории:
+The system classifies tickets into the following categories:
 
-1. **Network Issue** (Приоритет: high)
-   - Проблемы с подключением, VPN, Wi-Fi, сетью
+1. **Network Issue** (Priority: high)
+   - Connection problems, VPN, Wi-Fi, network issues
 
-2. **Account Problem** (Приоритет: high)
-   - Проблемы с аккаунтом, паролем, доступом
+2. **Account Problem** (Priority: high)
+   - Account issues, password problems, access issues
 
-3. **Payment Issue** (Приоритет: high)
-   - Проблемы с оплатой, возвратами, счетами
+3. **Payment Issue** (Priority: high)
+   - Payment problems, refunds, invoices
 
-4. **Feature Request** (Приоритет: low)
-   - Запросы на новые функции
+4. **Feature Request** (Priority: low)
+   - Requests for new features
 
-5. **Other** (Приоритет: medium)
-   - Все остальное
+5. **Other** (Priority: medium)
+   - Everything else
 
-## Коды ошибок
+## Error Codes
 
-- `400` - Неверный запрос (validation error)
-- `401` - Не авторизован (invalid API key/JWT)
-- `403` - Доступ запрещен
-- `429` - Превышен rate limit
-- `500` - Внутренняя ошибка сервера
-- `503` - Сервис недоступен
+- `400` - Bad Request (validation error)
+- `401` - Unauthorized (invalid API key/JWT)
+- `403` - Forbidden
+- `429` - Rate limit exceeded
+- `500` - Internal server error
+- `503` - Service unavailable
 
-## Rate Limits по Tier
+## Rate Limits by Tier
 
 | Tier | Requests/Hour | Requests/Day | Batch Size |
 |------|---------------|--------------|------------|
@@ -316,4 +316,3 @@ func main() {
 | Starter | 1,000 | 10,000 | 50 |
 | Professional | 10,000 | 100,000 | 100 |
 | Enterprise | Unlimited | Unlimited | 1,000 |
-

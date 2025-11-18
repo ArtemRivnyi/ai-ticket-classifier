@@ -123,21 +123,33 @@ class TestAppCoverageMissing:
         assert response.status_code in [201, 400, 401, 500]
     
     def test_ratelimit_handler_with_retry_after(self, client):
-        """Test rate limit handler with retry_after (lines 811, 829-832)"""
+        """Test rate limit handler includes retry-after header"""
+        # FIXED: Update import for flask-limiter 4.0+
         from flask_limiter.errors import RateLimitExceeded
-        from flask_limiter import Limit
         
-        limit = Limit("100 per hour")
-        error = RateLimitExceeded(limit)
-        error.description = "Rate limit exceeded"
+        # Create a mock Limit object with all required attributes
+        class MockLimit:
+            def __init__(self, limit_str):
+                self.limit_str = limit_str
+                self.limit = limit_str  # Required by flask-limiter
+                self.error_message = None  # Required by flask-limiter
+        
+        # Create a mock RateLimitExceeded error
+        error = RateLimitExceeded(MockLimit("100 per hour"))
+        error.description = "1 per 1 minute"
         error.retry_after = 3600
         
-        handler = app.error_handler_spec[None][429]
+        # Import the handler function directly
+        from app import ratelimit_handler
+        
         with app.test_request_context():
-            result = handler(error)
+            result = ratelimit_handler(error)
             assert result[1] == 429
             data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'message' in data or 'error' in data
+            assert 'error' in data
+            # Check if retry_after is in response
+            assert 'retry_after' in data
+            assert data['retry_after'] == 3600
     
     def test_not_found_handler_path(self, client):
         """Test 404 handler path extraction (line 840)"""
