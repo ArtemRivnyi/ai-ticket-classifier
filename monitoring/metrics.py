@@ -4,20 +4,20 @@ import time
 
 # Metrics
 request_count = Counter(
-    'api_requests_total',
-    'Total API requests',
+    'classifier_requests_total',
+    'Total requests',
     ['method', 'endpoint', 'status']
 )
 
 request_duration = Histogram(
-    'api_request_duration_seconds',
+    'classifier_request_duration_seconds',
     'Request duration',
     ['method', 'endpoint']
 )
 
 classification_count = Counter(
-    'classifications_total',
-    'Total classifications',
+    'classifier_predictions_by_category',
+    'Predictions by category',
     ['category', 'provider', 'status']
 )
 

@@ -27,7 +27,7 @@ except Exception as e:
 # Tier configurations
 TIER_LIMITS = {
     'free': {
-        'requests_per_hour': 100,
+        'requests_per_hour': 50,
         'requests_per_day': 1000,
         'batch_size': 10
     },
