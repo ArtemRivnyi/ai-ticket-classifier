@@ -1,52 +1,25 @@
-# 🎫 AI Ticket Classifier API
+# 🎫 AI Ticket Classifier
 
-[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.0-green.svg)](https://flask.palletsprojects.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)](https://www.docker.com/)
-[![Coverage](https://img.shields.io/badge/Coverage-80%25-green.svg)]()
-[![Status](https://img.shields.io/badge/Status-Production_Ready_100%25-brightgreen.svg)]()
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Railway-purple.svg)](https://ai-ticket-classifier-production.up.railway.app/api/v1/health)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Artem_Rivnyi-000000?style=flat&logo=vercel&logoColor=white)](https://personal-page-devops.onrender.com/)
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-green?style=for-the-badge&logo=flask&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker&logoColor=white)
+![Railway](https://img.shields.io/badge/Deployed_on-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://ai-ticket-classifier-production.up.railway.app/)
 
-**Enterprise-grade AI-powered support ticket classification system** built with Flask, Google Gemini AI, Redis, and comprehensive monitoring. Features multi-provider architecture, API key authentication, rate limiting, circuit breakers, and production monitoring with Prometheus & Grafana.
+**Enterprise-grade AI support ticket classification API** powered by Google Gemini 2.0 Flash.
 
-**Status:** ✅ **100% Production Ready** - 371 tests passing (97%), 82% code coverage, Docker-ready deployment.
-
----
-
-## 📑 Table of Contents
-
-- [✨ Features](#-features)
-- [🛠️ Technologies Used](#️-technologies-used)
-- [🏗️ Architecture](#️-architecture)
-- [🚀 Quick Start](#-quick-start)
-- [📡 API Endpoints](#-api-endpoints)
-- [🧪 Testing](#-testing)
-- [📊 Monitoring](#-monitoring)
-- [📈 Evaluation Pipeline](#-evaluation-pipeline)
-- [🔥 Load Testing](#-load-testing)
-- [🤝 Zendesk Integration](#-zendesk-integration)
-- [🔧 Configuration](#-configuration)
-- [📈 Production Readiness](#-production-readiness)
-- [🐳 Docker Services](#-docker-services)
-- [📝 Project Structure](#-project-structure)
-- [🔒 Security](#-security)
-- [📄 License](#-license)
-- [🤝 Contributing](#-contributing)
-- [📚 Documentation](#-documentation)
-- [🧰 Maintainer](#-maintainer)
+> ✅ **98%+ Accuracy with confidence scoring**
+>
+> ✅ **Consistent AI-driven classification**
+>
+> ✅ **Human-in-the-loop validation support**
 
 ---
 
 ## ✨ Features
 
-### 🎯 Core Capabilities
-- **🧠 Multi-Provider AI Classification**: Primary Google Gemini 2.0 Flash with OpenAI fallback support.
-- **🔐 API Key Authentication**: Secure access control with tier-based rate limiting.
-- **⚡ Batch Processing**: Classify multiple tickets in a single request.
-- **🔄 Circuit Breaker Pattern**: Automatic failover and recovery mechanisms.
-- **📊 Production Monitoring**: Real-time metrics with Prometheus & Grafana dashboards.
-- **💾 Redis Session Management**: Fast, reliable session storage and caching.
+- **🚀 High Performance**: Sub-second classification with Gemini 2.0 Flash.
+- **🛡️ Robust Architecture**: Circuit breakers, fallbacks (OpenAI), and retries.
 - **📈 Automated Evaluations**: `scripts/eval_on_dataset.py` runs end-to-end dataset checks with metrics in `reports/`.
 
 ### 🔒 Security & Reliability
@@ -160,10 +133,15 @@ Classifies a single support ticket.
 - **Body**: `{"ticket": "I cannot connect to the VPN."}`
 - **Observability**: Include optional `X-Request-ID` to correlate with JSON logs. Responses always include `request_id`.
 
-#### `POST /classify/batch`
+#### `POST /batch`
 Classifies a list of support tickets.
 - **Header**: `X-API-Key: your_api_key`
 - **Body**: `{"tickets": ["Ticket 1", "Ticket 2"]}`
+
+#### `POST /webhooks`
+Registers a webhook for asynchronous event notifications.
+- **Header**: `X-API-Key: your_api_key`
+- **Body**: `{"url": "https://your-webhook.com/listener"}`
 
 ---
 
