@@ -368,24 +368,7 @@ def after_request(response):
 
 @app.route('/', methods=['GET'])
 @limiter.exempt
-@swag_from({
-    'tags': ['Health'],
-    'summary': 'API root endpoint',
-    'description': 'Returns basic API information',
-    'responses': {
-        '200': {
-            'description': 'API information',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'message': {'type': 'string', 'example': 'AI Ticket Classifier API'},
-                    'version': {'type': 'string', 'example': '2.0.0'},
-                    'docs': {'type': 'string', 'example': '/api-docs'}
-                }
-            }
-        }
-    }
-})
+
 def root():
     """Root endpoint with API information"""
     return make_response({
@@ -399,27 +382,7 @@ def root():
 @app.route('/api/v1/health', methods=['GET'])
 @limiter.exempt
 @optional_api_key
-@swag_from({
-    'tags': ['Health'],
-    'summary': 'Check API health status',
-    'description': 'Returns the health status of the API and all providers',
-    'responses': {
-        '200': {
-            'description': 'Service is healthy',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'status': {'type': 'string', 'example': 'healthy'},
-                    'version': {'type': 'string', 'example': '2.0.0'},
-                    'timestamp': {'type': 'string', 'example': '2025-01-15T12:00:00Z'},
-                    'environment': {'type': 'string', 'example': 'production'},
-                    'provider_status': {'type': 'object'}
-                }
-            }
-        },
-        '503': {'description': 'Service degraded'}
-    }
-})
+
 def health():
     try:
         provider_status = {}
@@ -499,57 +462,7 @@ def status():
 @app.route('/api/v1/classify', methods=['POST'])
 @require_api_key
 @limiter.limit(get_rate_limit)
-@swag_from({
-    'tags': ['Classification'],
-    'summary': 'Classify a single support ticket',
-    'description': 'Classifies a single ticket into one of the predefined categories using AI',
-    'parameters': [
-        {
-            'in': 'header',
-            'name': 'X-API-Key',
-            'type': 'string',
-            'required': True,
-            'description': 'API key for authentication'
-        },
-        {
-            'in': 'body',
-            'name': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'required': ['ticket'],
-                'properties': {
-                    'ticket': {
-                        'type': 'string',
-                        'minLength': 1,
-                        'maxLength': 5000,
-                        'example': 'I cannot connect to VPN'
-                    }
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': 'Classification successful',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'category': {'type': 'string', 'example': 'Network Issue'},
-                    'confidence': {'type': 'number', 'example': 0.95},
-                    'priority': {'type': 'string', 'example': 'high'},
-                    'provider': {'type': 'string', 'example': 'gemini'},
-                    'processing_time': {'type': 'number', 'example': 0.44}
-                }
-            }
-        },
-        '400': {'description': 'Invalid request'},
-        '401': {'description': 'Unauthorized'},
-        '429': {'description': 'Rate limit exceeded'},
-        '500': {'description': 'Internal server error'}
-    },
-    'security': [{'ApiKeyAuth': []}]
-})
+
 def classify():
     start_time = time.time()
     trace_logger = get_trace_logger()
