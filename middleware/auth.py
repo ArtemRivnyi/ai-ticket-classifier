@@ -99,6 +99,21 @@ class APIKeyManager:
     @staticmethod
     def get_key_data(key: str) -> dict:
         """Get API key data"""
+        # Check for Master API Key first
+        master_key = os.getenv('MASTER_API_KEY')
+        if master_key and key == master_key:
+            return {
+                'id': 'master',
+                'key_hash': 'master',
+                'user_id': 'admin',
+                'name': 'Master Key',
+                'tier': 'enterprise',
+                'is_active': 'true',
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'last_used': datetime.now(timezone.utc).isoformat(),
+                'requests_count': '0'
+            }
+
         if not redis_client:
             return None
         
