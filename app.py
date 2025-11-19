@@ -82,24 +82,7 @@ REQUEST_ID_HEADER = 'X-Request-ID'
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-this-in-production')
 
-    "basePath": "/api/v1",
-    "schemes": ["http", "https"],
-    "securityDefinitions": {
-        "ApiKeyAuth": {
-            "type": "apiKey",
-            "name": "X-API-Key",
-            "in": "header",
-            "description": "API Key authentication. Get your key from /api/v1/auth/register"
-        }
-    },
-    "security": [
-        {"ApiKeyAuth": []}
-    ],
-    "consumes": ["application/json"],
-    "produces": ["application/json"]
-}
 
-Swagger(app, config=swagger_config, template=swagger_template)
 
 # CORS configuration for production
 cors_origins = os.getenv('CORS_ORIGINS', '*').split(',')
