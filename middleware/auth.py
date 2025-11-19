@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 # Redis connection
 settings = get_settings()
 REDIS_URL = settings.REDIS_URL
+
+# TEMPORARY DEBUG: Log the actual REDIS_URL to diagnose Railway issue
+logger.warning(f"🔍 DEBUG: REDIS_URL from settings = {REDIS_URL}")
+
 try:
     # Mask URL in logs for security
     masked_url = REDIS_URL.replace(REDIS_URL.split('@')[0].split('//')[1], '****') if '@' in REDIS_URL else '****'
