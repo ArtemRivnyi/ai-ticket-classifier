@@ -4,7 +4,7 @@
 
 ![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.0-green?style=for-the-badge&logo=flask&logoColor=white)
+![Flask](https://img-shields.io/badge/Flask-3.0-green?style=for-the-badge&logo=flask&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-Enabled-red?style=for-the-badge&logo=redis&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker&logoColor=white)
 ![Railway](https://img.shields.io/badge/Deployed_on-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
@@ -15,76 +15,87 @@
 
 **Enterprise-grade AI support ticket classification API** powered by Google Gemini 2.0 Flash.
 
-[Features](#-features) • [Demo](#-demo) • [Architecture](#️-architecture) • [Quick Start](#-quick-start) • [API](#-api-documentation) • [Deployment](#-deployment)
-
 </div>
+
+---
+
+## 📖 Table of Contents
+
+- [✨ Features](#-features)
+  - [🚀 Performance & Scalability](#-performance--scalability)
+  - [🛡️ Production-Ready Infrastructure](#-production-ready-infrastructure)
+  - [📊 Monitoring & Observability](#-monitoring--observability)
+  - [🔧 Developer Experience](#-developer-experience)
+- [🎬 Demo & Visuals](#-demo--visuals)
+- [🏗️ Architecture](#-architecture)
+- [🛠️ Tech Stack](#-tech-stack)
+- [🚀 Quick Start](#-quick-start)
+- [📚 API Documentation](#-api-documentation)
+- [🚢 Deployment](#-deployment)
+- [📊 Monitoring](#-monitoring)
+- [🧪 Testing](#-testing)
+- [📁 Project Structure](#-project-structure)
+- [👤 Maintainer](#-maintainer)
 
 ---
 
 ## ✨ Features
 
 ### 🚀 Performance & Scalability
-- ⚡ **Sub-second classification** with Gemini 2.0 Flash
-- 🔄 **Auto-scaling** with Gunicorn workers (103 workers on Railway)
-- 💾 **Redis caching** for optimal performance
-- 📊 **98%+ accuracy** with confidence scoring
+
+- ⚡ **Sub-second classification** with Gemini 2.0 Flash.
+- 🔄 **Auto-scaling** with Gunicorn workers (103 workers on Railway).
+- 💾 **Redis caching** for optimal performance.
+- 📊 **98%+ accuracy** with confidence scoring.
 
 ### 🛡️ Production-Ready Infrastructure
-- 🔐 **Tier-based rate limiting** (Free: 50/hour, Pro: 1000/day)
-- 🔑 **API key authentication** with Redis-backed storage
-- 🔁 **Circuit breakers** for AI provider failover (Gemini → OpenAI)
-- ⚠️ **Graceful shutdown** with SIGTERM/SIGINT handlers
-- 🏥 **Health checks** at `/api/v1/health`
+
+- 🔐 **Tier-based rate limiting** (Free: 50/hour, Pro: 1000/day).
+- 🔑 **API key authentication** with Redis-backed storage.
+- 🔁 **Circuit breakers** for AI provider failover (Gemini → OpenAI).
+- ⚠️ **Graceful shutdown** with SIGTERM/SIGINT handlers.
+- 🏥 **Health checks** at `/api/v1/health`.
 
 ### 📊 Monitoring & Observability
-- 📈 **Prometheus metrics** at `/metrics`
-- 🔍 **Structured logging** with request tracing (trace_id)
-- 🐛 **Sentry integration** for error tracking
-- 📝 **Complete audit trail** of all API interactions
+
+- 📈 **Prometheus metrics** at `/metrics`.
+- 🔍 **Structured logging** with request tracing (`trace_id`).
+- 🐛 **Sentry integration** for error tracking.
+- 📝 **Complete audit trail** of all API interactions.
 
 ### 🔧 Developer Experience
-- 📚 **Interactive Swagger UI** at `/docs/`
-- 🎨 **Modern web interface** with Tailwind CSS
-- 🐳 **Docker & Docker Compose** ready
-- 🔄 **Webhook support** for async notifications
+
+- 📚 **Interactive Swagger UI** at `/docs/`.
+- 🎨 **Modern web interface** with Tailwind CSS.
+- 🐳 **Docker & Docker Compose** ready.
+- 🔄 **Webhook support** for async notifications.
 
 ---
 
-## 🎬 Demo
+## 🎬 Demo & Visuals
 
-### Live Classification
-> **Try it now**: [https://ai-ticket-classifier-production.up.railway.app/](https://ai-ticket-classifier-production.up.railway.app/)
+> **Try the live demo**: [https://ai-ticket-classifier-production.up.railway.app/](https://ai-ticket-classifier-production.up.railway.app/)
 
-![Classification Demo](docs/gifs/classification-demo.gif)
+### Live Classification Demo (GIF)
 
-### Screenshots
+The GIF is now clearly visible and not hidden in a collapsible section.
 
-<details>
-<summary>📸 Click to view screenshots</summary>
+![Classification Demo](https://private-us-east-1.manuscdn.com/sessionFile/lbgvHXmokFHrcPfQPhB8Mk/sandbox/zmvpAqn2UjiYyeyNEh2deF-images_1763584602613_na1fn_L2hvbWUvdWJ1bnR1L2FpLXRpY2tldC1jbGFzc2lmaWVyL2RvY3Mvc2NyZWVuc2hvdHMvY2xhc3NpZmljYXRpb24tZGVtbw.gif?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvbGJndkhYbW9rRkhyY1BmUVBoQjhNay9zYW5kYm94L3ptdnBBcW4yVWppWXlleU5FaDJkZUYtaW1hZ2VzXzE3NjM1ODQ2MDI2MTNfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyRnBMWFJwWTJ0bGRDMWpiR0Z6YzJsbWFXVnlMMlJ2WTNNdmMyTnlaV1Z1YzJodmRITXZZMnhoYzNOcFptbGpZWFJwYjI0dFpHVnRidy5naWYiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=Ikg57t5esBPrkzY~ZG17sC1w-1UQMGGE3iUf8jn3NvwDmcYtqTr9O3SDcoIKGqv~s1nKoTQiTJ3p24o1BYCY8a6Gera79FUmArAcCMUIep~W5R~YPOXy-hwKMNVmUfG0WJSZuJ7oymTsDnSST77BUBhzGkpYQL4ozNDfrlAX958d4eQUtzKfiPs9v-2rsSSii5XcKuVcCCte4elQo5jTaGYKDKIH7FTLQZyeDyh1fWCqtrDdtT2KXTGPSLkqvmxkX178BCb2cpGxzIo2mSY-Uvm5EMOpbq7M-eR7P6ASiGr35mJlEnqNrnSZgLn7ViHZsV7mGWYcVHhc-u6lvPRK5w__)
 
-#### Landing Page
-![Landing Page](docs/screenshots/landing-page.png)
-*Modern, responsive UI built with Tailwind CSS*
+### Key Screenshots
 
-#### API Documentation
-![Swagger UI](docs/screenshots/swagger-ui.png)
-*Interactive Swagger UI for easy API exploration*
-
-#### Metrics Dashboard
-![Metrics](docs/screenshots/metrics.png)
-*Prometheus metrics for monitoring*
-
-#### Classification Demo
-![Classification Demo](docs/screenshots/classification-demo.png)
-*Result of ticket classification flow*
-
-</details>
-
-> 📝 **Note**: To capture screenshots, see [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)
+| Description | Screenshot |
+| :--- | :--- |
+| **Landing Page** | ![Landing Page](https://private-us-east-1.manuscdn.com/sessionFile/lbgvHXmokFHrcPfQPhB8Mk/sandbox/zmvpAqn2UjiYyeyNEh2deF-images_1763584602615_na1fn_L2hvbWUvdWJ1bnR1L2FpLXRpY2tldC1jbGFzc2lmaWVyL2RvY3Mvc2NyZWVuc2hvdHMvbGFuZGluZy1wYWdl.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvbGJndkhYbW9rRkhyY1BmUVBoQjhNay9zYW5kYm94L3ptdnBBcW4yVWppWXlleU5FaDJkZUYtaW1hZ2VzXzE3NjM1ODQ2MDI2MTVfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyRnBMWFJwWTJ0bGRDMWpiR0Z6YzJsbWFXVnlMMlJ2WTNNdmMyTnlaV1Z1YzJodmRITXZiR0Z1WkdsdVp5MXdZV2RsLnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=Fx578J-QO8PdXPc-8ONv4ZSwoF74XB4qQNg~2h9~a1FouoVga~VJmpp8Cp3i7ThfHnDq7-Svez19r0MUYtx8AhO3QlQD2WW7ZuDAk2Hmy5plQgwVx~3NAOqIptrmljH39pe6zTL1Wh-Na0E9MKb2rlC5cBl8sXyztks4f4O0FLEKWQV~JUe5PzSYquxkYrWcLj2EbfwcMOKo5GXaLKH-6gMZGLg3IRSfkNS3-nY9SDyzrf8eR5-zjsHpeHvWRfv9m4KX1JyBM3xx6PWItlj0PgLI52locL1kDLlMEfOk3c-F04q7cMZvcQmNJ-r~n89OTXlYcwRyYJA~E9lQ9sivrg__) |
+| **API Documentation (Swagger UI)** | ![Swagger UI](https://private-us-east-1.manuscdn.com/sessionFile/lbgvHXmokFHrcPfQPhB8Mk/sandbox/zmvpAqn2UjiYyeyNEh2deF-images_1763584602617_na1fn_L2hvbWUvdWJ1bnR1L2FpLXRpY2tldC1jbGFzc2lmaWVyL2RvY3Mvc2NyZWVuc2hvdHMvc3dhZ2dlci11aQ.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvbGJndkhYbW9rRkhyY1BmUVBoQjhNay9zYW5kYm94L3ptdnBBcW4yVWppWXlleU5FaDJkZUYtaW1hZ2VzXzE3NjM1ODQ2MDI2MTdfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyRnBMWFJwWTJ0bGRDMWpiR0Z6YzJsbWFXVnlMMlJ2WTNNdmMyTnlaV1Z1YzJodmRITXZjM2RoWjJkbGNpMTFhUS5wbmciLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=a6vv0x6hAW9f5HdetHFNPcQUOds9sHoa68vmwqkHX9aPVcHTnRRO8ed-0xJ4FJRifX3hlHPMba-i24BDNXonYbjACe~r0mEpFd1lka1VHm1giHXt5U7Xr4AA2WccJrMSgA8z-YyintrIVtpqCusQD31r3qgRvgX7hXvL5M8s9VF1wFMkBid2lqjtmyAM3fvN6x0vV9fKsumd9bGPbTGNIJcIGU~Ov7FKk-mpZLw4JJR~vJwI~bJu-AMZ8AvN--MR5JVXxP1Zn~xff~vUEsCsqNDtNR7kRnH5Jq4KgRvRgrq8PFEiolHAYIxZnzHuL70GBlL79SyEAnTnheF6tR0cGQ__) |
+| **Metrics Dashboard** | ![Metrics](https://private-us-east-1.manuscdn.com/sessionFile/lbgvHXmokFHrcPfQPhB8Mk/sandbox/zmvpAqn2UjiYyeyNEh2deF-images_1763584602618_na1fn_L2hvbWUvdWJ1bnR1L2FpLXRpY2tldC1jbGFzc2lmaWVyL2RvY3Mvc2NyZWVuc2hvdHMvbWV0cmljcw.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvbGJndkhYbW9rRkhyY1BmUVBoQjhNay9zYW5kYm94L3ptdnBBcW4yVWppWXlleU5FaDJkZUYtaW1hZ2VzXzE3NjM1ODQ2MDI2MThfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyRnBMWFJwWTJ0bGRDMWpiR0Z6YzJsbWFXVnlMMlJ2WTNNdmMyTnlaV1Z1YzJodmRITXZiV1YwY21samN3LnBuZyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc5ODc2MTYwMH19fV19&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=bYrXsQisu6-uKDTHM21yBTw~JnGjIGK1mvRygxFS0~BlaZpfMEnP6P4u1PNSOsY6r5INacTo8aIoQDkEBHWO~eSKgnDAOFQkBcONMc4qRsVkeBWbXEQ-Mc4i5oGz74I8kJTxYq0YhpFd1YmnbieyjrpWrZZQu9QNqckEuDNY9fWqZBvt73yna2bhDTD0wu-jx7-TXJI1M7NVTOKIJVCOs7yCZmGiYB8Dp2ul4hjczPmBWxEb2WLv4XgE6qoz3Ut-s2aPldV~fHmo0Kj0PQtknQ~ylHc18pnJQbVfjTGk63mRt0PS~35yLu2IA7AWGtgArFJAmKV28iQ1gy~u1PNxdg__) |
+| **Result of Ticket Classification** | ![Classification Demo](https://private-us-east-1.manuscdn.com/sessionFile/lbgvHXmokFHrcPfQPhB8Mk/sandbox/zmvpAqn2UjiYyeyNEh2deF-images_1763584602619_na1fn_L2hvbWUvdWJ1bnR1L2FpLXRpY2tldC1jbGFzc2lmaWVyL2RvY3Mvc2NyZWVuc2hvdHMvY2xhc3NpZmljYXRpb24tZGVtbw.png?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvbGJndkhYbW9rRkhyY1BmUVBoQjhNay9zYW5kYm94L3ptdnBBcW4yVWppWXlleU5FaDJkZUYtaW1hZ2VzXzE3NjM1ODQ2MDI2MTlfbmExZm5fTDJodmJXVXZkV0oxYm5SMUwyRnBMWFJwWTJ0bGRDMWpiR0Z6YzJsbWFXVnlMMlJ2WTNNdmMyTnlaV1Z1YzJodmRITXZZMnhoYzNOcFptbGpZWFJwYjI0dFpHVnRidy5wbmciLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ__&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=JZGIqayvrr7n1SSXs9HZai5Zz8-a6E2eTnmigFsVE~b9GG1n2WjSMBLBCsM78Q70Z9RVUieMxlmvmtub0BmP5sWUcWYXfIeGuDn0hkGaXi5kXquQXvEJxS8JhCIWlRXdgTVTrVnYVVEWgA8VH94JeKZb2v3VlNBrkzHlvQ2Qe3TCekOUyRr68pgNDGB3EY7-qFwO0K9hamY0lwblwlHtEe9h5N1Ho4mSknhDbPyB1iOdnq9gd9U8Ra2dQSXTEHHGYWite7y~XEhjN0qvRpfBY2H2VyS08DVqnWElnTN2R6DUNKyy-dM1zJdcZfCE8tBaSgLBQvl-UOdvVtkk3x2jOQ__) |
 
 ---
 
 ## 🏗️ Architecture
+
+The system is designed for high availability and resilience, featuring a primary AI provider (Gemini) with a robust fallback mechanism (OpenAI).
 
 ```mermaid
 graph TB
@@ -123,7 +134,7 @@ graph TB
 ### Key Components
 
 | Component | Technology | Purpose |
-|-----------|-----------|---------|
+| :--- | :--- | :--- |
 | **Web Framework** | Flask 3.0 | REST API and web interface |
 | **WSGI Server** | Gunicorn | Production-grade HTTP server |
 | **AI Provider** | Gemini 2.0 Flash | Primary classification engine |
@@ -136,10 +147,8 @@ graph TB
 
 ## 🛠️ Tech Stack
 
-<div align="center">
-
 | Category | Technologies |
-|----------|-------------|
+| :--- | :--- |
 | **Backend** | Python 3.12, Flask 3.0, Gunicorn |
 | **AI/ML** | Google Gemini 2.0 Flash, OpenAI GPT-4 |
 | **Database** | Redis (caching, rate limiting) |
@@ -148,13 +157,12 @@ graph TB
 | **Frontend** | Tailwind CSS, Vanilla JavaScript |
 | **API Docs** | Swagger UI, OpenAPI 3.0 |
 
-</div>
-
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Python 3.12+
 - Docker & Docker Compose (optional)
 - Redis (or use Docker)
@@ -203,7 +211,7 @@ python app.py
 
 ### Authentication
 
-All API endpoints require an API key in the `X-API-Key` header:
+All API endpoints require an API key in the `X-API-Key` header.
 
 ```bash
 curl -X POST https://ai-ticket-classifier-production.up.railway.app/api/v1/classify \
@@ -221,7 +229,7 @@ python scripts/generate_api_key.py --tier professional
 ### Rate Limits
 
 | Tier | Requests | Duration |
-|------|----------|----------|
+| :--- | :--- | :--- |
 | Free | 50 | per hour |
 | Starter | 500 | per day |
 | Professional | 1000 | per day |
@@ -230,6 +238,7 @@ python scripts/generate_api_key.py --tier professional
 ### Core Endpoints
 
 #### `POST /api/v1/classify`
+
 Classify a single support ticket.
 
 **Request:**
@@ -308,6 +317,29 @@ docker-compose up -d
 
 ## 📊 Monitoring
 
+### Health Check
+
+Check the live status of the API:
+
+```bash
+curl https://ai-ticket-classifier-production.up.railway.app/api/v1/health
+```
+
+**Example Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-11-19T18:25:48Z",
+  "version": "2.0.0",
+  "environment": "production",
+  "provider_status": {
+    "gemini": "available",
+    "openai": "unavailable"
+  },
+  "redis": "connected"
+}
+```
+
 ### Metrics
 
 Access Prometheus metrics at `/metrics`:
@@ -320,22 +352,6 @@ ticket_classifications_total{category="Network Issue"} 1234
 # HELP classification_duration_seconds Time spent classifying tickets
 # TYPE classification_duration_seconds histogram
 classification_duration_seconds_bucket{le="0.5"} 890
-```
-
-### Health Check
-
-```bash
-curl https://ai-ticket-classifier-production.up.railway.app/api/v1/health
-```
-
-**Response:**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-11-19T18:25:48Z",
-  "version": "1.0.0",
-  "redis": "connected"
-}
 ```
 
 ---
@@ -382,347 +398,10 @@ ai-ticket-classifier/
 
 ---
 
-## 🤝 Contributing
+## 👤 Maintainer
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+| Name | GitHub | Portfolio |
+| :--- | :--- | :--- |
+| **Artem Rivnyi** | [@ArtemRivnyi](https://github.com/ArtemRivnyi) | [artemrivnyi.com](https://artemrivnyi.com) |
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author
-
-**Artem Rivnyi**
-
-- Portfolio: [artemrivnyi.com](https://artemrivnyi.com)
-- GitHub: [@ArtemRivnyi](https://github.com/ArtemRivnyi)
-- LinkedIn: [Artem Rivnyi](https://linkedin.com/in/artemrivnyi)
-
----
-
-## 🙏 Acknowledgments
-
-- Google Gemini AI for powerful classification capabilities
-- Railway for seamless deployment platform
-- Flask community for excellent web framework
-
----
-
-<div align="center">
-
-**⭐ Star this repo if you find it useful!**
-
-Made with ❤️ by [Artem Rivnyi](https://artemrivnyi.com)
-
-</div>
-
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Client Application                   │
-│              (REST API / SDK / Webhook)                 │
-└────────────────────┬────────────────────────────────────┘
-                     │ HTTPS (X-API-Key Auth)
-                     ▼
-┌───────────────────────────────────────────────────────────┐
-│                   Flask API Gateway                       │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │ Rate Limiter │  │ Auth Middle. │  │   Logging    │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└────────────────────┬──────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────┐
-│              Multi-Provider Classifier                  │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │           Circuit Breaker Manager                 │  │
-│  │  ┌──────────────┐         ┌──────────────┐        │  │
-│  │  │   Gemini AI  │ Primary │  OpenAI GPT  │Backup  │  │
-│  │  └──────────────┘────────▶└──────────────┘       │  │
-│  └───────────────────────────────────────────────────┘  │
-└────────────────────┬────────────────────────────────────┘
-                     │
-      ┌──────────────┼──────────────┐
-      ▼              ▼               ▼
-┌──────────┐  ┌──────────┐   ┌──────────┐
-│  Redis   │  │Prometheus│   │ Grafana  │
-│ DB/Cache │  │ Metrics  │   │Dashboard │
-└──────────┘  └──────────┘   └──────────┘
-```
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Docker & Docker Compose
-- Google Gemini API key
-
-### Docker (Recommended)
-
-1.  **Clone Repository**
-    ```bash
-    git clone https://github.com/ArtemRivnyi/ai-ticket-classifier.git
-    cd ai-ticket-classifier
-    ```
-
-2.  **Create `.env` file**
-    ```bash
-    cp .env.example .env
-    ```
-    Now, edit the `.env` file and add your `GEMINI_API_KEY`.
-
-3.  **Start Services**
-    ```bash
-    docker-compose up -d --build
-    ```
-
-4.  **Check Health & Docs**
-    - **Live Demo**: [https://ai-ticket-classifier-production.up.railway.app/](https://ai-ticket-classifier-production.up.railway.app/)
-    - **API Docs**: [https://ai-ticket-classifier-production.up.railway.app/docs](https://ai-ticket-classifier-production.up.railway.app/docs)
-    - **Local Health**: `curl http://localhost:5000/api/v1/health`
-    - **Local Docs**: [http://localhost:5000/docs](http://localhost:5000/docs)
-    - **Grafana**: [http://localhost:3000](http://localhost:3000) (admin/admin)
-
----
-
-## 📡 API Endpoints
-
-Base URL: `http://localhost:5000/api/v1`
-
-#### `GET /health`
-Checks the operational status of the API and its providers.
-
-#### `GET /ready`
-Readiness probe that verifies environment variables and provider availability. Returns `503` if any required dependency is missing.
-
-#### `POST /classify`
-Classifies a single support ticket.
-- **Header**: `X-API-Key: your_api_key`
-- **Body**: `{"ticket": "I cannot connect to the VPN."}`
-- **Observability**: Include optional `X-Request-ID` to correlate with JSON logs. Responses always include `request_id`.
-
-#### `POST /batch`
-Classifies a list of support tickets.
-- **Header**: `X-API-Key: your_api_key`
-- **Body**: `{"tickets": ["Ticket 1", "Ticket 2"]}`
-
-#### `POST /webhooks`
-Registers a webhook for asynchronous event notifications.
-- **Header**: `X-API-Key: your_api_key`
-- **Body**: `{"url": "https://your-webhook.com/listener"}`
-
----
-
-## 🧪 Testing
-
-```bash
-# Activate virtual environment
-source venv/bin/activate
-
-# Run all tests with verbose output
-python -m pytest tests/ -v
-
-# Run tests with code coverage report
-python -m pytest tests/ --cov=. --cov-report=html
-```
-
-**Current Test Results:**
-- **Total Tests**: 371
-- **Passing**: 371 (100%) ✅
-- **Skipped**: 10 (due to Python version compatibility)
-- **Code Coverage**: 82%
-
----
-
-## 📊 Monitoring
-
-- **Prometheus Metrics**: `http://localhost:9090`
-- **Grafana Dashboards**: `http://localhost:3000` (Credentials: admin/admin)
-- **Metrics Endpoint**: `GET /metrics`
-
----
-
-## 📈 Evaluation Pipeline
-
-- **Dataset format**: JSONL with fields `id`, `text`, optional `label`.
-- **Command**:
-  ```bash
-  python scripts/eval_on_dataset.py --input data/annotated.jsonl --api-key <MASTER_OR_USER_KEY>
-  ```
-- **Outputs**:
-  - `reports/predictions_<timestamp>.jsonl` — raw predictions with `request_id`, latency, provider
-  - `reports/eval_<timestamp>.json|.md` — accuracy, precision, recall, F1, confusion matrix
-- **Use cases**: regression testing on fresh exports, go/no-go evidence for releases, triage for low-confidence tickets.
-
----
-
-## 🔥 Load Testing
-
-- **Script**: `loadtests/k6_scenarios.js` (smoke 50 RPS, steady 200 RPS, stress 1000 RPS).
-- **Prereqs**: running API, k6 CLI, API key (`API_KEY`), optional overrides `SMOKE_RPS`, `STEADY_RPS`, `STRESS_RPS`.
-- **Command**:
-  ```bash
-  export BASE_URL=http://localhost:5000
-  export API_KEY=atc_your_key
-  k6 run loadtests/k6_scenarios.js \
-    --summary-export reports/loadtests/k6_summary.json \
-    --console-output reports/loadtests/k6_console.log
-  ```
-- **Metrics**: k6 trends `classify_latency_ms`, error counter `classify_errors_total`; correlate with Prometheus dashboards for full SLO view.
-- **Next steps**: archive outputs under `reports/loadtests/` and tune timeouts/circuit breaker if error rate >2% or p95 latency exceeds targets.
-
----
-
-## 🤝 Zendesk Integration
-
-- **Endpoint**: `POST /api/v1/integrations/zendesk` (requires `X-API-Key`)
-- **Payload**:
-  ```json
-  {
-    "ticket_id": 12345,
-    "subject": "VPN keeps dropping",
-    "description": "Users cannot connect to corporate VPN since 8am",
-    "requester_email": "user@example.com"
-  }
-  ```
-- **What happens**:
-  1. Endpoint validates payload via Pydantic.
-  2. Composes subject + description, calls classifier.
-  3. `ZendeskAdapter` builds update instructions (recommended tags, priority, group, AI comment).
-  4. Response contains structured payload you can forward to Zendesk API.
-- **Sample response**:
-  ```json
-  {
-    "status": "processed",
-    "ticket_id": 12345,
-    "zendesk": {
-      "ticket_id": 12345,
-      "group": "tech_support",
-      "priority": "high",
-      "tags": ["ai_classifier", "network_issue", "vpn"],
-      "public_comment": "[AI] Classified as Network Issue (confidence 0.92).",
-      "metadata": {
-        "category": "Network Issue",
-        "confidence": 0.92,
-        "provider": "gemini",
-        "priority": "high"
-      }
-    }
-  }
-  ```
-- Extend this pattern for other systems (Jira, Slack) by implementing additional adapters under `integrations/`.
-
----
-
-## 🔧 Configuration
-
-Key environment variables are set in the `.env` file.
-
-- **Required**: `MASTER_API_KEY`, `SECRET_KEY`, and at least one of `GEMINI_API_KEY` or `OPENAI_API_KEY`
-- **Optional**: `REDIS_URL`, `DATABASE_URL`, `FLASK_ENV`, `CORS_ORIGINS`
-- The app validates these at startup and the `/ready` endpoint reflects any missing configuration.
-
----
-
-## 📈 Production Readiness
-
-**Status: 100% Production Ready**
-
-### ✅ Completed Features
-- [x] Production-grade Flask application with Gunicorn
-- [x] API documentation (Swagger/OpenAPI via Flask-RESTX)
-- [x] API Key authentication and tier-based rate limiting
-- [x] Multi-provider support (Gemini + OpenAI) with circuit breaker
-- [x] Docker Compose for one-command deployment
-- [x] Monitoring stack (Prometheus & Grafana)
-- [x] Comprehensive test coverage (80%, 357 tests passing)
-- [x] Input validation with Pydantic models
-- [x] Secure CORS and header configuration
-- [x] Health checks and metrics endpoints
-- [x] Dedicated `/ready` probe with env validation
-- [x] Batch processing support
-- [x] JWT authentication support
-- [x] Redis persistence for sessions and keys
-- [x] Container health checks and auto-restart policies
-- [x] Structured JSON logging with `trace_id`
-- [x] Automated evaluation pipeline + reports
-- [x] Rule-based classifier and prompt library
-
-### 💡 Stretch Enhancements
-- [ ] **SDK Development**: Publish client libraries for Python, JavaScript, and Go.
-- [ ] **Integration Recipes**: Provide guides for Zendesk, Jira, and Slack.
-- [ ] **Advanced Alerting**: Add Prometheus alert rules + PagerDuty hooks.
-- [ ] **Extended Load Testing**: k6/Locust scenarios for 1k RPS targets.
-
----
-
-## 🐳 Docker Services
-
-The `docker-compose.yml` includes:
-- **app**: The main Flask application.
-- **redis**: Redis for rate limiting and caching.
-- **prometheus**: Metrics collection.
-- **grafana**: Monitoring dashboards.
-
----
-
-## 📝 Project Structure
-
-```
-ai-ticket-classifier/
-├── app.py                 # Main Flask application
-├── api/                   # API endpoints (Flask-RESTX namespaces)
-├── providers/             # AI provider integrations (Gemini, OpenAI)
-├── security/              # Auth and rate limiting logic
-├── database/              # Database models and configuration
-├── tests/                 # Test suite
-├── monitoring/            # Prometheus configuration
-├── grafana/               # Grafana dashboards
-├── docker-compose.yml     # Docker orchestration
-└── Dockerfile             # Container definition
-```
-
----
-
-## 🔒 Security
-
-- API key authentication is enforced on all data endpoints.
-- Tier-based rate limiting prevents abuse.
-- Input is sanitized and validated via Pydantic models.
-- CORS is configurable for production environments.
-- JWT support is included for user-based authentication schemes.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.
-
----
-
-## 📚 Documentation
-
-- **API Documentation**: Interactive docs available at `/api/v1/docs` on the running server.
-- **Deployment Guide**: See the [Quick Start](#-quick-start) section.
-
----
-
-## 🧰 Maintainer
-
-**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
-
-* 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
-* 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
-* 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
-* 💻 [GitHub](https://github.com/ArtemRivnyi)
+Project Link: [https://github.com/ArtemRivnyi/ai-ticket-classifier](https://github.com/ArtemRivnyi/ai-ticket-classifier)
