@@ -396,10 +396,12 @@ ai-ticket-classifier/
 
 ---
 
-## 👤 Maintainer
+## 🧰 Maintainer
 
-| Name | GitHub | Portfolio |
-| :--- | :--- | :--- |
-| **Artem Rivnyi** | [@ArtemRivnyi](https://github.com/ArtemRivnyi) | [artemrivnyi.com](https://artemrivnyi.com) |
+**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
 
-Project Link: [https://github.com/ArtemRivnyi/ai-ticket-classifier](https://github.com/ArtemRivnyi/ai-ticket-classifier)
+* 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
+* 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
+* 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
+* 💻 [GitHub](https://github.com/ArtemRivnyi)
+
