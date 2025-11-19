@@ -558,61 +558,7 @@ def classify():
 @app.route('/api/v1/batch', methods=['POST'])
 @require_api_key
 @limiter.limit(get_rate_limit)
-@swag_from({
-    'tags': ['Classification'],
-    'summary': 'Classify multiple tickets in batch',
-    'description': 'Classifies multiple tickets in parallel for better throughput',
-    'parameters': [
-        {
-            'in': 'header',
-            'name': 'X-API-Key',
-            'type': 'string',
-            'required': True
-        },
-        {
-            'in': 'body',
-            'name': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'required': ['tickets'],
-                'properties': {
-                    'tickets': {
-                        'type': 'array',
-                        'items': {'type': 'string'},
-                        'minItems': 1,
-                        'maxItems': 100,
-                        'example': ['VPN not working', 'Password reset', 'Refund request']
-                    },
-                    'webhook_url': {
-                        'type': 'string',
-                        'format': 'uri',
-                        'example': 'https://example.com/webhook'
-                    }
-                }
-            }
-        }
-    ],
-    'responses': {
-        '200': {
-            'description': 'Batch classification successful',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'total': {'type': 'integer', 'example': 3},
-                    'successful': {'type': 'integer', 'example': 3},
-                    'failed': {'type': 'integer', 'example': 0},
-                    'processing_time': {'type': 'number', 'example': 1.26},
-                    'results': {'type': 'array', 'items': {'type': 'object'}}
-                }
-            }
-        },
-        '400': {'description': 'Invalid request'},
-        '401': {'description': 'Unauthorized'},
-        '429': {'description': 'Rate limit exceeded'}
-    },
-    'security': [{'ApiKeyAuth': []}]
-})
+
 def batch_classify():
     start_time = time.time()
     trace_logger = get_trace_logger()
@@ -745,42 +691,7 @@ def send_webhook(url: str, payload: dict):
 
 @app.route('/api/v1/webhooks', methods=['POST'])
 @require_api_key
-@swag_from({
-    'tags': ['Classification'],
-    'summary': 'Create a webhook subscription',
-    'description': 'Subscribe to receive classification results via webhook',
-    'parameters': [
-        {
-            'in': 'header',
-            'name': 'X-API-Key',
-            'type': 'string',
-            'required': True
-        },
-        {
-            'in': 'body',
-            'name': 'body',
-            'required': True,
-            'schema': {
-                'type': 'object',
-                'required': ['url'],
-                'properties': {
-                    'url': {'type': 'string', 'format': 'uri'},
-                    'secret': {'type': 'string'},
-                    'events': {
-                        'type': 'array',
-                        'items': {'type': 'string'},
-                        'default': ['classification.completed']
-                    }
-                }
-            }
-        }
-    ],
-    'responses': {
-        '201': {'description': 'Webhook created successfully'},
-        '400': {'description': 'Validation error'}
-    },
-    'security': [{'ApiKeyAuth': []}]
-})
+
 def create_webhook():
     """Create a webhook subscription"""
     try:
@@ -805,17 +716,7 @@ def create_webhook():
 
 @app.route('/metrics', methods=['GET'])
 @limiter.exempt
-@swag_from({
-    'tags': ['Monitoring'],
-    'summary': 'Prometheus metrics endpoint',
-    'description': 'Exports Prometheus-compatible metrics for monitoring',
-    'responses': {
-        '200': {
-            'description': 'Metrics data in Prometheus format',
-            'content': {'text/plain': {}}
-        }
-    }
-})
+
 def metrics():
     return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
