@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     PROMETHEUS_PUSHGATEWAY: Optional[HttpUrl] = Field(
         None, description="Optional Prometheus Pushgateway endpoint"
     )
+    SENTRY_DSN: Optional[str] = Field(None, description="Sentry DSN for error tracking")
 
     # Runtime behavior
     CORS_ORIGINS: str = Field("*", description="Comma-separated list of allowed origins")

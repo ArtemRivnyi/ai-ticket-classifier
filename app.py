@@ -55,9 +55,22 @@ import jwt
 from config.logging_config import setup_logging, logger as structured_logger
 from config.env_validation import validate_environment
 from config.settings import get_settings
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 # Load environment variables
 load_dotenv()
+
+# Initialize Sentry if DSN is provided
+settings = get_settings()
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        environment=settings.ENV,
+    )
 
 # Structured logging setup
 setup_logging()
@@ -785,6 +798,20 @@ except ImportError:
     pass
 
 # ===== MAIN =====
+
+import signal
+import sys
+
+def graceful_shutdown(signum, frame):
+    """Handle SIGTERM/SIGINT for graceful shutdown."""
+    logger.info(f"Received signal {signum}. Shutting down gracefully...")
+    # Close Redis connection if needed (Flask-Limiter handles this mostly, but good practice)
+    # Perform any other cleanup here
+    sys.exit(0)
+
+# Register signal handlers
+signal.signal(signal.SIGTERM, graceful_shutdown)
+signal.signal(signal.SIGINT, graceful_shutdown)
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
