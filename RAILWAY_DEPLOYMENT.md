@@ -16,6 +16,11 @@
 git push origin GEMINI_API_PROD_READY
 ```
 
+> [!IMPORTANT]
+> **Critical Step:** Ensure you are pushing the `GEMINI_API_PROD_READY` branch.
+> If you see errors referencing `classify.py` or `ValueError: GEMINI_API_KEY not found`, it means you are running an older version of the code or missing the API key.
+> **ALWAYS** verify that your Railway service variables include `GEMINI_API_KEY`.
+
 ### Step 2: Deploy via Railway
 
 1. **Go to Railway:**
@@ -207,9 +212,10 @@ git push origin GEMINI_API_PROD_READY
 Railway Dashboard → Service → Deployments → View Logs
 
 # Common issues:
-- Missing environment variables
+- Missing environment variables (Check `GEMINI_API_KEY`)
 - Python version mismatch
 - Port binding issues
+- **Code Mismatch:** If logs show `from classify import classify_ticket`, you are running old code. Redeploy `GEMINI_API_PROD_READY`.
 ```
 
 ### 403 Forbidden errors
