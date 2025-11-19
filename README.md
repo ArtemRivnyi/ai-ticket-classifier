@@ -55,8 +55,7 @@
 ### Live Classification
 > **Try it now**: [https://ai-ticket-classifier-production.up.railway.app/](https://ai-ticket-classifier-production.up.railway.app/)
 
-<!-- TODO: Add GIF here after capturing -->
-<!-- ![Classification Demo](docs/gifs/classification-demo.gif) -->
+![Classification Demo](docs/gifs/classification-demo.gif)
 
 ### Screenshots
 
@@ -64,16 +63,20 @@
 <summary>📸 Click to view screenshots</summary>
 
 #### Landing Page
-<!-- ![Landing Page](docs/screenshots/landing-page.png) -->
+![Landing Page](docs/screenshots/landing-page.png)
 *Modern, responsive UI built with Tailwind CSS*
 
 #### API Documentation
-<!-- ![Swagger UI](docs/screenshots/swagger-ui.png) -->
+![Swagger UI](docs/screenshots/swagger-ui.png)
 *Interactive Swagger UI for easy API exploration*
 
 #### Metrics Dashboard
-<!-- ![Metrics](docs/screenshots/metrics.png) -->
+![Metrics](docs/screenshots/metrics.png)
 *Prometheus metrics for monitoring*
+
+#### Classification Demo
+![Classification Demo](docs/screenshots/classification-demo.png)
+*Result of ticket classification flow*
 
 </details>
 
