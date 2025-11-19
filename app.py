@@ -67,6 +67,9 @@ for warning in env_status.warnings:
     logger.warning(warning)
 
 if not env_status.is_valid:
+    import sys
+    print(f"CRITICAL: Missing required environment variables: {env_status.missing}", file=sys.stderr)
+    sys.stderr.flush()
     logger.error("Missing required environment variables", missing=env_status.missing)
     if not _is_testing:
         sys.exit(1)
