@@ -172,6 +172,126 @@
                     }
                 }
             }
+        },
+        "/classify/batch": {
+            "post": {
+                "summary": "Batch classify tickets",
+                "description": "Classify multiple tickets in a single request. Batch size limits apply based on tier.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "tickets"
+                                ],
+                                "properties": {
+                                    "tickets": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "Login failed",
+                                            "VPN not connecting"
+                                        ]
+                                    },
+                                    "webhook_url": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "description": "Optional URL to receive results asynchronously",
+                                        "example": "https://webhook.site/..."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Batch processing complete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "total": {
+                                            "type": "integer"
+                                        },
+                                        "successful": {
+                                            "type": "integer"
+                                        },
+                                        "failed": {
+                                            "type": "integer"
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ClassificationResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks": {
+            "post": {
+                "summary": "Register a webhook",
+                "description": "Subscribe to API events.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "url"
+                                ],
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "format": "uri"
+                                    },
+                                    "events": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "default": [
+                                            "classification.completed"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Webhook registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "webhook_id": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
