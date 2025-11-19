@@ -113,15 +113,22 @@ def get_limiter_key():
         return f"api_key:{api_key}"
     return get_remote_address()
 
-# Try Redis first, fallback to memory storage
+# Configure rate limiter with Redis storage
 settings = get_settings()
 redis_url = settings.REDIS_URL
+
+# Suppress Flask-Limiter warning by configuring storage from the start
+import warnings
+warnings.filterwarnings('ignore', message='.*in-memory storage.*', module='flask_limiter')
+
 redis_available = False
 try:
     import redis
     redis_client_test = redis.from_url(redis_url, decode_responses=True, socket_connect_timeout=1)
     redis_client_test.ping()
     redis_available = True
+    logger.info(f"✅ Redis available at {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
+    
     # Use Redis storage with error handling
     limiter = Limiter(
         app=app,
@@ -139,9 +146,9 @@ try:
         # Don't fail if Redis goes down after initialization
         fail_on_first_request=False
     )
-    logger.info("✅ Rate limiter using Redis storage")
+    logger.info("✅ Rate limiter configured with Redis storage")
 except Exception as e:
-    logger.warning(f"⚠️ Redis not available, using memory storage for rate limiting: {e}")
+    logger.warning(f"⚠️ Redis not available, using in-memory storage for rate limiting: {e}")
     redis_available = False
     limiter = Limiter(
         app=app,
