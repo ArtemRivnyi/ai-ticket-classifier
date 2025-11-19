@@ -40,11 +40,13 @@ from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
-from flask import Flask, request, jsonify, Response, g, current_app
+from flask import Flask, request, jsonify, Response, g, current_app, send_from_directory, render_template
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flasgger import Swagger, swag_from
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
@@ -80,58 +82,6 @@ REQUEST_ID_HEADER = 'X-Request-ID'
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-this-in-production')
 
-# Swagger/OpenAPI configuration
-swagger_config = {
-    "headers": [],
-    "specs": [
-        {
-            "endpoint": "apispec",
-            "route": "/apispec.json",
-            "rule_filter": lambda rule: True,
-            "model_filter": lambda tag: True,
-        }
-    ],
-    "static_url_path": "/flasgger_static",
-    "swagger_ui": True,
-    "specs_route": "/api-docs",
-    "title": "AI Ticket Classifier API",
-    "version": "2.0.0",
-    "description": "Production-ready REST API for AI-powered support ticket classification with multi-provider support, rate limiting, and comprehensive monitoring",
-    "termsOfService": "",
-    "contact": {
-        "email": "support@example.com"
-    },
-    "license": {
-        "name": "MIT",
-        "url": "https://opensource.org/licenses/MIT"
-    },
-    "tags": [
-        {
-            "name": "Health",
-            "description": "Health check and status endpoints"
-        },
-        {
-            "name": "Classification",
-            "description": "Ticket classification endpoints"
-        },
-        {
-            "name": "Authentication",
-            "description": "API key management endpoints"
-        },
-        {
-            "name": "Monitoring",
-            "description": "Metrics and monitoring endpoints"
-        }
-    ]
-}
-
-swagger_template = {
-    "swagger": "2.0",
-    "info": {
-        "title": "AI Ticket Classifier API",
-        "version": "2.0.0",
-        "description": "Enterprise-grade AI-powered support ticket classification system"
-    },
     "basePath": "/api/v1",
     "schemes": ["http", "https"],
     "securityDefinitions": {
@@ -267,6 +217,21 @@ try:
     logger.info("✅ Integrations blueprint registered")
 except Exception as e:
     logger.warning(f"⚠️ Integrations blueprint not available: {e}")
+
+# Swagger UI Configuration
+SWAGGER_URL = '/docs'
+API_URL = '/static/swagger.json'
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "AI Ticket Classifier API"}
+)
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+# Serve Landing Page
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # ===== PYDANTIC MODELS =====
 

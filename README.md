@@ -136,9 +136,10 @@
     ```
 
 4.  **Check Health & Docs**
-    - **Live API**: [https://ai-ticket-classifier-production.up.railway.app/api/v1/health](https://ai-ticket-classifier-production.up.railway.app/api/v1/health)
+    - **Live Demo**: [https://ai-ticket-classifier-production.up.railway.app/](https://ai-ticket-classifier-production.up.railway.app/)
+    - **API Docs**: [https://ai-ticket-classifier-production.up.railway.app/docs](https://ai-ticket-classifier-production.up.railway.app/docs)
     - **Local Health**: `curl http://localhost:5000/api/v1/health`
-    - **Local Docs**: [http://localhost:5000/api/v1/docs](http://localhost:5000/api/v1/docs)
+    - **Local Docs**: [http://localhost:5000/docs](http://localhost:5000/docs)
     - **Grafana**: [http://localhost:3000](http://localhost:3000) (admin/admin)
 
 ---

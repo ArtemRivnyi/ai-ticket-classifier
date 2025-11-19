@@ -1,0 +1,177 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "AI Ticket Classifier API",
+        "description": "Enterprise-grade AI-powered support ticket classification API using Google Gemini 2.0 Flash.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api/v1",
+            "description": "API v1"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-Key"
+            }
+        },
+        "schemas": {
+            "TicketRequest": {
+                "type": "object",
+                "required": [
+                    "ticket"
+                ],
+                "properties": {
+                    "ticket": {
+                        "type": "string",
+                        "example": "My internet connection is very slow and drops frequently."
+                    }
+                }
+            },
+            "ClassificationResponse": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "example": "Network Issue"
+                    },
+                    "confidence": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0.98
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": [
+                            "low",
+                            "medium",
+                            "high",
+                            "critical"
+                        ],
+                        "example": "high"
+                    },
+                    "provider": {
+                        "type": "string",
+                        "example": "gemini"
+                    },
+                    "processing_time": {
+                        "type": "number",
+                        "example": 0.45
+                    },
+                    "request_id": {
+                        "type": "string",
+                        "example": "req_123456"
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "ApiKeyAuth": []
+        }
+    ],
+    "paths": {
+        "/classify": {
+            "post": {
+                "summary": "Classify a single ticket",
+                "description": "Analyzes the ticket text and returns category, priority, and confidence score.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TicketRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful classification",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClassificationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or missing API Key",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Check API health",
+                "security": [],
+                "responses": {
+                    "200": {
+                        "description": "API is healthy",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "healthy"
+                                        },
+                                        "version": {
+                                            "type": "string",
+                                            "example": "2.0.0"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
