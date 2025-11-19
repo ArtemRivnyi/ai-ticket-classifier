@@ -114,7 +114,8 @@ def get_limiter_key():
     return get_remote_address()
 
 # Try Redis first, fallback to memory storage
-redis_url = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+settings = get_settings()
+redis_url = settings.REDIS_URL
 redis_available = False
 try:
     import redis

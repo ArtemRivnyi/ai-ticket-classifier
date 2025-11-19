@@ -12,11 +12,18 @@ import secrets
 from datetime import datetime, timezone
 import logging
 
+from config.settings import get_settings
+
 logger = logging.getLogger(__name__)
 
 # Redis connection
-REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
+settings = get_settings()
+REDIS_URL = settings.REDIS_URL
 try:
+    # Mask URL in logs for security
+    masked_url = REDIS_URL.replace(REDIS_URL.split('@')[0].split('//')[1], '****') if '@' in REDIS_URL else '****'
+    logger.info(f"Attempting Redis connection to: {masked_url}")
+    
     redis_client = redis.from_url(REDIS_URL, decode_responses=True)
     redis_client.ping()
     logger.info("✓ Redis connection established")
