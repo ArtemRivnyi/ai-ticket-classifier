@@ -5,6 +5,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)](https://www.docker.com/)
 [![Coverage](https://img.shields.io/badge/Coverage-80%25-green.svg)]()
 [![Status](https://img.shields.io/badge/Status-Production_Ready_100%25-brightgreen.svg)]()
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Railway-purple.svg)](https://ai-ticket-classifier-production.up.railway.app/api/v1/health)
 
 **Enterprise-grade AI-powered support ticket classification system** built with Flask, Google Gemini AI, Redis, and comprehensive monitoring. Features multi-provider architecture, API key authentication, rate limiting, circuit breakers, and production monitoring with Prometheus & Grafana.
 
@@ -134,8 +135,9 @@
     ```
 
 4.  **Check Health & Docs**
-    - **Health Check**: `curl http://localhost:5000/api/v1/health`
-    - **API Docs**: [http://localhost:5000/api/v1/docs](http://localhost:5000/api/v1/docs)
+    - **Live API**: [https://ai-ticket-classifier-production.up.railway.app/api/v1/health](https://ai-ticket-classifier-production.up.railway.app/api/v1/health)
+    - **Local Health**: `curl http://localhost:5000/api/v1/health`
+    - **Local Docs**: [http://localhost:5000/api/v1/docs](http://localhost:5000/api/v1/docs)
     - **Grafana**: [http://localhost:3000](http://localhost:3000) (admin/admin)
 
 ---
