@@ -173,7 +173,7 @@
                 }
             }
         },
-        "/classify/batch": {
+        "/batch": {
             "post": {
                 "summary": "Batch classify tickets",
                 "description": "Classify multiple tickets in a single request. Batch size limits apply based on tier.",
