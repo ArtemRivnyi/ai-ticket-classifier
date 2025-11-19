@@ -6,6 +6,7 @@
 [![Coverage](https://img.shields.io/badge/Coverage-80%25-green.svg)]()
 [![Status](https://img.shields.io/badge/Status-Production_Ready_100%25-brightgreen.svg)]()
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Railway-purple.svg)](https://ai-ticket-classifier-production.up.railway.app/api/v1/health)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Artem_Rivnyi-000000?style=flat&logo=vercel&logoColor=white)](https://personal-page-devops.onrender.com/)
 
 **Enterprise-grade AI-powered support ticket classification system** built with Flask, Google Gemini AI, Redis, and comprehensive monitoring. Features multi-provider architecture, API key authentication, rate limiting, circuit breakers, and production monitoring with Prometheus & Grafana.
 
