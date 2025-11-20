@@ -454,7 +454,7 @@ def health():
         
         return make_response({
             'status': 'healthy',
-            'version': '2.3.0',
+            'version': '2.5.0',
             'timestamp': datetime.now(timezone.utc).isoformat(),
             'environment': os.getenv('FLASK_ENV', 'development'),
             'provider_status': provider_status

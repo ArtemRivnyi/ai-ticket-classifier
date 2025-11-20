@@ -1,5 +1,40 @@
 # Release Notes
 
+## v2.5.0 - Enhanced AI Prompt with Few-Shot Learning (2025-11-20)
+
+### 🚀 New Features
+
+#### 🧠 Enhanced Gemini Prompt
+- **15 Few-Shot Examples** covering all major subcategories and edge cases
+- **Strict Classification Rules** to prevent hallucination
+- **Pattern Hints** for tricky cases (SSO, webhooks, 2FA, billing bugs)
+- **JSON Response Format** for consistent parsing
+- **Gemini 2.0 Flash** for improved performance
+
+#### 📚 Comprehensive Examples
+Examples cover:
+- Authentication: 2FA/MFA, Password Reset, Session Expired
+- Integration: SSO/OAuth, Webhook Error, API Failure
+- Billing: Invoice Mismatch, UI/Backend Mismatch
+- Payment: Transaction Failed, Double Charge
+- Network: Connectivity Loss
+- Hardware: Firmware issues
+- Security: Unauthorized Access
+- Performance: Slow/Laggy apps
+
+### 🛠️ Improvements
+- Better handling of ambiguous tickets
+- Reduced false positives on edge cases
+- Improved subcategory accuracy
+- More consistent confidence scores
+
+### 📦 Technical Changes
+- Updated `providers/gemini_provider.py` with comprehensive prompt
+- Added JSON parsing with fallback handling
+- Improved error logging for classification failures
+
+---
+
 ## v2.4.0 - Analytics & Feedback (2025-11-20)
 
 ### 🚀 New Features
