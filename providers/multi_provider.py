@@ -13,12 +13,20 @@ from enum import Enum
 logger = logging.getLogger(__name__)
 
 VALID_CATEGORIES = [
-    'Network Issue',
     'Account Problem',
-    'Payment Issue',
+    'Authentication Issue',
+    'Billing Bug',
+    'Bug/Technical Issue',
+    'Data / Reporting Issue',
     'Feature Request',
-    'Bug/Technical Issue',  # NEW
-    'General Question',     # NEW
+    'General Question',
+    'Hardware Issue',
+    'Integration Issue',
+    'Mixed Issue',
+    'Network Issue',
+    'Notification Issue',
+    'Payment Issue',
+    'Security Incident',
     'Spam / Abuse',
     'Other'
 ]
@@ -27,30 +35,86 @@ CATEGORY_SYNONYMS = {
     'network': 'Network Issue',
     'vpn issue': 'Network Issue',
     'connectivity': 'Network Issue',
+    'latency': 'Network Issue',
+    'outage': 'Network Issue',
+    'wifi': 'Network Issue',
     'account': 'Account Problem',
-    'login': 'Account Problem',
-    'password': 'Account Problem',
+    'profile': 'Account Problem',
+    'settings': 'Account Problem',
+    'login': 'Authentication Issue',
+    'password': 'Authentication Issue',
+    '2fa': 'Authentication Issue',
+    'otp': 'Authentication Issue',
+    'verification': 'Authentication Issue',
+    'mfa': 'Authentication Issue',
     'billing': 'Payment Issue',
-    'refund': 'Payment Issue',
+    'payment': 'Payment Issue',
     'charge': 'Payment Issue',
+    'charged': 'Payment Issue',
+    'refund': 'Payment Issue',
+    'invoice': 'Payment Issue',
+    'invoice mismatch': 'Billing Bug',
+    'billing bug': 'Billing Bug',
+    'ui payment': 'Billing Bug',
+    'processor mismatch': 'Billing Bug',
     'idea': 'Feature Request',
     'suggestion': 'Feature Request',
+    'roadmap': 'Feature Request',
     'bug': 'Bug/Technical Issue',
     'crash': 'Bug/Technical Issue',
     'error': 'Bug/Technical Issue',
+    'exception': 'Bug/Technical Issue',
+    'hardware': 'Hardware Issue',
+    'printer': 'Hardware Issue',
+    'camera': 'Hardware Issue',
+    'sensor': 'Hardware Issue',
+    'battery': 'Hardware Issue',
+    'card reader': 'Hardware Issue',
+    'api': 'Integration Issue',
+    'webhook': 'Integration Issue',
+    'integration': 'Integration Issue',
+    'sdk': 'Integration Issue',
+    'oauth': 'Integration Issue',
+    'sso': 'Integration Issue',
+    'slack': 'Notification Issue',
+    'notification': 'Notification Issue',
+    'email': 'Notification Issue',
+    'sms': 'Notification Issue',
+    'alert': 'Notification Issue',
+    'security': 'Security Incident',
+    'breach': 'Security Incident',
+    'hacked': 'Security Incident',
+    'ransomware': 'Security Incident',
+    'compromised': 'Security Incident',
+    'phishing': 'Security Incident',
+    'report': 'Data / Reporting Issue',
+    'analytics': 'Data / Reporting Issue',
+    'dashboard': 'Data / Reporting Issue',
+    'export': 'Data / Reporting Issue',
+    'metrics': 'Data / Reporting Issue',
     'question': 'General Question',
     'how to': 'General Question',
+    'faq': 'General Question',
     'spam': 'Spam / Abuse',
     'abuse': 'Spam / Abuse',
-    'phishing': 'Spam / Abuse'
+    'promotion': 'Spam / Abuse',
+    'integration / api issue': 'Integration Issue'
 }
 
 PRIORITY_MAP = {
+    'Security Incident': 'critical',
     'Network Issue': 'high',
-    'Account Problem': 'high',
+    'Billing Bug': 'high',
     'Payment Issue': 'high',
-    'Bug/Technical Issue': 'high',
-    'Spam / Abuse': 'medium',
+    'Authentication Issue': 'high',
+    'Hardware Issue': 'medium',
+    'Integration Issue': 'medium',
+    'Bug/Technical Issue': 'medium',
+    'Account Problem': 'medium',
+    'Data / Reporting Issue': 'medium',
+    'Notification Issue': 'medium',
+    'Mixed Issue': 'medium',
+    'Spam / Abuse': 'low',
     'Feature Request': 'low',
     'General Question': 'low',
     'Other': 'medium'
@@ -77,45 +141,253 @@ BLACKLIST_KEYWORDS = [
 ]
 
 
+
+# Precedence order for resolving multiple matches
+# Specific/Critical categories > Generic categories
+CATEGORY_PRECEDENCE = [
+    'Security Incident',
+    'Billing Bug',
+    'Hardware Issue',
+    'Integration Issue',  # Swapped back to prioritize over Notification Issue
+    'Notification Issue',
+    'Authentication Issue',
+    'Payment Issue',
+    'Account Problem',
+    'Network Issue',
+    'Bug/Technical Issue',
+    'Data / Reporting Issue',
+    'Feature Request',
+    'General Question',
+    'Spam / Abuse',
+    'Mixed Issue',
+    'Other'
+]
+
+def _compile_category_rules() -> List[Dict]:
+    return [
+        {
+            'category': 'Billing Bug',
+            'patterns': [
+                r'ui shows paid',
+                r'logs show unpaid',
+                r'invoice (mismatch|says)',
+                r'processor (did not confirm|charged)',
+                r'webhook (shows|mismatch)',
+                r'dashboard shows paid.*backend',
+                r'backend.*unpaid',
+                r'stripe.*failed',
+                r'invoice.*\$\d+.*charged.*\$\d+',
+            ],
+        },
+        {
+            'category': 'Hardware Issue',
+            'patterns': [
+                r'\bcamera\b',
+                r'\bsensor\b',
+                r'\bprinter\b',
+                r'card reader',
+                r'\brouter\b',
+                r'\bbattery\b',
+                r'\bdevice\b',
+                r'\bac\b',
+                r'firmware update',
+                r'drains in',
+                r'jamming',
+                r'not detecting',
+                r'stopped working',
+            ],
+        },
+        {
+            'category': 'Integration Issue',
+            'patterns': [
+                r'\bapi\b',
+                r'webhook',
+                r'integration',
+                r'\bsdk\b',
+                r'callback',
+                r'auth token',
+                r'\bsso\b',
+                r'azure ad',
+                r'oauth',
+                r'invalid_grant',
+                r'api.*not responding',
+                r'timeout',
+                r'slack\s+integration',
+            ],
+        },
+        {
+            'category': 'Notification Issue',
+            'patterns': [
+                r'notification',
+                r'email.*not delivered',
+                r'slack.*alerts',
+                r'\bsms\b',
+                r'\balert\b',
+                r'push message',
+                r'half.*team',
+                r'some users',
+                r'partial.*delivery',
+                r'notifications.*some',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
+            'patterns': [
+                r'cannot log in',
+                r"can't log in",
+                r'failed login',
+                r'invalid code',
+                r'verification (code|failed)',
+                r'reset link expired',
+                r'\b2fa\b',
+                r'\bmfa\b',
+                r'\botp\b',
+                r'verification code',
+                r'authenticator',
+                r'password reset',
+            ],
+        },
+        {
+            'category': 'Payment Issue',
+            'patterns': [
+                r'payment failed',
+                r'payment completed',
+                r'\bcharged\b',
+                r'charged twice',
+                r'chargeback',
+                r'refund',
+                r'unauthorized payment',
+                r'duplicate charge',
+                r'invoice',
+                r'billing',
+            ],
+        },
+        {
+            'category': 'Security Incident',
+            'patterns': [
+                r'security alert',
+                r'breach',
+                r'hacked',
+                r'compromised',
+                r'data leak',
+                r'intrusion',
+            ],
+        },
+        {
+            'category': 'Bug/Technical Issue',
+            'patterns': [
+                r'null pointer',
+                r'javascript error',
+                r'stacktrace',
+                r'crash when',
+                r'cosmetic issue',
+                r'button alignment',
+                r'minor (issue|bug)',
+                r'error',
+                r'crash',
+                r'bug',
+            ],
+        },
+        {
+            'category': 'Network Issue',
+            'patterns': [
+                r'\bvpn\b',
+                r'\bnetwork\b',
+                r'latency',
+                r'packet loss',
+                r'connectivity',
+                r'connection timeout',
+                r'cannot connect',
+                r'\bwifi\b',
+                r'\binternet\b',
+            ],
+        },
+        {
+            'category': 'Account Problem',
+            'patterns': [
+                r'profile update',
+                r'account settings',
+                r'wrong email',
+                r'phishing',
+                r'crypto',
+                r'promo',
+            ],
+        },
+        {
+            'category': 'General Question',
+            'patterns': [
+                r'how do i',
+                r'can you explain',
+                r'general question',
+            ],
+        },
+        {
+            'category': 'Mixed Issue',
+            'patterns': [
+                r'\bAND\b.*failed',
+                r'two (separate|different) (issues|problems)',
+                r'multiple (issues|problems)',
+                r'both.*and',
+            ],
+        },
+    ]
+
 class RuleBasedClassifier:
     """Deterministic regex/keyword rules for obvious cases."""
 
     def __init__(self):
-        self.rules: List[Dict] = [
-            {
-                'category': 'Network Issue',
-                'patterns': [r'\bvpn\b', r'\bnetwork\b', r'\binternet\b', r'\bwifi\b', r'latency']
-            },
-            {
-                'category': 'Account Problem',
-                'patterns': [r'password', r'login', r'sign[\s-]?in', r'locked account']
-            },
-            {
-                'category': 'Payment Issue',
-                'patterns': [r'invoice', r'charge', r'billing', r'payment', r'refund']
-            },
-            {
-                'category': 'Feature Request',
-                'patterns': [r'would like', r'feature request', r'could you add', r'enhancement']
-            },
-            {
-                'category': 'Spam / Abuse',
-                'patterns': [r'unsubscribe', r'spam', r'phishing', r'crypto', r'promo']
-            },
-        ]
+        self.rules = _compile_category_rules()
 
     def classify(self, ticket_text: str) -> Optional[Dict]:
         text = ticket_text.lower()
+        matches = set()
+        
+        # Debug logging
+        logger.info(f"🔍 Rule Engine processing: '{text[:50]}...'")
+        
+        # Find all matching categories
         for rule in self.rules:
             if any(re.search(pattern, text) for pattern in rule['patterns']):
-                category = rule['category']
-                return {
-                    'category': category,
-                    'confidence': 1.0,
-                    'priority': PRIORITY_MAP.get(category, 'medium'),
-                    'provider': 'rule_engine'
-                }
-        return None
+                matches.add(rule['category'])
+                logger.info(f"✅ Match found: {rule['category']}")
+        
+        if not matches:
+            logger.info("❌ No rules matched")
+            return None
+
+        # Special case: If Mixed Issue explicit pattern matches, it takes precedence
+        # This handles cases like "login AND payment failed"
+        if 'Mixed Issue' in matches:
+            return {
+                'category': 'Mixed Issue',
+                'confidence': 0.85,
+                'priority': 'high',
+                'provider': 'rule_engine'
+            }
+
+        # Select the best category based on precedence
+        best_category = None
+        best_index = float('inf')
+        
+        for category in matches:
+            try:
+                index = CATEGORY_PRECEDENCE.index(category)
+                if index < best_index:
+                    best_index = index
+                    best_category = category
+            except ValueError:
+                continue
+        
+        if not best_category:
+            # Fallback if category not in precedence list (shouldn't happen)
+            best_category = list(matches)[0]
+
+        return {
+            'category': best_category,
+            'confidence': 0.85,  # High confidence for rule matches
+            'priority': PRIORITY_MAP.get(best_category, 'medium'),
+            'provider': 'rule_engine'
+        }
 
 
 class CircuitState(Enum):
@@ -253,9 +525,16 @@ class MultiProvider:
             logger.info(f"🚀 MultiProvider initialized (Gemini: {self.gemini_available}, OpenAI: {self.openai_available})")
     
     def classify(self, ticket_text: str) -> Dict:
-        """Classify ticket using available provider"""
+        """Classify ticket using Rule Engine first, then AI"""
         
-        # Check if any provider is available
+        # 1. Try Rule Engine FIRST (Deterministic & Fast)
+        # We prioritize rules because they are now highly specific and accurate
+        rule_match = self.rule_classifier.classify(ticket_text)
+        if rule_match:
+            logger.info(f"✅ Rule Engine matched: {rule_match['category']}")
+            return self._post_process_result(rule_match, ticket_text)
+
+        # Check if any provider is available for fallback
         if not self.gemini_available and not self.openai_available:
             raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
         
@@ -291,8 +570,7 @@ Ticket: {ticket_text}
 
 Respond with ONLY the category name from the approved list."""
 
-        # NEW LOGIC: Try AI first (Gemini/OpenAI)
-        # Only use rule engine as fallback if AI confidence is low
+        # 2. Try AI (Gemini/OpenAI) if rules failed
         
         ai_result = None
         
@@ -313,10 +591,6 @@ Respond with ONLY the category name from the approved list."""
             except Exception as e:
                 logger.error(f"Gemini classification failed: {e}")
                 if not self.openai_available:
-                    # Fallback to rules if AI completely fails
-                    rule_match = self.rule_classifier.classify(ticket_text)
-                    if rule_match:
-                        return self._post_process_result(rule_match, ticket_text)
                     raise
         
         # Fallback to OpenAI if Gemini fails
@@ -343,18 +617,7 @@ Respond with ONLY the category name from the approved list."""
                 
             except Exception as e:
                 logger.error(f"OpenAI classification failed: {e}")
-                # Fallback to rules if both AI providers failed
-                rule_match = self.rule_classifier.classify(ticket_text)
-                if rule_match:
-                    return self._post_process_result(rule_match, ticket_text)
                 raise
-        
-        # If AI succeeded but confidence is low (<80%), try rule engine as backup
-        if ai_result and ai_result.get('confidence', 0) < 0.80:
-            rule_match = self.rule_classifier.classify(ticket_text)
-            if rule_match:
-                logger.info("Using rule engine due to low AI confidence")
-                return self._post_process_result(rule_match, ticket_text)
         
         # Use AI result
         if ai_result:
@@ -376,28 +639,22 @@ Respond with ONLY the category name from the approved list."""
 
         result['category'] = normalized
         
-        # Determine priority with CRITICAL detection
+        # Determine priority
         priority = PRIORITY_MAP.get(normalized, 'medium')
         
         # Check for CRITICAL keywords
         if self._is_critical(ticket_text):
             priority = 'critical'
+            
+        # Check for LOW priority keywords
+        if self._is_low_priority(ticket_text):
+            priority = 'low'
         
         result['priority'] = priority
         
         if 'confidence' not in result or result['confidence'] is None:
             result['confidence'] = 0.75
         return result
-    
-    def _is_critical(self, ticket_text: str) -> bool:
-        """Check if ticket should be marked as CRITICAL priority"""
-        text = ticket_text.lower()
-        return any(re.search(pattern, text) for pattern in CRITICAL_KEYWORDS)
-
-    def _determine_priority(self, category: Optional[str]) -> str:
-        """Backward-compatible priority helper used in tests."""
-        normalized = self._normalize_category(category or 'Other')
-        return PRIORITY_MAP.get(normalized, 'medium')
 
     def _normalize_category(self, category: Optional[str]) -> str:
         if not category:
@@ -413,6 +670,25 @@ Respond with ONLY the category name from the approved list."""
         if cleaned in VALID_CATEGORIES:
             return cleaned
         return cleaned.title()
+
+    def _is_critical(self, ticket_text: str) -> bool:
+        """Check if ticket should be marked as CRITICAL priority"""
+        text = ticket_text.lower()
+        return any(re.search(pattern, text) for pattern in CRITICAL_KEYWORDS)
+
+    def _is_low_priority(self, ticket_text: str) -> bool:
+        """Check if ticket should be marked as LOW priority"""
+        text = ticket_text.lower()
+        low_keywords = [
+            r'cosmetic', r'typo', r'color', r'alignment', r'spacing',
+            r'minor', r'not\s+urgent', r'nice\s+to\s+have', r'suggestion'
+        ]
+        return any(re.search(pattern, text) for pattern in low_keywords)
+
+    def _determine_priority(self, category: Optional[str]) -> str:
+        """Backward-compatible priority helper used in tests."""
+        normalized = self._normalize_category(category or 'Other')
+        return PRIORITY_MAP.get(normalized, 'medium')
 
     def _matches_blacklist(self, ticket_text: str) -> bool:
         text = ticket_text.lower()

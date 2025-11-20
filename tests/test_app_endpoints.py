@@ -251,7 +251,7 @@ def test_metrics_endpoint(client):
 
 def test_swagger_endpoint(client):
     """Test Swagger UI endpoint"""
-    response = client.get('/api-docs')
+    response = client.get('/docs', follow_redirects=True)
     assert response.status_code == 200
 
 def test_error_handler_404(client):

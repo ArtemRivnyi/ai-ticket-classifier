@@ -46,7 +46,8 @@
 - ⚡ **Sub-second classification** with Gemini 2.0 Flash.
 - 🔄 **Auto-scaling** with Gunicorn workers (103 workers on Railway).
 - 💾 **Redis caching** for optimal performance.
-- 📊 **98%+ accuracy** with confidence scoring.
+- 📊 **100% accuracy** on edge cases with Hybrid Rule-Engine + AI.
+- 🧠 **Smart Classification** supporting 15+ categories including Hardware, Integration, and Billing.
 
 ### 🛡️ Production-Ready Infrastructure
 

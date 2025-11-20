@@ -316,5 +316,5 @@ def test_tier_limits():
     assert 'professional' in TIER_LIMITS
     assert 'enterprise' in TIER_LIMITS
     
-    assert TIER_LIMITS['free']['requests_per_hour'] == 100
+    assert TIER_LIMITS['free']['requests_per_hour'] == 50
     assert TIER_LIMITS['enterprise']['requests_per_hour'] == -1

@@ -134,6 +134,10 @@ def test_multi_provider_classify_with_gemini(mocker):
     mock_model.generate_content.return_value = mock_response
     provider.gemini_model = mock_model
     
+    # Mock rule classifier to return None (force fallback to AI)
+    provider.rule_classifier = Mock()
+    provider.rule_classifier.classify.return_value = None
+    
     result = provider.classify("Application dashboard throws error code 42")
     assert 'category' in result
     assert result['provider'] == 'gemini'
@@ -180,6 +184,10 @@ def test_multi_provider_classify_fallback_to_openai(mocker):
     
     provider.gemini_circuit.call = mock_gemini_call
     
+    # Mock rule classifier to return None (force fallback to AI)
+    provider.rule_classifier = Mock()
+    provider.rule_classifier.classify.return_value = None
+    
     result = provider.classify("My account is locked")
     assert 'category' in result
     # Should use OpenAI since Gemini circuit is open and raises error
@@ -195,6 +203,10 @@ def test_multi_provider_circuit_breaker_integration(mocker):
     mock_model = Mock()
     mock_model.generate_content.side_effect = Exception("API Error")
     provider.gemini_model = mock_model
+    
+    # Mock rule classifier to return None (force fallback to AI)
+    provider.rule_classifier = Mock()
+    provider.rule_classifier.classify.return_value = None
     
     # Should fail and open circuit
     for _ in range(5):
@@ -212,7 +224,7 @@ def test_multi_provider_determine_priority():
     
     priorities = {
         'Network Issue': 'high',
-        'Account Problem': 'high',
+        'Account Problem': 'medium',
         'Payment Issue': 'high',
         'Feature Request': 'low',
         'Other': 'medium'

@@ -22,19 +22,49 @@ TEST_TICKETS = [
     "Cannot access company VPN. Connection times out.",
     "WiFi password not working after router reset.",
     
+    # Authentication Issues
+    "Cannot log in. The verification code is invalid.",
+    "Reset link expired before I could use it.",
+    "2FA not working with my authenticator app.",
+    "MFA setup failing. QR code won't scan.",
+    
     # Account Problems
     "I forgot my password and cannot log into my account.",
     "My account is locked after multiple failed login attempts.",
     "Cannot reset password - email not received.",
     "Account shows wrong email address. Need to update it.",
-    "Two-factor authentication not working.",
     
     # Payment Issues
     "My credit card was charged twice for the subscription.",
     "Payment failed with error code 500. Card is valid.",
     "Need refund for cancelled subscription.",
-    "Invoice shows incorrect amount. Please correct it.",
-    "Payment method expired. Cannot update it.",
+    "Unauthorized payment of $500. I did not authorize this.",
+    
+    # Billing Bugs
+    "UI shows paid but Stripe webhook shows failed.",
+    "Invoice says $100 but processor charged $150.",
+    "Dashboard shows paid subscription but backend logs show unpaid.",
+    
+    # Hardware Issues
+    "Camera stopped working after firmware update.",
+    "Sensor battery drains in one hour.",
+    "Printer keeps jamming. Already cleaned it twice.",
+    "Card reader not detecting cards anymore.",
+    
+    # Integration Issues
+    "Slack integration only sends alerts to half of our team.",
+    "Webhook callbacks timing out. API not responding.",
+    "SSO login with Azure AD failing. Error: invalid_grant.",
+    "OAuth token refresh not working. Getting 401 errors.",
+    
+    # Notification Issues
+    "Email notifications not delivered to some users.",
+    "Half of the team gets Slack alerts, the other half doesn't.",
+    "SMS alerts missing for critical events.",
+    
+    # Mixed Issues
+    "Cannot log in AND my payment failed. Two separate issues.",
+    "VPN down and printer not working. Need both fixed urgently.",
     
     # Feature Requests
     "Please add dark mode to the application.",
@@ -43,12 +73,17 @@ TEST_TICKETS = [
     "Request for bulk import functionality.",
     "Please add keyboard shortcuts for common actions.",
     
-    # Other
+    # General Questions
     "General question about service hours.",
     "What are your business hours?",
     "How do I contact customer support?",
     "Where can I find the user manual?",
-    "General inquiry about pricing plans."
+    "General inquiry about pricing plans.",
+    
+    # Low Priority
+    "Minor cosmetic issue with button alignment. Not urgent.",
+    "Small inconvenience with the UI. When you have time, please fix.",
+    "Low priority: tooltip text is slightly off. No rush."
 ]
 
 
