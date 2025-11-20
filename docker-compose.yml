@@ -35,7 +35,8 @@ services:
       - MASTER_API_KEY=${MASTER_API_KEY:-change-me}
       - JWT_SECRET=${JWT_SECRET:-${SECRET_KEY:-change-me}}
       - ENVIRONMENT=${FLASK_ENV:-production}
-      - API_HOST=0.0.0.0:5000
+      - ALLOW_PROVIDERLESS=true
+      - FLASK_APP=app.py
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
       redis:

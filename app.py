@@ -275,10 +275,35 @@ class WebhookConfig(BaseModel):
 
 # ===== HELPER FUNCTIONS =====
 
+def clean_text(text: str) -> str:
+    """
+    Clean text by removing email signatures, forwarded headers, and common noise.
+    """
+    if not text:
+        return ""
+    
+    # Remove "Begin forwarded message" blocks
+    text = re.sub(r'-+\s*Forwarded message\s*-+.*', '', text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r'From:.*Sent:.*To:.*Subject:.*', '', text, flags=re.IGNORECASE | re.DOTALL)
+    
+    # Remove common signature separators
+    text = re.sub(r'(?m)^--\s*$.*', '', text, flags=re.DOTALL)
+    text = re.sub(r'(?m)^__\s*$.*', '', text, flags=re.DOTALL)
+    
+    # Remove "Sent from my iPhone" etc.
+    text = re.sub(r'(?m)^Sent from my.*$', '', text, flags=re.IGNORECASE | re.MULTILINE)
+    text = re.sub(r'(?m)^Get Outlook for.*$', '', text, flags=re.IGNORECASE | re.MULTILINE)
+    
+    return text.strip()
+
 def sanitize_input(text: str) -> str:
     """Sanitize user input"""
     if not text:
         return ""
+    
+    # First, clean noise (signatures, etc.)
+    text = clean_text(text)
+    
     # Remove null bytes
     text = text.replace('\x00', '')
     # Remove script tags

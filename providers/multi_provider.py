@@ -31,6 +31,24 @@ VALID_CATEGORIES = [
     'Other'
 ]
 
+SUBCATEGORIES = {
+    'Authentication Issue': ['Login Failure', '2FA/MFA Issue', 'Password Reset', 'Session Expired'],
+    'Hardware Issue': ['Device Malfunction', 'Battery/Power', 'Connectivity (Hardware)', 'Firmware'],
+    'Billing Bug': ['Invoice Mismatch', 'UI/Backend Mismatch', 'Webhook Failure'],
+    'Integration Issue': ['API Failure', 'Webhook Error', 'SSO/OAuth', 'Third-party Service'],
+    'Notification Issue': ['Email Delivery', 'Slack/SMS', 'Partial Delivery'],
+    'Payment Issue': ['Transaction Failed', 'Refund Request', 'Unrecognized Charge', 'Double Charge'],
+    'Network Issue': ['Connectivity Loss', 'Latency/Slowness', 'VPN Issue', 'WiFi'],
+    'Account Problem': ['Profile Update', 'Settings', 'Permissions'],
+    'Bug/Technical Issue': ['Crash/Error', 'Performance', 'UI/UX Glitch'],
+    'Security Incident': ['Unauthorized Access', 'Data Breach', 'Phishing'],
+    'Feature Request': ['New Feature', 'Improvement', 'Configuration Change'],
+    'General Question': ['How-to', 'Documentation', 'Pricing/Sales'],
+    'Spam / Abuse': ['Spam', 'Harassment'],
+    'Mixed Issue': ['Multiple Issues'],
+    'Other': ['Unclassified']
+}
+
 CATEGORY_SYNONYMS = {
     'network': 'Network Issue',
     'vpn issue': 'Network Issue',
@@ -159,176 +177,457 @@ def _compile_category_rules() -> List[Dict]:
     return [
         {
             'category': 'Billing Bug',
+            'subcategory': 'Invoice Mismatch',
             'patterns': [
-                r'ui shows paid',
-                r'logs show unpaid',
                 r'invoice (mismatch|says)',
+                r'invoice.*\$\d+.*charged.*\$\d+',
+                r'charged twice.*invoice',
+                r'same invoice.*twice',
+                r'tax.*wrong',
+                r'tax.*calculation',
+            ],
+        },
+        {
+            'category': 'Billing Bug',
+            'subcategory': 'Webhook Failure',
+            'patterns': [
                 r'processor (did not confirm|charged)',
                 r'webhook (shows|mismatch)',
+                r'stripe.*failed',
+            ],
+        },
+        {
+            'category': 'Billing Bug',
+            'subcategory': 'UI/Backend Mismatch',
+            'patterns': [
+                r'dashboard.*paid.*dunning',
+                r'says.*paid.*dunning',
+                r'ui shows paid',
+                r'logs show unpaid',
                 r'dashboard shows paid.*backend',
                 r'backend.*unpaid',
-                r'stripe.*failed',
-                r'invoice.*\$\d+.*charged.*\$\d+',
+                r'status.*active.*features.*locked',
+                r'subscription.*active.*locked',
             ],
         },
         {
             'category': 'Feature Request',
+            'subcategory': 'New Feature',
             'patterns': [
-                r'nice to have',
-                r'would like',
                 r'add animation',
                 r'feature request',
                 r'new feature',
+                r'need an api',
+                r'create an api',
+                r'\badd dark mode',
+                r'\badd.*dark mode',
+            ],
+        },
+        {
+            'category': 'Feature Request',
+            'subcategory': 'Improvement',
+            'patterns': [
+                r'would be nice',
+                r'nice to have',
+                r'would like',
                 r'suggestion',
                 r'improvement',
                 r'enhancement',
                 r'can you add',
+                r'make the.*collapsible',
+                r'export to',
             ],
         },
         {
             'category': 'Hardware Issue',
+            'subcategory': 'Battery/Power',
+            'patterns': [
+                r'\bbattery\b',
+                r'\bac\b',
+                r'drains in',
+            ],
+        },
+        # Firmware MUST come before Device Malfunction to catch "device firmware update failed"
+        {
+            'category': 'Hardware Issue',
+            'subcategory': 'Firmware',
+            'patterns': [
+                r'firmware.*update.*failed',
+                r'firmware.*failed',
+                r'firmware update',
+            ],
+        },
+        {
+            'category': 'Hardware Issue',
+            'subcategory': 'Device Malfunction',
             'patterns': [
                 r'\bcamera\b',
                 r'\bsensor\b',
                 r'\bprinter\b',
                 r'card reader',
-                r'\brouter\b',
-                r'\bbattery\b',
                 r'\bdevice\b',
-                r'\bac\b',
-                r'firmware update',
-                r'drains in',
                 r'jamming',
                 r'not detecting',
                 r'stopped working',
             ],
         },
         {
-            'category': 'Integration Issue',
+            'category': 'Hardware Issue',
+            'subcategory': 'Connectivity (Hardware)',
             'patterns': [
-                r'\bapi\b',
-                r'webhook',
-                r'integration',
-                r'\bsdk\b',
-                r'callback',
-                r'auth token',
-                r'\bsso\b',
-                r'azure ad',
-                r'oauth',
-                r'invalid_grant',
-                r'api.*not responding',
-                r'timeout',
-                r'slack\s+integration',
+                r'\brouter\b',
             ],
         },
         {
-            'category': 'Notification Issue',
+            'category': 'Integration Issue',
+            'subcategory': 'Webhook Error',
             'patterns': [
-                r'notification',
-                r'email.*not delivered',
-                r'slack.*alerts',
-                r'\bsms\b',
-                r'\balert\b',
-                r'push message',
-                r'half.*team',
-                r'some users',
-                r'partial.*delivery',
-                r'notifications.*some',
+                r'webhook',
+                r'callback',
             ],
         },
+        {
+            'category': 'Integration Issue',
+            'subcategory': 'API Failure',
+            'patterns': [
+                r'api.*error',
+                r'api.*fail',
+                r'api.*timeout',
+                r'\bsdk\b',
+                r'api.*not responding',
+            ],
+        },
+        # Authentication Login Failure MUST come before SSO/OAuth to catch "sso login button"
         {
             'category': 'Authentication Issue',
+            'subcategory': 'Login Failure',
             'patterns': [
                 r'cannot log in',
                 r"can't log in",
                 r'failed login',
+                r'login button.*greyed',
+                r'locked out',
+                r'sso.*button',
+                r'sso.*login.*button',
+            ],
+        },
+        {
+            'category': 'Integration Issue',
+            'subcategory': 'SSO/OAuth',
+            'patterns': [
+                r'auth token',
+                r'azure ad',
+                r'oauth',
+                r'invalid_grant',
+            ],
+        },
+        {
+            'category': 'Integration Issue',
+            'subcategory': 'Third-party Service',
+            'patterns': [
+                r'integration',
+                r'slack.*not coming',
+                r'slack.*notifications',
+                r'salesforce',
+                r'hubspot',
+                r'jira',
+            ],
+        },
+        {
+            'category': 'Notification Issue',
+            'subcategory': 'Email Delivery',
+            'patterns': [
+                r'email.*not delivered',
+                r'didn\'t receive.*email',
+                r'email.*spam',
+                r'email.*blank',
+            ],
+        },
+        {
+            'category': 'Notification Issue',
+            'subcategory': 'Partial Delivery',
+            'patterns': [
+                r'half.*team',
+                r'some users',
+                r'partial.*delivery',
+                r'delayed.*hours',
+                r'notifications.*delayed',
+                r'notifications.*some',
+            ],
+        },
+        {
+            'category': 'Notification Issue',
+            'subcategory': 'Slack/SMS',
+            'patterns': [
+                r'slack.*alerts',
+                r'\bsms\b',
+                r'\balert\b',
+                r'push message',
+            ],
+        },
+        {
+            'category': 'Notification Issue',
+            'subcategory': None, # General
+            'patterns': [
+                r'notification',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
+            'subcategory': '2FA/MFA Issue',
+            'patterns': [
                 r'invalid code',
                 r'verification (code|failed)',
-                r'reset link expired',
                 r'\b2fa\b',
                 r'\bmfa\b',
                 r'\botp\b',
                 r'verification code',
                 r'authenticator',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
+            'subcategory': 'Login Failure',
+            'patterns': [
+                r'cannot log in',
+                r"can't log in",
+                r'failed login',
+                r'login button.*greyed',
+                r'locked out',
+                r'sso.*button',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
+            'subcategory': 'Session Expired',
+            'patterns': [
+                r'session expired',
+                r'session timeout',
+                r'logged out',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
+            'subcategory': 'Password Reset',
+            'patterns': [
+                r'reset link',
                 r'password reset',
+                r'forgot.*password',
             ],
         },
         {
             'category': 'Payment Issue',
+            'subcategory': 'Double Charge',
             'patterns': [
-                r'payment failed',
-                r'payment completed',
-                r'\bcharged\b',
                 r'charged twice',
-                r'chargeback',
-                r'refund',
-                r'unauthorized payment',
+                r'double charge',
                 r'duplicate charge',
+                r'billed twice',
+                r'same invoice.*twice',
+            ],
+        },
+        {
+            'category': 'Payment Issue',
+            'subcategory': 'Refund Request',
+            'patterns': [
+                r'refund',
+                r'chargeback',
+            ],
+        },
+        {
+            'category': 'Payment Issue',
+            'subcategory': 'Transaction Failed',
+            'patterns': [
+                r'transaction failed',
+                r'payment failed',
+                r'payment completed', # Context usually implies issue despite "completed"
+                r'insufficient funds',
+                r'card expired',
+                r'payment.*error',
+                r'transaction.*error',
+                r'credit card.*expired',
+            ],
+        },
+        {
+            'category': 'Payment Issue',
+            'subcategory': 'Unrecognized Charge',
+            'patterns': [
+                r'\bcharged\b',
+                r'unauthorized payment',
                 r'invoice',
                 r'billing',
+                r'don\'t recognize',
+                r'unknown charge',
             ],
         },
         {
             'category': 'Security Incident',
+            'subcategory': 'Data Breach',
             'patterns': [
-                r'security alert',
                 r'breach',
+                r'data leak',
+            ],
+        },
+        {
+            'category': 'Security Incident',
+            'subcategory': 'Unauthorized Access',
+            'patterns': [
                 r'hacked',
                 r'compromised',
-                r'data leak',
                 r'intrusion',
             ],
         },
         {
             'category': 'Bug/Technical Issue',
+            'subcategory': 'Performance',
+            'patterns': [
+                r'slow',
+                r'takes.*seconds',
+                r'loading',
+                r'latency',
+            ],
+        },
+        {
+            'category': 'Bug/Technical Issue',
+            'subcategory': 'UI/UX Glitch',
+            'patterns': [
+                r'misaligned',
+                r'glitch',
+                r'overlap',
+                r'css',
+                r'style',
+            ],
+        },
+        {
+            'category': 'Bug/Technical Issue',
+            'subcategory': 'Crash/Error',
+            'patterns': [
+                r'crash',
+                r'error',
+                r'exception',
+                r'traceback',
+                r'undefined',
+                r'not a function',
+                r'empty', # Search results empty
+            ],
+        },
+        {
+            'category': 'Bug/Technical Issue',
+            'subcategory': 'Crash/Error',
             'patterns': [
                 r'null pointer',
                 r'javascript error',
                 r'stacktrace',
                 r'crash when',
-                r'cosmetic issue',
-                r'button alignment',
-                r'minor (issue|bug)',
                 r'error',
                 r'crash',
                 r'bug',
             ],
         },
         {
+            'category': 'Bug/Technical Issue',
+            'subcategory': 'UI/UX Glitch',
+            'patterns': [
+                r'cosmetic issue',
+                r'button alignment',
+                r'minor (issue|bug)',
+            ],
+        },
+        {
             'category': 'Network Issue',
+            'subcategory': 'Connectivity Loss',
+            'patterns': [
+                r'cannot connect',
+                r'connection timeout',
+                r'\binternet\b',
+                r'packet loss',
+            ],
+        },
+        {
+            'category': 'Network Issue',
+            'subcategory': 'VPN Issue',
             'patterns': [
                 r'\bvpn\b',
-                r'\bnetwork\b',
-                r'latency',
-                r'packet loss',
-                r'connectivity',
-                r'connection timeout',
-                r'cannot connect',
+            ],
+        },
+        {
+            'category': 'Network Issue',
+            'subcategory': 'WiFi',
+            'patterns': [
                 r'\bwifi\b',
-                r'\binternet\b',
+            ],
+        },
+        {
+            'category': 'Network Issue',
+            'subcategory': 'Latency/Slowness',
+            'patterns': [
+                r'latency',
+                r'\bnetwork\b',
+                r'connectivity',
             ],
         },
         {
             'category': 'Account Problem',
+            'subcategory': 'Profile Update',
             'patterns': [
                 r'profile update',
-                r'account settings',
                 r'wrong email',
-                r'phishing',
+            ],
+        },
+        {
+            'category': 'Account Problem',
+            'subcategory': 'Profile Update',
+            'patterns': [
+                r'change.*email',
+                r'wrong name',
+                r'update.*profile',
+            ],
+        },
+        {
+            'category': 'Account Problem',
+            'subcategory': 'Settings',
+            'patterns': [
+                r'account settings',
+                r'delete my account',
+                r'upgrade.*plan',
+            ],
+        },
+        {
+            'category': 'Account Problem',
+            'subcategory': 'Permissions',
+            'patterns': [
+                r'access.*page',
+                r'permission',
+                r'admin access',
+            ],
+        },
+        {
+            'category': 'Account Problem',
+            'subcategory': None,
+            'patterns': [
+                r'phishing', # Context dependent, but kept from original
                 r'crypto',
                 r'promo',
             ],
         },
         {
             'category': 'General Question',
+            'subcategory': 'How-to',
             'patterns': [
                 r'how do i',
                 r'can you explain',
+            ],
+        },
+        {
+            'category': 'General Question',
+            'subcategory': None,
+            'patterns': [
                 r'general question',
             ],
         },
         {
             'category': 'Mixed Issue',
+            'subcategory': 'Multiple Issues',
             'patterns': [
                 r'\bAND\b.*failed',
                 r'two (separate|different) (issues|problems)',
@@ -346,52 +645,56 @@ class RuleBasedClassifier:
 
     def classify(self, ticket_text: str) -> Optional[Dict]:
         text = ticket_text.lower()
-        matches = set()
+        matches = []
         
         # Debug logging
         logger.info(f"🔍 Rule Engine processing: '{text[:50]}...'")
         
         # Find all matching categories
-        for rule in self.rules:
+        for i, rule in enumerate(self.rules):
             if any(re.search(pattern, text) for pattern in rule['patterns']):
-                matches.add(rule['category'])
-                logger.info(f"✅ Match found: {rule['category']}")
+                matches.append({
+                    'index': i,
+                    'category': rule['category'],
+                    'subcategory': rule.get('subcategory')
+                })
+                logger.info(f"✅ Match found: {rule['category']} -> {rule.get('subcategory')}")
         
         if not matches:
             logger.info("❌ No rules matched")
             return None
 
         # Special case: If Mixed Issue explicit pattern matches, it takes precedence
-        # This handles cases like "login AND payment failed"
-        if 'Mixed Issue' in matches:
+        mixed_match = next((m for m in matches if m['category'] == 'Mixed Issue'), None)
+        if mixed_match:
             return {
                 'category': 'Mixed Issue',
+                'subcategory': mixed_match['subcategory'] or 'Multiple Issues',
                 'confidence': 0.85,
                 'priority': 'high',
                 'provider': 'rule_engine'
             }
 
         # Select the best category based on precedence
-        best_category = None
-        best_index = float('inf')
+        # Sort by:
+        # 1. Category Precedence (lower index = higher priority)
+        # 2. Rule Index (lower index = more specific rule, assuming rules are ordered)
         
-        for category in matches:
+        def sort_key(match):
             try:
-                index = CATEGORY_PRECEDENCE.index(category)
-                if index < best_index:
-                    best_index = index
-                    best_category = category
+                cat_priority = CATEGORY_PRECEDENCE.index(match['category'])
             except ValueError:
-                continue
-        
-        if not best_category:
-            # Fallback if category not in precedence list (shouldn't happen)
-            best_category = list(matches)[0]
+                cat_priority = float('inf')
+            return (cat_priority, match['index'])
+
+        matches.sort(key=sort_key)
+        best_match = matches[0]
 
         return {
-            'category': best_category,
+            'category': best_match['category'],
+            'subcategory': best_match['subcategory'],
             'confidence': 0.85,  # High confidence for rule matches
-            'priority': PRIORITY_MAP.get(best_category, 'medium'),
+            'priority': PRIORITY_MAP.get(best_match['category'], 'medium'),
             'provider': 'rule_engine'
         }
 
@@ -549,7 +852,7 @@ class MultiProvider:
             raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
         
         prompt = f"""
-You are an AI assistant that classifies support tickets into EXACTLY one of the approved categories.
+You are an AI assistant that classifies support tickets into EXACTLY one of the approved categories and subcategories.
 
 IMPORTANT CONTEXT:
 - If ticket mentions "crash" or "bug" or "error", it's Bug/Technical Issue (not Payment/Account)
@@ -557,28 +860,22 @@ IMPORTANT CONTEXT:
 - Look at PRIMARY issue, not secondary keywords
 - If it's a simple question ("how to", "what is"), it's General Question
 
-Allowed categories (respond with one of them verbatim):
-1. Network Issue — connectivity, VPN, latency, networking
-2. Account Problem — login, password, user profile
-3. Payment Issue — billing, charges, refunds, invoices
-4. Feature Request — enhancements, suggestions, roadmap asks
-5. Bug/Technical Issue — crashes, errors, bugs, technical problems
-6. General Question — how-to questions, general inquiries
-7. Spam / Abuse — phishing, unsolicited promos, abuse
-8. Other — anything that does not match above
+Allowed Categories and Subcategories:
+{chr(10).join([f"{k}: {', '.join(v)}" for k, v in SUBCATEGORIES.items()])}
 
 Examples:
-- "VPN is down for the whole office" → Network Issue
-- "Please refund the duplicate charge from yesterday" → Payment Issue
-- "I need to reset my password again" → Account Problem
-- "Could you add dark mode to the dashboard?" → Feature Request
-- "App crashes when I upload files" → Bug/Technical Issue
-- "How do I export my data?" → General Question
-- "Click here to claim free crypto" → Spam / Abuse
+- "VPN is down for the whole office" → Category: Network Issue, Subcategory: VPN Issue
+- "Please refund the duplicate charge from yesterday" → Category: Payment Issue, Subcategory: Refund Request
+- "I need to reset my password again" → Category: Authentication Issue, Subcategory: Password Reset
+- "Could you add dark mode to the dashboard?" → Category: Feature Request, Subcategory: New Feature
+- "App crashes when I upload files" → Category: Bug/Technical Issue, Subcategory: Crash/Error
+- "How do I export my data?" → Category: General Question, Subcategory: How-to
+- "Click here to claim free crypto" → Category: Spam / Abuse, Subcategory: Spam
 
 Ticket: {ticket_text}
 
-Respond with ONLY the category name from the approved list."""
+Respond with a JSON object containing 'category' and 'subcategory'. Example:
+{{"category": "Network Issue", "subcategory": "VPN Issue"}}"""
 
         # 2. Try AI (Gemini/OpenAI) if rules failed
         
@@ -588,10 +885,28 @@ Respond with ONLY the category name from the approved list."""
         if self.gemini_available:
             try:
                 def classify_with_gemini():
+                    import json
                     response = self.gemini_model.generate_content(prompt)
-                    category = response.text.strip()
+                    text = response.text.strip()
+                    # Try to parse JSON
+                    try:
+                        # Clean up markdown code blocks if present
+                        if text.startswith("```json"):
+                            text = text[7:-3]
+                        elif text.startswith("```"):
+                            text = text[3:-3]
+                        
+                        data = json.loads(text)
+                        category = data.get('category', 'Other')
+                        subcategory = data.get('subcategory')
+                    except json.JSONDecodeError:
+                        # Fallback if not JSON (legacy behavior or model error)
+                        category = text
+                        subcategory = None
+                        
                     return {
                         'category': category,
+                        'subcategory': subcategory,
                         'confidence': 0.95,
                         'provider': 'gemini'
                     }
@@ -607,18 +922,28 @@ Respond with ONLY the category name from the approved list."""
         if not ai_result and self.openai_available:
             try:
                 def classify_with_openai():
+                    import json
                     response = self.openai_client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
-                            {"role": "system", "content": "You are a ticket classification system. Respond with ONLY the category name."},
+                            {"role": "system", "content": "You are a ticket classification system. Respond with JSON object containing 'category' and 'subcategory'."},
                             {"role": "user", "content": prompt}
                         ],
-                        max_tokens=50,
+                        max_tokens=100,
                         temperature=0.3
                     )
-                    category = response.choices[0].message.content.strip()
+                    text = response.choices[0].message.content.strip()
+                    try:
+                         data = json.loads(text)
+                         category = data.get('category', 'Other')
+                         subcategory = data.get('subcategory')
+                    except json.JSONDecodeError:
+                        category = text
+                        subcategory = None
+
                     return {
                         'category': category,
+                        'subcategory': subcategory,
                         'confidence': 0.90,
                         'provider': 'openai'
                     }
@@ -638,6 +963,7 @@ Respond with ONLY the category name from the approved list."""
             logger.info("Rule-only mode: returning fallback classification")
             fallback_result = {
                 'category': 'Other',
+                'subcategory': 'Unclassified',
                 'confidence': 0.5,
                 'provider': 'rule_engine'
             }
@@ -656,6 +982,16 @@ Respond with ONLY the category name from the approved list."""
             normalized = 'Other'
 
         result['category'] = normalized
+        
+        # Validate subcategory
+        subcategory = result.get('subcategory')
+        if normalized in SUBCATEGORIES:
+            valid_subs = SUBCATEGORIES[normalized]
+            if subcategory not in valid_subs:
+                # Try to find a matching subcategory or default to first/None
+                result['subcategory'] = None
+        else:
+            result['subcategory'] = None
         
         # Determine priority
         priority = PRIORITY_MAP.get(normalized, 'medium')
