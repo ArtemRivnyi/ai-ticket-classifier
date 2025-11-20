@@ -74,3 +74,11 @@ Thumbs.db
 backups/
 assets/
 accuracy_test_results.json
+
+# Test results
+*_test_results.json
+test_live_deployment.py
+test_rule_engine.py
+
+# Duplicate venvs
+venv312/
