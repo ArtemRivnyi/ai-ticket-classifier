@@ -39,27 +39,6 @@
 
 ---
 
-## ✨ Features
-
-### 🚀 Performance & Scalability
-
-- ⚡ **Sub-second classification** with Gemini 2.0 Flash.
-- 🔄 **Auto-scaling** with Gunicorn workers (103 workers on Railway).
-- 💾 **Redis caching** for optimal performance.
-- 📊 **100% accuracy** on comprehensive test suite with Hybrid Rule-Engine + AI.
-- 🧠 **Smart Classification** supporting 15+ categories and **50+ subcategories** (e.g., `Authentication Issue` -> `2FA Failure`).
-- 🧹 **Auto-cleaning** of email signatures and noise for better accuracy.
-
-### 🛡️ Production-Ready Infrastructure
-
-- 🔐 **Tier-based rate limiting** (Free: 50/hour, Pro: 1000/day).
-- 🔑 **API key authentication** with Redis-backed storage.
-- 🔁 **Circuit breakers** for AI provider failover (Gemini → OpenAI).
-- ⚠️ **Graceful shutdown** with SIGTERM/SIGINT handlers.
-- 🏥 **Health checks** at `/api/v1/health`.
-
-### 📊 Monitoring & Observability
-
 - 📈 **Prometheus metrics** at `/metrics`.
 - 🔍 **Structured logging** with request tracing (`trace_id`).
 - 🐛 **Sentry integration** for error tracking.
