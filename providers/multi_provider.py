@@ -17,6 +17,8 @@ VALID_CATEGORIES = [
     'Account Problem',
     'Payment Issue',
     'Feature Request',
+    'Bug/Technical Issue',  # NEW
+    'General Question',     # NEW
     'Spam / Abuse',
     'Other'
 ]
@@ -33,6 +35,11 @@ CATEGORY_SYNONYMS = {
     'charge': 'Payment Issue',
     'idea': 'Feature Request',
     'suggestion': 'Feature Request',
+    'bug': 'Bug/Technical Issue',
+    'crash': 'Bug/Technical Issue',
+    'error': 'Bug/Technical Issue',
+    'question': 'General Question',
+    'how to': 'General Question',
     'spam': 'Spam / Abuse',
     'abuse': 'Spam / Abuse',
     'phishing': 'Spam / Abuse'
@@ -42,10 +49,24 @@ PRIORITY_MAP = {
     'Network Issue': 'high',
     'Account Problem': 'high',
     'Payment Issue': 'high',
+    'Bug/Technical Issue': 'high',
     'Spam / Abuse': 'medium',
     'Feature Request': 'low',
+    'General Question': 'low',
     'Other': 'medium'
 }
+
+# CRITICAL priority keywords
+CRITICAL_KEYWORDS = [
+    r'production down',
+    r'server down',
+    r'all users affected',
+    r'can\'t work',
+    r'losing money',
+    r'complete outage',
+    r'system crash',
+    r'data loss'
+]
 
 BLACKLIST_KEYWORDS = [
     r'free money',
@@ -241,30 +262,40 @@ class MultiProvider:
         prompt = f"""
 You are an AI assistant that classifies support tickets into EXACTLY one of the approved categories.
 
+IMPORTANT CONTEXT:
+- If ticket mentions "crash" or "bug" or "error", it's Bug/Technical Issue (not Payment/Account)
+- If ticket mentions "production/server down" + "multiple users", Priority = CRITICAL
+- Look at PRIMARY issue, not secondary keywords
+- If it's a simple question ("how to", "what is"), it's General Question
+
 Allowed categories (respond with one of them verbatim):
 1. Network Issue — connectivity, VPN, latency, networking
 2. Account Problem — login, password, user profile
 3. Payment Issue — billing, charges, refunds, invoices
 4. Feature Request — enhancements, suggestions, roadmap asks
-5. Spam / Abuse — phishing, unsolicited promos, abuse
-6. Other — anything that does not match above
+5. Bug/Technical Issue — crashes, errors, bugs, technical problems
+6. General Question — how-to questions, general inquiries
+7. Spam / Abuse — phishing, unsolicited promos, abuse
+8. Other — anything that does not match above
 
 Examples:
-- "VPN is down for the whole office" -> Network Issue
-- "Please refund the duplicate charge from yesterday" -> Payment Issue
-- "I need to reset my password again" -> Account Problem
-- "Could you add dark mode to the dashboard?" -> Feature Request
-- "Click here to claim free crypto" -> Spam / Abuse
+- "VPN is down for the whole office" → Network Issue
+- "Please refund the duplicate charge from yesterday" → Payment Issue
+- "I need to reset my password again" → Account Problem
+- "Could you add dark mode to the dashboard?" → Feature Request
+- "App crashes when I upload files" → Bug/Technical Issue
+- "How do I export my data?" → General Question
+- "Click here to claim free crypto" → Spam / Abuse
 
 Ticket: {ticket_text}
 
 Respond with ONLY the category name from the approved list."""
 
-        # Deterministic rules first
-        rule_match = self.rule_classifier.classify(ticket_text)
-        if rule_match:
-            return self._post_process_result(rule_match, ticket_text)
-
+        # NEW LOGIC: Try AI first (Gemini/OpenAI)
+        # Only use rule engine as fallback if AI confidence is low
+        
+        ai_result = None
+        
         # Try Gemini first
         if self.gemini_available:
             try:
@@ -277,16 +308,19 @@ Respond with ONLY the category name from the approved list."""
                         'provider': 'gemini'
                     }
                 
-                result = self.gemini_circuit.call(classify_with_gemini)
-                return self._post_process_result(result, ticket_text)
+                ai_result = self.gemini_circuit.call(classify_with_gemini)
                 
             except Exception as e:
                 logger.error(f"Gemini classification failed: {e}")
                 if not self.openai_available:
+                    # Fallback to rules if AI completely fails
+                    rule_match = self.rule_classifier.classify(ticket_text)
+                    if rule_match:
+                        return self._post_process_result(rule_match, ticket_text)
                     raise
         
         # Fallback to OpenAI if Gemini fails
-        if self.openai_available:
+        if not ai_result and self.openai_available:
             try:
                 def classify_with_openai():
                     response = self.openai_client.chat.completions.create(
@@ -305,14 +339,26 @@ Respond with ONLY the category name from the approved list."""
                         'provider': 'openai'
                     }
                 
-                result = self.openai_circuit.call(classify_with_openai)
-                return self._post_process_result(result, ticket_text)
+                ai_result = self.openai_circuit.call(classify_with_openai)
                 
             except Exception as e:
                 logger.error(f"OpenAI classification failed: {e}")
-                # If both providers failed, raise error
-                if not self.gemini_available:
-                    raise
+                # Fallback to rules if both AI providers failed
+                rule_match = self.rule_classifier.classify(ticket_text)
+                if rule_match:
+                    return self._post_process_result(rule_match, ticket_text)
+                raise
+        
+        # If AI succeeded but confidence is low (<80%), try rule engine as backup
+        if ai_result and ai_result.get('confidence', 0) < 0.80:
+            rule_match = self.rule_classifier.classify(ticket_text)
+            if rule_match:
+                logger.info("Using rule engine due to low AI confidence")
+                return self._post_process_result(rule_match, ticket_text)
+        
+        # Use AI result
+        if ai_result:
+            return self._post_process_result(ai_result, ticket_text)
         
         # If we get here, all providers failed
         raise Exception("All providers failed")
@@ -329,10 +375,24 @@ Respond with ONLY the category name from the approved list."""
             normalized = 'Other'
 
         result['category'] = normalized
-        result['priority'] = PRIORITY_MAP.get(normalized, 'medium')
+        
+        # Determine priority with CRITICAL detection
+        priority = PRIORITY_MAP.get(normalized, 'medium')
+        
+        # Check for CRITICAL keywords
+        if self._is_critical(ticket_text):
+            priority = 'critical'
+        
+        result['priority'] = priority
+        
         if 'confidence' not in result or result['confidence'] is None:
             result['confidence'] = 0.75
         return result
+    
+    def _is_critical(self, ticket_text: str) -> bool:
+        """Check if ticket should be marked as CRITICAL priority"""
+        text = ticket_text.lower()
+        return any(re.search(pattern, text) for pattern in CRITICAL_KEYWORDS)
 
     def _determine_priority(self, category: Optional[str]) -> str:
         """Backward-compatible priority helper used in tests."""
