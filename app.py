@@ -64,13 +64,16 @@ load_dotenv()
 # Initialize Sentry if DSN is provided
 settings = get_settings()
 if settings.SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        integrations=[FlaskIntegration()],
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-        environment=settings.ENV,
-    )
+    if _is_testing:
+        print("⚠️  Sentry initialization skipped during tests")
+    else:
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+            environment=settings.ENV,
+        )
 
 # Structured logging setup
 setup_logging()
@@ -78,6 +81,7 @@ logger = structured_logger.bind(component="app")
 
 # Validate environment configuration
 env_status = validate_environment(skip_failure=_is_testing)
+ALLOW_PROVIDERLESS = os.getenv('ALLOW_PROVIDERLESS', 'false').lower() == 'true'
 for warning in env_status.warnings:
     logger.warning(warning)
 
@@ -143,8 +147,6 @@ try:
             "retry_on_timeout": False,
             "health_check_interval": 30
         },
-        # Don't fail if Redis goes down after initialization
-        fail_on_first_request=False
     )
     logger.info("✅ Rate limiter configured with Redis storage")
 except Exception as e:
@@ -438,7 +440,7 @@ def readiness():
         providers_available = any(
             status == 'available' for status in provider_status.values()
         )
-    status_ok = env_status.is_valid and providers_available
+    status_ok = env_status.is_valid and (providers_available or ALLOW_PROVIDERLESS)
     response_status = 200 if status_ok else 503
 
     return make_response({
@@ -461,7 +463,7 @@ def status():
             }, 503)
         
         # Check if any provider is available
-        if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
+        if not ALLOW_PROVIDERLESS and hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
             if not classifier.gemini_available and not classifier.openai_available:
                 return make_response({
                     'error': 'No AI providers available',
@@ -538,7 +540,7 @@ def classify():
             }, 503)
         
         # Check if any provider is available
-        if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
+        if not ALLOW_PROVIDERLESS and hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
             if not classifier.gemini_available and not classifier.openai_available:
                 return make_response({
                     'error': 'No AI providers available',
@@ -625,7 +627,7 @@ def batch_classify():
             }, 503)
         
         # Check if any provider is available
-        if hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
+        if not ALLOW_PROVIDERLESS and hasattr(classifier, 'gemini_available') and hasattr(classifier, 'openai_available'):
             if not classifier.gemini_available and not classifier.openai_available:
                 return make_response({
                     'error': 'No AI providers available',

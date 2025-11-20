@@ -19,13 +19,21 @@ logger = logging.getLogger(__name__)
 # Redis connection
 settings = get_settings()
 REDIS_URL = settings.REDIS_URL
+ALLOW_PROVIDERLESS = os.getenv("ALLOW_PROVIDERLESS", "false").lower() == "true"
+_in_memory_keys = {}
+_in_memory_user_keys = {}
+
 try:
     redis_client = redis.from_url(REDIS_URL, decode_responses=True)
     redis_client.ping()
     logger.info("✓ Redis connection established")
 except Exception as e:
-    logger.error(f"✗ Redis connection failed: {e}")
-    redis_client = None
+    if ALLOW_PROVIDERLESS:
+        logger.warning(f"⚠️ Redis not available, running with in-memory key store: {e}")
+        redis_client = None
+    else:
+        logger.error(f"✗ Redis connection failed: {e}")
+        redis_client = None
 
 # Tier configurations
 TIER_LIMITS = {
@@ -67,9 +75,6 @@ class APIKeyManager:
     @staticmethod
     def create_key(user_id: str, name: str, tier: str = 'free') -> dict:
         """Create a new API key"""
-        if not redis_client:
-            raise Exception("Redis not available")
-        
         key = APIKeyManager.generate_key()
         key_hash = APIKeyManager.hash_key(key)
         key_id = secrets.token_urlsafe(16)
@@ -87,10 +92,16 @@ class APIKeyManager:
             'rate_limit': str(TIER_LIMITS[tier]['requests_per_hour'])
         }
         
-        redis_client.hset(f"api_key:{key_hash}", mapping=key_data)
-        redis_client.sadd(f"user_keys:{user_id}", key_hash)
+        if redis_client:
+            redis_client.hset(f"api_key:{key_hash}", mapping=key_data)
+            redis_client.sadd(f"user_keys:{user_id}", key_hash)
+        elif ALLOW_PROVIDERLESS:
+            _in_memory_keys[key_hash] = key_data.copy()
+            _in_memory_user_keys.setdefault(user_id, set()).add(key_hash)
+        else:
+            raise Exception("Redis not available")
         
-        logger.info(f"Created API key {key_id} for user {user_id}")
+        logger.info(f"Created API key {key_id} for user {user_id} (backend={'redis' if redis_client else 'memory'})")
         
         return {
             'key': key,
@@ -118,6 +129,10 @@ class APIKeyManager:
             }
 
         if not redis_client:
+            if ALLOW_PROVIDERLESS:
+                key_hash = APIKeyManager.hash_key(key)
+                data = _in_memory_keys.get(key_hash)
+                return data.copy() if data else None
             return None
         
         key_hash = APIKeyManager.hash_key(key)
@@ -129,6 +144,14 @@ class APIKeyManager:
     def revoke_key(key_id: str, user_id: str) -> bool:
         """Revoke an API key"""
         if not redis_client:
+            if ALLOW_PROVIDERLESS:
+                user_keys = _in_memory_user_keys.get(user_id, set())
+                for key_hash in list(user_keys):
+                    key_data = _in_memory_keys.get(key_hash)
+                    if key_data and key_data.get('id') == key_id:
+                        key_data['is_active'] = 'false'
+                        logger.info(f"Revoked API key {key_id} (memory backend)")
+                        return True
             return False
         
         user_keys = redis_client.smembers(f"user_keys:{user_id}")
@@ -146,6 +169,22 @@ class APIKeyManager:
     def list_user_keys(user_id: str) -> list:
         """List all keys for a user"""
         if not redis_client:
+            if ALLOW_PROVIDERLESS:
+                user_keys = list(_in_memory_user_keys.get(user_id, set()))
+                keys_data = []
+                for key_hash in user_keys:
+                    data = _in_memory_keys.get(key_hash)
+                    if data:
+                        keys_data.append({
+                            'id': data.get('id'),
+                            'name': data.get('name'),
+                            'tier': data.get('tier'),
+                            'is_active': data.get('is_active') == 'true',
+                            'created_at': data.get('created_at'),
+                            'last_used': data.get('last_used'),
+                            'requests_count': int(data.get('requests_count', 0))
+                        })
+                return keys_data
             return []
         
         user_keys = redis_client.smembers(f"user_keys:{user_id}")

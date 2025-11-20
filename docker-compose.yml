@@ -21,19 +21,22 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ai-ticket-classifier
+    env_file:
+      - .env.local
     ports:
       - "5000:5000"
     environment:
-      - FLASK_ENV=production
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///local.db}
       - REDIS_URL=redis://redis:6379/0
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - SECRET_KEY=${SECRET_KEY}
-      - MASTER_API_KEY=${MASTER_API_KEY}
-      - JWT_SECRET=${JWT_SECRET:-${SECRET_KEY}}
-      - ENVIRONMENT=production
+      - SECRET_KEY=${SECRET_KEY:-change-me}
+      - MASTER_API_KEY=${MASTER_API_KEY:-change-me}
+      - JWT_SECRET=${JWT_SECRET:-${SECRET_KEY:-change-me}}
+      - ENVIRONMENT=${FLASK_ENV:-production}
       - API_HOST=0.0.0.0:5000
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
       redis:
         condition: service_healthy

@@ -28,7 +28,7 @@ REQUIRED_VARS = [
     "SECRET_KEY",
 ]
 
-# At least one provider key must be configured
+# At least one provider key must be configured (production only)
 PROVIDER_VARS = ["GEMINI_API_KEY", "OPENAI_API_KEY"]
 
 OPTIONAL_WARNINGS = {
@@ -51,12 +51,19 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
     missing: List[str] = []
     warnings: List[str] = []
 
+    runtime_env = (os.getenv("ENV") or os.getenv("FLASK_ENV") or "production").lower()
+    allow_providerless = os.getenv("ALLOW_PROVIDERLESS", "false").lower() == "true"
+    enforce_providers = runtime_env == "production" and not allow_providerless
+
     for var in REQUIRED_VARS:
         if not os.getenv(var):
             missing.append(var)
 
     if not any(os.getenv(var) for var in PROVIDER_VARS):
-        missing.append("GEMINI_API_KEY or OPENAI_API_KEY")
+        if enforce_providers:
+            missing.append("GEMINI_API_KEY or OPENAI_API_KEY")
+        else:
+            warnings.append("Running without GEMINI_API_KEY/OPENAI_API_KEY (mock mode)")
 
     for var, warning in OPTIONAL_WARNINGS.items():
         if not os.getenv(var):

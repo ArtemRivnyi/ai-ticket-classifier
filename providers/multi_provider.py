@@ -89,15 +89,7 @@ CATEGORY_SYNONYMS = {
     'phishing': 'Security Incident',
     'report': 'Data / Reporting Issue',
     'analytics': 'Data / Reporting Issue',
-    'dashboard': 'Data / Reporting Issue',
-    'export': 'Data / Reporting Issue',
-    'metrics': 'Data / Reporting Issue',
-    'question': 'General Question',
-    'how to': 'General Question',
-    'faq': 'General Question',
-    'spam': 'Spam / Abuse',
-    'abuse': 'Spam / Abuse',
-    'promotion': 'Spam / Abuse',
+    'analytics': 'Data / Reporting Issue',
     'integration / api issue': 'Integration Issue'
 }
 
@@ -177,6 +169,20 @@ def _compile_category_rules() -> List[Dict]:
                 r'backend.*unpaid',
                 r'stripe.*failed',
                 r'invoice.*\$\d+.*charged.*\$\d+',
+            ],
+        },
+        {
+            'category': 'Feature Request',
+            'patterns': [
+                r'nice to have',
+                r'would like',
+                r'add animation',
+                r'feature request',
+                r'new feature',
+                r'suggestion',
+                r'improvement',
+                r'enhancement',
+                r'can you add',
             ],
         },
         {
@@ -449,6 +455,7 @@ class MultiProvider:
     def __init__(self):
         self.gemini_available = False
         self.openai_available = False
+        self.allow_providerless = os.getenv("ALLOW_PROVIDERLESS", "false").lower() == "true"
         self.gemini_circuit = CircuitBreaker()
         self.openai_circuit = CircuitBreaker()
         self.rule_classifier = RuleBasedClassifier()
@@ -519,8 +526,11 @@ class MultiProvider:
         
         # Don't raise error if no providers - allow app to start and return 503 on requests
         if not self.gemini_available and not self.openai_available:
-            logger.warning("⚠️ No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
-            logger.warning("⚠️ Application will start but classification endpoints will return 503")
+            if self.allow_providerless:
+                logger.warning("⚠️ No AI providers available. Running in rule-only mode (ALLOW_PROVIDERLESS=true)")
+            else:
+                logger.warning("⚠️ No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
+                logger.warning("⚠️ Application will start but classification endpoints will return 503")
         else:
             logger.info(f"🚀 MultiProvider initialized (Gemini: {self.gemini_available}, OpenAI: {self.openai_available})")
     
@@ -535,7 +545,7 @@ class MultiProvider:
             return self._post_process_result(rule_match, ticket_text)
 
         # Check if any provider is available for fallback
-        if not self.gemini_available and not self.openai_available:
+        if not self.gemini_available and not self.openai_available and not self.allow_providerless:
             raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
         
         prompt = f"""
@@ -623,7 +633,15 @@ Respond with ONLY the category name from the approved list."""
         if ai_result:
             return self._post_process_result(ai_result, ticket_text)
         
-        # If we get here, all providers failed
+        # If we get here, all providers failed or unavailable
+        if self.allow_providerless:
+            logger.info("Rule-only mode: returning fallback classification")
+            fallback_result = {
+                'category': 'Other',
+                'confidence': 0.5,
+                'provider': 'rule_engine'
+            }
+            return self._post_process_result(fallback_result, ticket_text)
         raise Exception("All providers failed")
     
     def _post_process_result(self, result: Dict, ticket_text: str) -> Dict:
