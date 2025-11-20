@@ -7,13 +7,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyState = document.getElementById('emptyState');
     const resultContent = document.getElementById('resultContent');
 
-    // Sample tickets
+    // Sample tickets covering all categories
     const samples = [
-        "I cannot access my account even though I reset my password. It says 'User not found'.",
-        "The billing page is throwing a 500 error when I try to download my invoice.",
-        "Can you please add a dark mode to the dashboard? My eyes are hurting.",
-        "My internet speed is extremely slow today, I'm only getting 2Mbps.",
-        "I was charged twice for the same subscription this month."
+        // Authentication Issue
+        "I cannot log in. The verification code is invalid.",
+        "Reset link expired before I could use it.",
+        "2FA verification failed. Cannot access my account.",
+
+        // Payment Issue
+        "I was charged twice for the same subscription.",
+        "Payment completed but I want a refund.",
+        "Unauthorized payment of $500 appeared on my card.",
+
+        // Hardware Issue
+        "Camera stopped working after firmware update.",
+        "Sensor battery drains in one hour.",
+        "Printer keeps jamming. Already cleaned it twice.",
+        "Card reader not detecting cards anymore.",
+
+        // Integration Issue
+        "Slack integration only sends alerts to half of our team.",
+        "Webhook callbacks timing out. API not responding.",
+        "SSO login with Azure AD failing. Error: invalid_grant.",
+
+        // Billing Bug
+        "UI shows paid but Stripe webhook shows failed.",
+        "Invoice says $100 but processor charged $150.",
+        "Dashboard shows paid subscription but backend logs show unpaid.",
+
+        // Notification Issue
+        "Email notifications not delivered to some users.",
+        "Half of the team gets Slack alerts, the other half doesn't.",
+
+        // Mixed Issue
+        "Cannot log in AND my payment failed. Two separate issues.",
+
+        // Bug/Technical Issue
+        "Minor cosmetic issue with button alignment. Not urgent.",
+
+        // Feature Request
+        "Nice to have: add animation to the loading screen."
     ];
 
     fillSampleBtn.addEventListener('click', () => {
