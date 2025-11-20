@@ -439,7 +439,7 @@ def health():
         
         return make_response({
             'status': 'healthy',
-            'version': '2.2.0',
+            'version': '2.3.0',
             'timestamp': datetime.now(timezone.utc).isoformat(),
             'environment': os.getenv('FLASK_ENV', 'development'),
             'provider_status': provider_status
@@ -498,7 +498,7 @@ def status():
         return make_response({
             'status': 'operational',
             'providers': classifier.get_status(),
-            'api_version': '2.2.0',
+            'api_version': '2.3.0',
             'timestamp': datetime.now(timezone.utc).isoformat()
         }, 200)
     except Exception as e:
