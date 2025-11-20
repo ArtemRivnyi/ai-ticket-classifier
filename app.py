@@ -206,7 +206,10 @@ except Exception as e:
 try:
     from monitoring.metrics import (
         request_count, request_duration, classification_count,
-        error_count, active_requests
+        error_count, active_requests,
+        # NEW: Analytics metrics
+        classification_accuracy, category_distribution,
+        subcategory_distribution, provider_usage, classification_errors
     )
     logger.info("✅ Metrics initialized")
 except Exception as e:
@@ -216,6 +219,11 @@ except Exception as e:
     classification_count = None
     error_count = None
     active_requests = None
+    classification_accuracy = None
+    category_distribution = None
+    subcategory_distribution = None
+    provider_usage = None
+    classification_errors = None
 
 try:
     from api.integrations import integrations_bp
@@ -223,6 +231,13 @@ try:
     logger.info("✅ Integrations blueprint registered")
 except Exception as e:
     logger.warning(f"⚠️ Integrations blueprint not available: {e}")
+
+try:
+    from api.feedback import feedback_bp
+    app.register_blueprint(feedback_bp)
+    logger.info("✅ Feedback blueprint registered")
+except Exception as e:
+    logger.warning(f"⚠️ Feedback blueprint not available: {e}")
 
 # Swagger UI Configuration
 SWAGGER_URL = '/docs'
@@ -574,13 +589,29 @@ def classify():
         
         result = classifier.classify(ticket)
         
-        # Record metrics
+        # Record existing metrics
         if classification_count:
             classification_count.labels(
                 category=result.get('category', 'unknown'),
                 provider=result.get('provider', 'unknown'),
                 status='success'
             ).inc()
+        
+        # NEW: Record analytics metrics
+        if classification_accuracy and 'confidence' in result:
+            classification_accuracy.observe(result['confidence'])
+        
+        if category_distribution and 'category' in result:
+            category_distribution.labels(category=result['category']).inc()
+        
+        if subcategory_distribution and 'subcategory' in result:
+            subcategory_distribution.labels(
+                category=result.get('category', 'unknown'),
+                subcategory=result.get('subcategory', 'unknown')
+            ).inc()
+        
+        if provider_usage and 'provider' in result:
+            provider_usage.labels(provider=result['provider']).inc()
         
         duration = time.time() - start_time
         result['processing_time'] = round(duration, 2)
@@ -598,6 +629,8 @@ def classify():
         trace_logger.error("classification_error", error=str(e))
         if error_count:
             error_count.labels(error_type='classification_error').inc()
+        if classification_errors:
+            classification_errors.labels(error_type='internal_error').inc()
         return make_response({
             'error': 'Internal server error',
             'message': str(e) if os.getenv('FLASK_ENV') == 'development' else 'An error occurred'

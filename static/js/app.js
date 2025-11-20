@@ -154,5 +154,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Request ID
         document.getElementById('resReqId').textContent = data.request_id || 'N/A';
+
+        // NEW: Show feedback section and store request_id
+        const feedbackSection = document.getElementById('feedbackSection');
+        if (feedbackSection) {
+            feedbackSection.classList.remove('hidden');
+            feedbackSection.dataset.requestId = data.request_id;
+        }
+    }
+
+    // NEW: Send feedback function
+    window.sendFeedback = async function (correct) {
+        const feedbackSection = document.getElementById('feedbackSection');
+        const requestId = feedbackSection?.dataset.requestId;
+
+        if (!requestId) {
+            console.error('No request ID found');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/v1/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    request_id: requestId,
+                    correct: correct
+                })
+            });
+
+            if (response.ok) {
+                // Hide buttons, show confirmation
+                feedbackSection.querySelector('.flex.gap-2').classList.add('hidden');
+                document.getElementById('feedbackConfirmation').classList.remove('hidden');
+            } else {
+                console.error('Failed to submit feedback');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+        }
     }
 });
