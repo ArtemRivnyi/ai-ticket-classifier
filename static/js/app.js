@@ -108,141 +108,101 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                displayResult(data);
-                addToHistory(data, text);
-                showToast('Classification successful', 'success');
-            } else {
-                showToast(data.error || 'Failed to classify ticket', 'error');
-                setLoading(false); // Reset loading state on error
+                // Show result
+                resultContent.classList.remove('hidden');
+
+                // Update fields
+                document.getElementById('resCategory').textContent = data.category;
+
+                // Confidence color
+                const confidenceEl = document.getElementById('resConfidence');
+                const confidence = (data.confidence * 100).toFixed(0);
+                confidenceEl.textContent = `${confidence}%`;
+
+                if (confidence > 80) {
+                    confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
+                } else if (confidence > 50) {
+                    confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+                } else {
+                    confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
+                }
+
+                // Priority color
+                const priorityEl = document.getElementById('resPriority');
+                priorityEl.textContent = data.priority;
+                if (data.priority === 'High' || data.priority === 'Critical') {
+                    priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800';
+                } else if (data.priority === 'Medium') {
+                    priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-yellow-100 text-yellow-800';
+                } else {
+                    priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-green-100 text-green-800';
+                }
+
+                document.getElementById('resTime').textContent = `${data.processing_time.toFixed(3)}s`;
+                document.getElementById('resProvider').textContent = data.provider;
+                document.getElementById('resReqId').textContent = data.request_id;
+                document.getElementById('resReqId').title = data.request_id;
+
+                // Show matched pattern if available
+                if (data.matched_pattern) {
+                    highlightedTicketContainer.classList.remove('hidden');
+                    highlightedTicketText.textContent = data.matched_pattern;
+                } else {
+                    highlightedTicketContainer.classList.add('hidden');
+                }
+
+                // Reset feedback section
+                document.getElementById('feedbackSection').classList.remove('hidden');
+                document.getElementById('feedbackConfirmation').classList.add('hidden');
+
+                setLoading(false);
             }
 
-        } catch (error) {
-            console.error('Error:', error);
-            showToast('An error occurred while connecting to the API.', 'error');
-            setLoading(false);
-        }
-    });
+            // History Management
+            loadHistory();
+            document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
 
-    function setLoading(isLoading) {
-        if (isLoading) {
-            btnText.textContent = 'Processing...';
-            btnSpinner.classList.remove('hidden');
-            fillSampleBtn.disabled = true;
-            ticketInput.disabled = true;
+            function addToHistory(data, text) {
+                const historyItem = {
+                    text: text,
+                    category: data.category,
+                    priority: data.priority,
+                    timestamp: new Date().toISOString()
+                };
 
-            // Show skeleton, hide others
-            emptyState.classList.add('hidden');
-            resultContent.classList.add('hidden');
-            skeletonLoader.classList.remove('hidden');
-        } else {
-            btnText.textContent = 'Classify Ticket';
-            btnSpinner.classList.add('hidden');
-            fillSampleBtn.disabled = false;
-            ticketInput.disabled = false;
+                let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+                history.unshift(historyItem);
+                if (history.length > 10) history.pop(); // Keep last 10
+                localStorage.setItem('classificationHistory', JSON.stringify(history));
 
-            // Hide skeleton
-            skeletonLoader.classList.add('hidden');
-        }
-    }
+                renderHistory(history);
+            }
 
-    function displayResult(data) {
-        // Hide skeleton
-        skeletonLoader.classList.add('hidden');
-        // Show result
-        resultContent.classList.remove('hidden');
+            function loadHistory() {
+                const history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+                renderHistory(history);
+            }
 
-        // Update fields
-        document.getElementById('resCategory').textContent = data.category;
+            function renderHistory(history) {
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
 
-        // Confidence color
-        const confidenceEl = document.getElementById('resConfidence');
-        const confidence = (data.confidence * 100).toFixed(0);
-        confidenceEl.textContent = `${confidence}%`;
+                if (history.length === 0) {
+                    historyList.innerHTML = '<p class="text-slate-400 col-span-full text-center">No history yet.</p>';
+                    return;
+                }
 
-        if (confidence > 80) {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
-        } else if (confidence > 50) {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
-        } else {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
-        }
+                history.forEach(item => {
+                    const date = new Date(item.timestamp).toLocaleTimeString();
+                    const el = document.createElement('div');
+                    el.className = 'bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition';
 
-        // Priority color
-        const priorityEl = document.getElementById('resPriority');
-        priorityEl.textContent = data.priority;
-        if (data.priority === 'High' || data.priority === 'Critical') {
-            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800';
-        } else if (data.priority === 'Medium') {
-            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-yellow-100 text-yellow-800';
-        } else {
-            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-green-100 text-green-800';
-        }
+                    let priorityColor = 'bg-gray-100 text-gray-800';
+                    if (item.priority === 'High' || item.priority === 'Critical') priorityColor = 'bg-red-100 text-red-800';
+                    else if (item.priority === 'Medium') priorityColor = 'bg-yellow-100 text-yellow-800';
+                    else priorityColor = 'bg-green-100 text-green-800';
 
-        document.getElementById('resTime').textContent = `${data.processing_time.toFixed(3)}s`;
-        document.getElementById('resProvider').textContent = data.provider;
-        document.getElementById('resReqId').textContent = data.request_id;
-        document.getElementById('resReqId').title = data.request_id;
-
-        // Show matched pattern if available
-        if (data.matched_pattern) {
-            highlightedTicketContainer.classList.remove('hidden');
-            highlightedTicketText.textContent = data.matched_pattern;
-        } else {
-            highlightedTicketContainer.classList.add('hidden');
-        }
-
-        // Reset feedback section
-        document.getElementById('feedbackSection').classList.remove('hidden');
-        document.getElementById('feedbackConfirmation').classList.add('hidden');
-
-        setLoading(false);
-    }
-
-    // History Management
-    loadHistory();
-    document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
-
-    function addToHistory(data, text) {
-        const historyItem = {
-            text: text,
-            category: data.category,
-            priority: data.priority,
-            timestamp: new Date().toISOString()
-        };
-
-        let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
-        history.unshift(historyItem);
-        if (history.length > 10) history.pop(); // Keep last 10
-        localStorage.setItem('classificationHistory', JSON.stringify(history));
-
-        renderHistory(history);
-    }
-
-    function loadHistory() {
-        const history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
-        renderHistory(history);
-    }
-
-    function renderHistory(history) {
-        const historyList = document.getElementById('historyList');
-        historyList.innerHTML = '';
-
-        if (history.length === 0) {
-            historyList.innerHTML = '<p class="text-slate-400 col-span-full text-center">No history yet.</p>';
-            return;
-        }
-
-        history.forEach(item => {
-            const date = new Date(item.timestamp).toLocaleTimeString();
-            const el = document.createElement('div');
-            el.className = 'bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition';
-
-            let priorityColor = 'bg-gray-100 text-gray-800';
-            if (item.priority === 'High' || item.priority === 'Critical') priorityColor = 'bg-red-100 text-red-800';
-            else if (item.priority === 'Medium') priorityColor = 'bg-yellow-100 text-yellow-800';
-            else priorityColor = 'bg-green-100 text-green-800';
-
-            el.innerHTML = `
+                    el.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                         ${item.category}
@@ -256,21 +216,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
                 </div>
             `;
-            historyList.appendChild(el);
+                    historyList.appendChild(el);
+                });
+            }
+
+            function clearHistory() {
+                localStorage.removeItem('classificationHistory');
+                renderHistory([]);
+                showToast('History cleared', 'success');
+            }
+
+            // Expose sendFeedback to global scope for onclick
+            window.sendFeedback = function (isCorrect) {
+                document.getElementById('feedbackConfirmation').classList.remove('hidden');
+                // In a real app, you would send this to the backend
+                console.log('Feedback:', isCorrect);
+                showToast('Thanks for your feedback!', 'success');
+            };
         });
-    }
-
-    function clearHistory() {
-        localStorage.removeItem('classificationHistory');
-        renderHistory([]);
-        showToast('History cleared', 'success');
-    }
-
-    // Expose sendFeedback to global scope for onclick
-    window.sendFeedback = function (isCorrect) {
-        document.getElementById('feedbackConfirmation').classList.remove('hidden');
-        // In a real app, you would send this to the backend
-        console.log('Feedback:', isCorrect);
-        showToast('Thanks for your feedback!', 'success');
-    };
-});
