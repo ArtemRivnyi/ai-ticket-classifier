@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 displayResult(data);
+                addToHistory(data, text);
             } else {
                 alert('Error: ' + (data.error || 'Failed to classify ticket'));
             }
@@ -161,6 +162,70 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackSection.classList.remove('hidden');
             feedbackSection.dataset.requestId = data.request_id;
         }
+
+        // NEW: Show matched pattern if available
+        const patternContainer = document.getElementById('matchedPatternContainer');
+        const patternEl = document.getElementById('resPattern');
+        if (data.matched_pattern) {
+            patternEl.textContent = data.matched_pattern;
+            patternContainer.classList.remove('hidden');
+        } else {
+            patternContainer.classList.add('hidden');
+        }
+    }
+
+    // Load history on start
+    renderHistory();
+
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+        localStorage.removeItem('classificationHistory');
+        renderHistory();
+    });
+
+    function addToHistory(data, ticketText) {
+        const historyItem = {
+            id: data.request_id || Date.now().toString(),
+            ticket: ticketText,
+            category: data.category,
+            confidence: data.confidence,
+            timestamp: new Date().toISOString()
+        };
+
+        let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+        history.unshift(historyItem);
+
+        // Keep only last 10 items
+        if (history.length > 10) {
+            history = history.slice(0, 10);
+        }
+
+        localStorage.setItem('classificationHistory', JSON.stringify(history));
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const historyList = document.getElementById('historyList');
+        const history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+
+        if (history.length === 0) {
+            historyList.innerHTML = `
+                <div id="emptyHistory" class="text-center py-8 text-slate-400 bg-white rounded-xl border border-slate-100 border-dashed">
+                    No recent classifications
+                </div>`;
+            return;
+        }
+
+        historyList.innerHTML = history.map(item => `
+            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                        ${item.category}
+                    </span>
+                    <span class="text-xs text-slate-400">${new Date(item.timestamp).toLocaleTimeString()}</span>
+                </div>
+                <p class="text-slate-600 text-sm line-clamp-2">${item.ticket}</p>
+            </div>
+        `).join('');
     }
 
     // NEW: Send feedback function

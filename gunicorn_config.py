@@ -8,9 +8,10 @@ port = os.getenv("PORT", "5000")
 bind = f"0.0.0.0:{port}"
 
 # Worker Configuration
-# Recommended: 2 * cpu_cores + 1
-workers = int(os.getenv("WEB_CONCURRENCY", multiprocessing.cpu_count() * 2 + 1))
-worker_class = "sync"  # Use 'gevent' for async if needed, but 'sync' is safer for CPU-bound tasks
+# Limited to 2 workers and 2 threads for consistent resource usage
+workers = 2
+threads = 2
+worker_class = "gthread"  # Use threads for concurrency within workers
 
 # Timeouts
 # 120s timeout to handle long-running AI requests (Gemini/OpenAI)

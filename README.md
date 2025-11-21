@@ -108,23 +108,6 @@ graph TB
     style D fill:#4CAF50
     style E fill:#DC382D
     style F fill:#4285F4
-```
-
-### Key Components
-
-| Component | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Web Framework** | Flask 3.0 | REST API and web interface |
-| **WSGI Server** | Gunicorn | Production-grade HTTP server |
-| **AI Provider** | Gemini 2.0 Flash | Primary classification engine |
-| **Fallback AI** | OpenAI GPT-4 | Backup when Gemini unavailable |
-| **Cache & Storage** | Redis | Rate limiting, API keys, sessions |
-| **Monitoring** | Prometheus + Sentry | Metrics and error tracking |
-| **Deployment** | Railway | Cloud platform with auto-scaling |
-
----
-
-## 🛠️ Tech Stack
 
 | Category | Technologies |
 | :--- | :--- |

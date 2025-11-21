@@ -690,12 +690,21 @@ class RuleBasedClassifier:
         matches.sort(key=sort_key)
         best_match = matches[0]
 
+        # Find the specific pattern that matched
+        matched_pattern = None
+        rule = self.rules[best_match['index']]
+        for pattern in rule['patterns']:
+            if re.search(pattern, text):
+                matched_pattern = pattern
+                break
+
         return {
             'category': best_match['category'],
             'subcategory': best_match['subcategory'],
             'confidence': 0.85,  # High confidence for rule matches
             'priority': PRIORITY_MAP.get(best_match['category'], 'medium'),
-            'provider': 'rule_engine'
+            'provider': 'rule_engine',
+            'matched_pattern': matched_pattern
         }
 
 

@@ -1,24 +1,39 @@
-FROM python:3.12-slim
+# Stage 1: Builder
+FROM python:3.12-slim as builder
 
-# Install system dependencies
+WORKDIR /app
+
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     build-essential \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create user and directories
+# Install Python dependencies
+COPY requirements-prod.txt .
+RUN pip install --user --no-cache-dir -r requirements-prod.txt
+
+# Stage 2: Runtime
+FROM python:3.12-slim
+
+# Install runtime dependencies (if any needed, e.g. libpq5)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create user
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app /app/logs && \
     chown -R appuser:appuser /app
 
 WORKDIR /app
 
-# Copy requirements
-COPY --chown=appuser:appuser requirements.txt requirements.txt
+# Copy installed packages from builder
+COPY --from=builder /root/.local /home/appuser/.local
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Update PATH
+ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Copy application code
 COPY --chown=appuser:appuser . .
