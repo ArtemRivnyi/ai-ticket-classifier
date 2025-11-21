@@ -80,10 +80,30 @@
         .theme-toggle:hover {
             transform: scale(1.1);
         }
+
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+        }
+
+        .toast {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
     </style>
 </head>
 
 <body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
     <!-- Navbar -->
     <nav class="bg-white border-b border-slate-200">
@@ -91,6 +111,11 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <span class="text-2xl font-bold text-slate-800">🎫 AI Ticket Classifier</span>
+                    <span id="systemStatus"
+                        class="ml-3 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600"
+                        title="Checking system status...">
+                        ● Connecting...
+                    </span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="themeToggle"
@@ -151,66 +176,103 @@
                     </div>
                 </form>
             </div>
-            <div class="h-16 bg-slate-200 rounded"></div>
-        </div>
-        <div class="h-24 bg-slate-200 rounded"></div>
-        </div>
 
-        <!-- Result Content -->
-        <div id="resultContent" class="opacity-0 transition-opacity duration-300 w-full space-y-6">
+            <!-- Result Section -->
+            <div
+                class="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 relative overflow-hidden flex flex-col justify-center min-h-[400px]">
 
-            <!-- Matched Pattern Highlight -->
-            <div id="highlightedTicketContainer"
-                class="hidden mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm text-slate-600">
-                <span class="font-semibold block mb-1 text-xs uppercase tracking-wide text-slate-500">Detected
-                    Pattern:</span>
-                <p id="highlightedTicketText" class="italic"></p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-                    <p class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-1">Priority</p>
-                    <span id="resPriority"
-                        class="inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800">
-                        High
-                    </span>
+                <!-- Empty State -->
+                <div id="emptyState"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white z-10 text-center p-6">
+                    <svg class="w-16 h-16 mb-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                        </path>
+                    </svg>
+                    <p class="text-lg font-medium text-slate-500">Ready to classify</p>
+                    <p class="text-sm text-slate-400">Enter a ticket description or use a sample</p>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-                    <p class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-1">Processing Time
-                    </p>
-                    <span id="resTime" class="text-base font-medium text-slate-700">0.45s</span>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div class="p-3 bg-white rounded-lg border border-slate-100">
-                    <p class="text-slate-500 mb-1">Provider</p>
-                    <p id="resProvider" class="font-medium text-slate-900">Gemini</p>
+                <!-- Skeleton Loader -->
+                <div id="skeletonLoader" class="hidden animate-pulse space-y-6 w-full">
+                    <div class="h-8 bg-slate-200 rounded w-3/4 mx-auto"></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="h-16 bg-slate-200 rounded"></div>
+                        <div class="h-16 bg-slate-200 rounded"></div>
+                    </div>
+                    <div class="h-24 bg-slate-200 rounded"></div>
                 </div>
-                <div class="p-3 bg-white rounded-lg border border-slate-100">
-                    <p class="text-slate-500 mb-1">Request ID</p>
-                    <p id="resReqId" class="font-medium text-slate-900 truncate" title="">-</p>
-                </div>
-            </div>
 
-            <!-- Feedback Section -->
-            <div id="feedbackSection" class="hidden mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-sm text-slate-600 mb-3">Was this classification correct?</p>
-                <div class="flex justify-center gap-2">
-                    <button onclick="sendFeedback(true)"
-                        class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition">
-                        👍 Yes
+                <!-- Result Content -->
+                <div id="resultContent" class="opacity-0 transition-opacity duration-300 w-full space-y-6 hidden">
+
+                    <!-- Matched Pattern Highlight -->
+                    <div id="highlightedTicketContainer"
+                        class="hidden mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200 text-sm text-slate-600">
+                        <span class="font-semibold block mb-1 text-xs uppercase tracking-wide text-slate-500">Detected
+                            Pattern:</span>
+                        <p id="highlightedTicketText" class="italic"></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                            <p class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-1">Priority</p>
+                            <span id="resPriority"
+                                class="inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800">
+                                High
+                            </span>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                            <p class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-1">Processing Time
+                            </p>
+                            <span id="resTime" class="text-base font-medium text-slate-700">0.45s</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="p-3 bg-white rounded-lg border border-slate-100">
+                            <p class="text-slate-500 mb-1">Provider</p>
+                            <p id="resProvider" class="font-medium text-slate-900">Gemini</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-100">
+                            <p class="text-slate-500 mb-1">Request ID</p>
+                            <p id="resReqId" class="font-medium text-slate-900 truncate" title="">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Section -->
+                    <div id="feedbackSection" class="hidden mt-6 pt-6 border-t border-slate-100 text-center">
+                        <p class="text-sm text-slate-600 mb-3">Was this classification correct?</p>
+                        <div class="flex justify-center gap-2">
+                            <button onclick="sendFeedback(true)"
+                                class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition">
+                                👍 Yes
+                            </button>
+                            <button onclick="sendFeedback(false)"
+                                class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition">
+                                👎 No
+                            </button>
+                        </div>
+                        <p id="feedbackConfirmation" class="hidden text-sm text-green-600 font-medium mt-2">Thanks for
+                            your feedback!</p>
+                    </div>
+                </div>
+
+                <!-- Result Category (Overlay) -->
+                <div id="resultCategoryOverlay"
+                    class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white/90 z-20 transition-opacity duration-300">
+                    <div class="flex items-center animate-bounce-in">
+                        <span id="resCategory" class="text-2xl font-bold text-slate-900">Network Issue</span>
+                        <span id="resConfidence"
+                            class="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">98%</span>
+                    </div>
+                    <button id="viewDetailsBtn"
+                        class="mt-4 text-sm text-indigo-600 hover:text-indigo-800 font-medium underline">
+                        View Details
                     </button>
-                    <button onclick="sendFeedback(false)"
-                        class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition">
-                        👎 No
-                    </button>
                 </div>
-                <p id="feedbackConfirmation" class="hidden text-sm text-green-600 font-medium mt-2">Thanks for
-                    your feedback!</p>
+
             </div>
-        </div>
-        </div>
         </div>
 
         <!-- History Section -->

@@ -9,46 +9,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const skeletonLoader = document.getElementById('skeletonLoader');
     const highlightedTicketContainer = document.getElementById('highlightedTicketContainer');
     const highlightedTicketText = document.getElementById('highlightedTicketText');
+    const systemStatus = document.getElementById('systemStatus');
+
+    // Toast Notification System
+    function showToast(message, type = 'error') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+
+        const colors = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+        const icon = type === 'success' ? '✅' : '⚠️';
+
+        toast.className = `toast flex items-center w-full max-w-xs p-4 mb-4 text-white rounded-lg shadow ${colors}`;
+        toast.innerHTML = `
+            <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg bg-white/20">
+                ${icon}
+            </div>
+            <div class="ml-3 text-sm font-normal">${message}</div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white/20 text-white hover:text-gray-100 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-white/30 inline-flex h-8 w-8" aria-label="Close" onclick="this.parentElement.remove()">
+                <span class="sr-only">Close</span>
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+        `;
+
+        container.appendChild(toast);
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+            toast.classList.add('show');
+        });
+
+        // Auto remove
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+
+    // Health Check
+    async function checkSystemHealth() {
+        try {
+            const response = await fetch('/api/v1/health');
+            if (response.ok) {
+                systemStatus.innerHTML = '● System Online';
+                systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
+            } else {
+                throw new Error('Health check failed');
+            }
+        } catch (error) {
+            console.error('System health check failed:', error);
+            systemStatus.innerHTML = '● System Offline';
+            systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800';
+            showToast('Cannot connect to server. Please try again later.', 'error');
+        }
+    }
+
+    // Run health check on load
+    checkSystemHealth();
 
     // Sample tickets covering all categories
     const samples = [
-        // Authentication Issue
         "I cannot log in. The verification code is invalid.",
         "Reset link expired before I could use it.",
-        "2FA verification failed. Cannot access my account.",
-
-        // Payment Issue
         "I was charged twice for the same subscription.",
-        "Payment completed but I want a refund.",
-        "Unauthorized payment of $500 appeared on my card.",
-
-        // Hardware Issue
         "Camera stopped working after firmware update.",
-        "Sensor battery drains in one hour.",
-        "Printer keeps jamming. Already cleaned it twice.",
-        "Card reader not detecting cards anymore.",
-
-        // Integration Issue
         "Slack integration only sends alerts to half of our team.",
-        "Webhook callbacks timing out. API not responding.",
-        "SSO login with Azure AD failing. Error: invalid_grant.",
-
-        // Billing Bug
-        "UI shows paid but Stripe webhook shows failed.",
         "Invoice says $100 but processor charged $150.",
-        "Dashboard shows paid subscription but backend logs show unpaid.",
-
-        // Notification Issue
         "Email notifications not delivered to some users.",
-        "Half of the team gets Slack alerts, the other half doesn't.",
-
-        // Mixed Issue
         "Cannot log in AND my payment failed. Two separate issues.",
-
-        // Bug/Technical Issue
-        "Minor cosmetic issue with button alignment. Not urgent.",
-
-        // Feature Request
         "Nice to have: add animation to the loading screen."
     ];
 
@@ -67,13 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(true);
 
         try {
-            // Use the Master Key for the demo (In production, this would be handled differently or via a public demo endpoint)
-            // For this demo, we'll assume the backend might have a public wrapper or we use a specific demo key.
-            // Since we are in a browser, exposing the key is risky. 
-            // Ideally, the backend should serve this page and have a session-based or rate-limited public endpoint.
-            // For now, we will use the key we know works, but in a real app, we'd proxy this.
-            // HOWEVER, to keep it simple for this specific task:
-            // We will use a hardcoded key for the demo.
             const apiKey = "sk_ORulUQRLvLHAueF3Ht1gXj9gTsY7xme3QD-UeVrO8nY";
 
             const response = await fetch('/api/v1/classify', {
@@ -90,35 +110,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 displayResult(data);
                 addToHistory(data, text);
+                showToast('Classification successful', 'success');
             } else {
-                alert('Error: ' + (data.error || 'Failed to classify ticket'));
+                showToast(data.error || 'Failed to classify ticket', 'error');
+                setLoading(false); // Reset loading state on error
             }
 
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while connecting to the API.');
-        } finally {
+            showToast('An error occurred while connecting to the API.', 'error');
             setLoading(false);
         }
     });
 
     function setLoading(isLoading) {
-        const btn = form.querySelector('button[type="submit"]');
         if (isLoading) {
-            btn.disabled = true;
             btnText.textContent = 'Processing...';
             btnSpinner.classList.remove('hidden');
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            fillSampleBtn.disabled = true;
+            ticketInput.disabled = true;
 
-            // Show skeleton, hide empty state and result
+            // Show skeleton, hide others
             emptyState.classList.add('hidden');
-            resultContent.classList.add('opacity-0');
+            resultContent.classList.add('hidden');
             skeletonLoader.classList.remove('hidden');
         } else {
-            btn.disabled = false;
             btnText.textContent = 'Classify Ticket';
             btnSpinner.classList.add('hidden');
-            btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            fillSampleBtn.disabled = false;
+            ticketInput.disabled = false;
 
             // Hide skeleton
             skeletonLoader.classList.add('hidden');
@@ -126,167 +146,131 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayResult(data) {
-        emptyState.classList.add('hidden');
-        resultContent.classList.remove('opacity-0');
+        // Hide skeleton
+        skeletonLoader.classList.add('hidden');
+        // Show result
+        resultContent.classList.remove('hidden');
 
         // Update fields
         document.getElementById('resCategory').textContent = data.category;
 
-        // Confidence
-        const confidence = Math.round(data.confidence * 100);
-        const confEl = document.getElementById('resConfidence');
-        confEl.textContent = `${confidence}%`;
+        // Confidence color
+        const confidenceEl = document.getElementById('resConfidence');
+        const confidence = (data.confidence * 100).toFixed(0);
+        confidenceEl.textContent = `${confidence}%`;
 
-        // Color coding for confidence
-        if (confidence > 90) {
-            confEl.className = "ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800";
-        } else if (confidence > 70) {
-            confEl.className = "ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800";
+        if (confidence > 80) {
+            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
+        } else if (confidence > 50) {
+            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
         } else {
-            confEl.className = "ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800";
+            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
         }
 
-        // Priority
+        // Priority color
         const priorityEl = document.getElementById('resPriority');
-        priorityEl.textContent = data.priority.charAt(0).toUpperCase() + data.priority.slice(1);
-
-        if (data.priority === 'high' || data.priority === 'critical') {
-            priorityEl.className = "inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800";
-        } else if (data.priority === 'medium') {
-            priorityEl.className = "inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-yellow-100 text-yellow-800";
+        priorityEl.textContent = data.priority;
+        if (data.priority === 'High' || data.priority === 'Critical') {
+            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800';
+        } else if (data.priority === 'Medium') {
+            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-yellow-100 text-yellow-800';
         } else {
-            priorityEl.className = "inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-green-100 text-green-800";
+            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-green-100 text-green-800';
         }
 
-        // Time
         document.getElementById('resTime').textContent = `${data.processing_time.toFixed(3)}s`;
-
-        // Provider
         document.getElementById('resProvider').textContent = data.provider;
+        document.getElementById('resReqId').textContent = data.request_id;
+        document.getElementById('resReqId').title = data.request_id;
 
-        // Request ID
-        document.getElementById('resReqId').textContent = data.request_id || 'N/A';
-
-        // NEW: Show feedback section and store request_id
-        const feedbackSection = document.getElementById('feedbackSection');
-        if (feedbackSection) {
-            feedbackSection.classList.remove('hidden');
-            feedbackSection.dataset.requestId = data.request_id;
-        }
-
-        // NEW: Highlight keywords
+        // Show matched pattern if available
         if (data.matched_pattern) {
-            const text = ticketInput.value.trim();
-            try {
-                // Escape special regex characters in the pattern if needed, 
-                // but matched_pattern is already a regex pattern from the backend.
-                // However, backend patterns might be raw strings.
-                // Let's assume it's a valid regex string.
-                const regex = new RegExp(data.matched_pattern, 'i');
-                const match = text.match(regex);
-                if (match) {
-                    // Replace only the first occurrence or all? Usually first match determines rule.
-                    // Use a function to preserve case of the match
-                    const highlighted = text.replace(regex, (match) => `<span class="bg-yellow-200 text-yellow-800 font-semibold px-1 rounded border border-yellow-300 shadow-sm">${match}</span>`);
-                    highlightedTicketText.innerHTML = highlighted;
-                    highlightedTicketContainer.classList.remove('hidden');
-                } else {
-                    highlightedTicketContainer.classList.add('hidden');
-                }
-            } catch (e) {
-                console.error("Regex error", e);
-                highlightedTicketContainer.classList.add('hidden');
-            }
+            highlightedTicketContainer.classList.remove('hidden');
+            highlightedTicketText.textContent = data.matched_pattern;
         } else {
             highlightedTicketContainer.classList.add('hidden');
         }
+
+        // Reset feedback section
+        document.getElementById('feedbackSection').classList.remove('hidden');
+        document.getElementById('feedbackConfirmation').classList.add('hidden');
+
+        setLoading(false);
     }
 
-    // Load history on start
-    renderHistory();
+    // History Management
+    loadHistory();
+    document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
 
-    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
-        localStorage.removeItem('classificationHistory');
-        renderHistory();
-    });
-
-    function addToHistory(data, ticketText) {
+    function addToHistory(data, text) {
         const historyItem = {
-            id: data.request_id || Date.now().toString(),
-            ticket: ticketText,
+            text: text,
             category: data.category,
-            confidence: data.confidence,
+            priority: data.priority,
             timestamp: new Date().toISOString()
         };
 
         let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
         history.unshift(historyItem);
-
-        // Keep only last 10 items
-        if (history.length > 10) {
-            history = history.slice(0, 10);
-        }
-
+        if (history.length > 10) history.pop(); // Keep last 10
         localStorage.setItem('classificationHistory', JSON.stringify(history));
-        renderHistory();
+
+        renderHistory(history);
     }
 
-    function renderHistory() {
-        const historyList = document.getElementById('historyList');
+    function loadHistory() {
         const history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+        renderHistory(history);
+    }
+
+    function renderHistory(history) {
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = '';
 
         if (history.length === 0) {
-            historyList.innerHTML = `
-                <div id="emptyHistory" class="text-center py-8 text-slate-400 bg-white rounded-xl border border-slate-100 border-dashed">
-                    No recent classifications
-                </div>`;
+            historyList.innerHTML = '<p class="text-slate-400 col-span-full text-center">No history yet.</p>';
             return;
         }
 
-        historyList.innerHTML = history.map(item => `
-            <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition">
+        history.forEach(item => {
+            const date = new Date(item.timestamp).toLocaleTimeString();
+            const el = document.createElement('div');
+            el.className = 'bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition';
+
+            let priorityColor = 'bg-gray-100 text-gray-800';
+            if (item.priority === 'High' || item.priority === 'Critical') priorityColor = 'bg-red-100 text-red-800';
+            else if (item.priority === 'Medium') priorityColor = 'bg-yellow-100 text-yellow-800';
+            else priorityColor = 'bg-green-100 text-green-800';
+
+            el.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
                         ${item.category}
                     </span>
-                    <span class="text-xs text-slate-400">${new Date(item.timestamp).toLocaleTimeString()}</span>
+                    <span class="text-xs text-slate-400">${date}</span>
                 </div>
-                <p class="text-slate-600 text-sm line-clamp-2">${item.ticket}</p>
-            </div>
-        `).join('');
+                <p class="text-slate-600 text-sm line-clamp-2 mb-3" title="${item.text}">${item.text}</p>
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${priorityColor}">
+                        ${item.priority}
+                    </span>
+                </div>
+            `;
+            historyList.appendChild(el);
+        });
     }
 
-    // NEW: Send feedback function
-    window.sendFeedback = async function (correct) {
-        const feedbackSection = document.getElementById('feedbackSection');
-        const requestId = feedbackSection?.dataset.requestId;
-
-        if (!requestId) {
-            console.error('No request ID found');
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/v1/feedback', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    request_id: requestId,
-                    correct: correct
-                })
-            });
-
-            if (response.ok) {
-                // Hide buttons, show confirmation
-                feedbackSection.querySelector('.flex.gap-2').classList.add('hidden');
-                document.getElementById('feedbackConfirmation').classList.remove('hidden');
-            } else {
-                console.error('Failed to submit feedback');
-            }
-        } catch (error) {
-            console.error('Error submitting feedback:', error);
-        }
+    function clearHistory() {
+        localStorage.removeItem('classificationHistory');
+        renderHistory([]);
+        showToast('History cleared', 'success');
     }
+
+    // Expose sendFeedback to global scope for onclick
+    window.sendFeedback = function (isCorrect) {
+        document.getElementById('feedbackConfirmation').classList.remove('hidden');
+        // In a real app, you would send this to the backend
+        console.log('Feedback:', isCorrect);
+        showToast('Thanks for your feedback!', 'success');
+    };
 });
