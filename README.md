@@ -87,6 +87,7 @@ graph TB
         C[Load Balancer]
         D[Flask App<br/>103 Workers]
         E[Redis<br/>Cache & Rate Limiting]
+        RE[Rule Engine<br/>Deterministic]
     end
     
     subgraph "External Services"
@@ -100,13 +101,15 @@ graph TB
     B --> C
     C --> D
     D --> E
-    D --> F
-    D -->|Fallback| G
+    D --> RE
+    RE -->|No Match| F
+    F -->|Fallback| G
     D --> H
     D --> I
     
     style D fill:#4CAF50
     style E fill:#DC382D
+    style RE fill:#FF9800
     style F fill:#4285F4
 
 | Category | Technologies |
@@ -221,7 +224,8 @@ Classify a single support ticket.
   "confidence": 0.95,
   "subcategory": "Connectivity",
   "priority": "high",
-  "suggested_team": "Network Operations"
+  "suggested_team": "Network Operations",
+  "matched_pattern": "internet.*connection"
 }
 ```
 
@@ -351,6 +355,8 @@ ai-ticket-classifier/
 ├── scripts/
 │   ├── generate_api_key.py # API key generator
 │   └── eval_on_dataset.py  # Evaluation script
+├── utils/
+│   └── rule_engine.py      # Deterministic Rule Engine
 ├── tests/                  # Test suite
 ├── docs/                   # Documentation & screenshots
 ├── Dockerfile              # Production container

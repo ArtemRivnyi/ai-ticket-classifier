@@ -156,88 +156,59 @@
             <div class="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 relative overflow-hidden">
                 <div id="emptyState"
                     class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white z-10">
-                    <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-                        </path>
-                    </svg>
-                    <p class="text-lg font-medium">Result will appear here</p>
-                </div>
-
-                <div id="resultContent" class="opacity-0 transition-opacity duration-300">
-                    <h2 class="text-xl font-semibold text-slate-800 mb-6">Classification Result</h2>
-
-                    <div class="space-y-6">
-                        <div>
-                            <p class="text-sm text-slate-500 uppercase tracking-wide font-semibold mb-1">Category</p>
-                            <div class="flex items-center">
-                                <span id="resCategory" class="text-2xl font-bold text-slate-900">Network Issue</span>
-                                <span id="resConfidence"
-                                    class="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">98%</span>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-slate-500 uppercase tracking-wide font-semibold mb-1">Priority
-                                </p>
-                                <span id="resPriority"
-                                    class="inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800">
-                                    High
-                                </span>
-                            </div>
-                            <div>
-                                <p class="text-sm text-slate-500 uppercase tracking-wide font-semibold mb-1">Processing
-                                    Time</p>
-                                <span id="resTime" class="text-base font-medium text-slate-700">0.45s</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <p class="text-sm text-slate-500 uppercase tracking-wide font-semibold mb-1">Provider</p>
-                            <div class="flex items-center text-slate-700">
-                                <svg class="w-5 h-5 mr-2 text-indigo-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                                </svg>
-                                <span id="resProvider">Google Gemini</span>
-                            </div>
-                        </div>
-                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
+                    <div class="flex items-center">
+                        <span id="resCategory" class="text-2xl font-bold text-slate-900">Network Issue</span>
+                        <span id="resConfidence"
+                            class="ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800">98%</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">Lightning Fast</h3>
-                    <p class="text-slate-600">Optimized for low latency with Redis caching and high-performance AI
-                        models.
-                    </p>
                 </div>
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 text-green-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-slate-500 uppercase tracking-wide font-semibold mb-1">Priority
+                        </p>
+                        <span id="resPriority"
+                            class="inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800">
+                            High
+                        </span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">High Accuracy</h3>
-                    <p class="text-slate-600">Achieves 100% accuracy on comprehensive test suite with Hybrid Rule-Engine
-                        +
-                        AI (Gemini 2.0).</p>
-                </div>
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
-                    <div
-                        class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 text-purple-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                            </path>
-                        </svg>
+                    <div>
+                        <p class="text-sm text-slate-500 uppercase tracking-wide font-semibold mb-1">Processing
+                            Time</p>
+                        <span id="resTime" class="text-base font-medium text-slate-700">0.45s</span>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2">Enterprise Secure</h3>
-                    <p class="text-slate-600">API Key authentication, rate limiting, and full SSL encryption for data
-                        safety.</p>
                 </div>
-            </div>
+
+                <div>
+                    <div class="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <div
+                            class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 text-green-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">High Accuracy</h3>
+                        <p class="text-slate-600">Achieves 100% accuracy on comprehensive test suite with Hybrid
+                            Rule-Engine
+                            +
+                            AI (Gemini 2.0).</p>
+                    </div>
+                    <div class="p-6 bg-white rounded-xl shadow-sm border border-slate-100">
+                        <div
+                            class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 text-purple-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900 mb-2">Enterprise Secure</h3>
+                        <p class="text-slate-600">API Key authentication, rate limiting, and full SSL encryption for
+                            data
+                            safety.</p>
+                    </div>
+                </div>
 
     </main>
 

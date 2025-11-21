@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSpinner = document.getElementById('btnSpinner');
     const emptyState = document.getElementById('emptyState');
     const resultContent = document.getElementById('resultContent');
+    const skeletonLoader = document.getElementById('skeletonLoader');
+    const highlightedTicketContainer = document.getElementById('highlightedTicketContainer');
+    const highlightedTicketText = document.getElementById('highlightedTicketText');
 
     // Sample tickets covering all categories
     const samples = [
@@ -106,11 +109,19 @@ document.addEventListener('DOMContentLoaded', () => {
             btnText.textContent = 'Processing...';
             btnSpinner.classList.remove('hidden');
             btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Show skeleton, hide empty state and result
+            emptyState.classList.add('hidden');
+            resultContent.classList.add('opacity-0');
+            skeletonLoader.classList.remove('hidden');
         } else {
             btn.disabled = false;
             btnText.textContent = 'Classify Ticket';
             btnSpinner.classList.add('hidden');
             btn.classList.remove('opacity-75', 'cursor-not-allowed');
+
+            // Hide skeleton
+            skeletonLoader.classList.add('hidden');
         }
     }
 
@@ -163,14 +174,31 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackSection.dataset.requestId = data.request_id;
         }
 
-        // NEW: Show matched pattern if available
-        const patternContainer = document.getElementById('matchedPatternContainer');
-        const patternEl = document.getElementById('resPattern');
+        // NEW: Highlight keywords
         if (data.matched_pattern) {
-            patternEl.textContent = data.matched_pattern;
-            patternContainer.classList.remove('hidden');
+            const text = ticketInput.value.trim();
+            try {
+                // Escape special regex characters in the pattern if needed, 
+                // but matched_pattern is already a regex pattern from the backend.
+                // However, backend patterns might be raw strings.
+                // Let's assume it's a valid regex string.
+                const regex = new RegExp(data.matched_pattern, 'i');
+                const match = text.match(regex);
+                if (match) {
+                    // Replace only the first occurrence or all? Usually first match determines rule.
+                    // Use a function to preserve case of the match
+                    const highlighted = text.replace(regex, (match) => `<span class="bg-yellow-200 text-yellow-800 font-semibold px-1 rounded border border-yellow-300 shadow-sm">${match}</span>`);
+                    highlightedTicketText.innerHTML = highlighted;
+                    highlightedTicketContainer.classList.remove('hidden');
+                } else {
+                    highlightedTicketContainer.classList.add('hidden');
+                }
+            } catch (e) {
+                console.error("Regex error", e);
+                highlightedTicketContainer.classList.add('hidden');
+            }
         } else {
-            patternContainer.classList.add('hidden');
+            highlightedTicketContainer.classList.add('hidden');
         }
     }
 

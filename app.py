@@ -50,20 +50,26 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
+
+# Structured logging setup
+from config.logging_config import setup_logging, logger as structured_logger
+setup_logging()
+logger = structured_logger.bind(component="app")
+
 import jwt
 
-from config.logging_config import setup_logging, logger as structured_logger
 from config.env_validation import validate_environment
 from config.settings import get_settings
-import sentry_sdk
-from sentry_sdk.integrations.flask import FlaskIntegration
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    sentry_available = True
+except ImportError:
+    sentry_available = False
 
-# Load environment variables
-load_dotenv()
-
-# Initialize Sentry if DSN is provided
+# Initialize Sentry if DSN is provided and module is available
 settings = get_settings()
-if settings.SENTRY_DSN:
+if settings.SENTRY_DSN and sentry_available:
     if _is_testing:
         print("⚠️  Sentry initialization skipped during tests")
     else:
@@ -74,10 +80,10 @@ if settings.SENTRY_DSN:
             profiles_sample_rate=1.0,
             environment=settings.ENV,
         )
+elif settings.SENTRY_DSN and not sentry_available:
+    logger.warning("⚠️ SENTRY_DSN set but sentry_sdk module not found")
 
-# Structured logging setup
-setup_logging()
-logger = structured_logger.bind(component="app")
+
 
 # Validate environment configuration
 env_status = validate_environment(skip_failure=_is_testing)
@@ -336,7 +342,7 @@ def get_rate_limit() -> str:
     """Get rate limit string based on tier"""
     tier = get_user_tier()
     tier_limits = {
-        'free': "100 per hour",
+        'free': "100 per hour; 20 per minute",
         'starter': "1000 per hour",
         'professional': "10000 per hour",
         'enterprise': "100000 per hour"

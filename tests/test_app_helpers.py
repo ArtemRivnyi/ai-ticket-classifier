@@ -55,7 +55,7 @@ def test_get_rate_limit_all_tiers():
         from flask import request
         
         tiers = {
-            'free': "100 per hour",
+            'free': "100 per hour; 20 per minute",
             'starter': "1000 per hour",
             'professional': "10000 per hour",
             'enterprise': "100000 per hour"
@@ -70,7 +70,7 @@ def test_get_rate_limit_unknown_tier():
     with app.test_request_context():
         from flask import request
         request.api_key_tier = 'unknown_tier'
-        assert get_rate_limit() == "100 per hour"
+        assert get_rate_limit() == "100 per hour; 20 per minute"
 
 def test_send_webhook_success(mocker):
     """Test send_webhook successful delivery"""
