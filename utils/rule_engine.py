@@ -444,10 +444,10 @@ def _compile_category_rules() -> List[Dict]:
             'patterns': [
                 r'\bcharged\b',
                 r'unauthorized payment',
-                r'invoice',
-                r'billing',
-                r'don\'t recognize',
                 r'unknown charge',
+                r'billing error',
+                r'wrong billing',
+                r'incorrect charge',
             ],
         },
         {
