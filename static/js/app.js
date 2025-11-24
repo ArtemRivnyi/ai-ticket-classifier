@@ -334,6 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // form.dispatchEvent(new Event('submit'));
     };
 
+    // Alias for backward compatibility
+    window.loadExample = window.tryExample;
+
+
     // CSV Upload Handler
     const csvForm = document.getElementById('csvForm');
     if (csvForm) {
