@@ -1,281 +1,309 @@
 {
-  "metrics": {
-    "accuracy": 90.0,
-    "total_tickets": 30,
-    "correct_tickets": 27,
-    "avg_latency": 0.0005358775456746419,
-    "timestamp": "2025-11-24 22:38:22"
-  },
+  "accuracy": 6.67,
+  "total": 30,
+  "correct": 2,
+  "incorrect": 28,
+  "avg_latency": 0.0,
   "results": [
     {
-      "text": "I cannot log in to my account even after resetting my password.",
-      "expected": "Authentication Issue",
-      "predicted": "Authentication Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0064945220947265625,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "The payment for my subscription failed with error code 404.",
-      "expected": "Billing Issue",
-      "predicted": "Billing Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0005507469177246094,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "My internet connection keeps dropping every 10 minutes.",
-      "expected": "Network Issue",
-      "predicted": "Network Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00026416778564453125,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "I need a refund for the last month, I didn't use the service.",
-      "expected": "Billing Issue",
-      "predicted": "Billing Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00042247772216796875,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "How do I change my profile picture?",
-      "expected": "General Question",
-      "predicted": "General Question",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0002994537353515625,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "The application crashes when I try to export the report to PDF.",
-      "expected": "Bug/Technical Issue",
-      "predicted": "Bug/Technical Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00027179718017578125,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "I'm not receiving any email notifications from the platform.",
-      "expected": "Notification Issue",
-      "predicted": "Notification Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0002753734588623047,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "Is there a way to integrate this with Slack?",
-      "expected": "Feature Request",
-      "predicted": "Feature Request",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00041294097900390625,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "My laptop screen is flickering and then goes black.",
-      "expected": "Hardware Issue",
-      "predicted": "Hardware Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00046753883361816406,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "I forgot my password and the reset link is expired.",
-      "expected": "Authentication Issue",
-      "predicted": "Authentication Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00025773048400878906,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "The API is returning 500 Internal Server Error for all requests.",
-      "expected": "Bug/Technical Issue",
-      "predicted": "Integration Issue",
-      "confidence": 0.8,
+      "ticket": "I cannot log in to my account even after resetting my password.",
+      "expected_category": "Authentication Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
       "correct": false,
-      "latency": 0.0002219676971435547,
-      "provider": "rule_engine"
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "Can I upgrade my plan to the Enterprise tier?",
-      "expected": "General Question",
-      "predicted": "Account Problem",
-      "confidence": 0.8,
+      "ticket": "The payment for my subscription failed with error code 404.",
+      "expected_category": "Billing Issue",
+      "expected_priority": "critical",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
       "correct": false,
-      "latency": 0.0002415180206298828,
-      "provider": "rule_engine"
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "The printer is not connecting to the network.",
-      "expected": "Hardware Issue",
-      "predicted": "Hardware Issue",
-      "confidence": 0.8,
+      "ticket": "My internet connection keeps dropping every 10 minutes.",
+      "expected_category": "Network Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
       "correct": true,
-      "latency": 0.00023484230041503906,
-      "provider": "rule_engine"
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "I was charged twice for the same invoice.",
-      "expected": "Billing Issue",
-      "predicted": "Billing Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00022172927856445312,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "Where can I find the documentation for the new API?",
-      "expected": "General Question",
-      "predicted": "General Question",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00025844573974609375,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "The mobile app freezes on the splash screen.",
-      "expected": "Bug/Technical Issue",
-      "predicted": "Bug/Technical Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0002446174621582031,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "I want to request a new feature: Dark Mode.",
-      "expected": "Feature Request",
-      "predicted": "Feature Request",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0004029273986816406,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "My account has been locked due to suspicious activity.",
-      "expected": "Authentication Issue",
-      "predicted": "Authentication Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0003800392150878906,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "The integration with Salesforce is not syncing data.",
-      "expected": "Integration Issue",
-      "predicted": "Integration Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.000408172607421875,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "I have a question about the data privacy policy.",
-      "expected": "General Question",
-      "predicted": "General Question",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00038313865661621094,
-      "provider": "rule_engine"
-    },
-    {
-      "text": "The system is very slow today, pages take forever to load.",
-      "expected": "Network Issue",
-      "predicted": "Bug/Technical Issue",
-      "confidence": 0.8,
+      "ticket": "I need a refund for the last month, I didn't use the service.",
+      "expected_category": "Billing Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
       "correct": false,
-      "latency": 0.0005133152008056641,
-      "provider": "rule_engine"
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "I need to update my credit card information.",
-      "expected": "Billing Issue",
-      "predicted": "Billing Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00029921531677246094,
-      "provider": "rule_engine"
+      "ticket": "How do I change my profile picture?",
+      "expected_category": "General Question",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "The search function is not finding any results.",
-      "expected": "Bug/Technical Issue",
-      "predicted": "Bug/Technical Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00023937225341796875,
-      "provider": "rule_engine"
+      "ticket": "The application crashes when I try to export the report to PDF.",
+      "expected_category": "Bug/Technical Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "Can you add support for exporting to CSV?",
-      "expected": "Feature Request",
-      "predicted": "Feature Request",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00023818016052246094,
-      "provider": "rule_engine"
+      "ticket": "I'm not receiving any email notifications from the platform.",
+      "expected_category": "Notification Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "I didn't receive the confirmation email for my order.",
-      "expected": "Notification Issue",
-      "predicted": "Notification Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0003209114074707031,
-      "provider": "rule_engine"
+      "ticket": "Is there a way to integrate this with Slack?",
+      "expected_category": "Feature Request",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "My keyboard keys are sticking and not typing.",
-      "expected": "Hardware Issue",
-      "predicted": "Hardware Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0002684593200683594,
-      "provider": "rule_engine"
+      "ticket": "My laptop screen is flickering and then goes black.",
+      "expected_category": "Hardware Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "The dashboard is showing incorrect data for yesterday.",
-      "expected": "Bug/Technical Issue",
-      "predicted": "Bug/Technical Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.00045299530029296875,
-      "provider": "rule_engine"
+      "ticket": "I forgot my password and the reset link is expired.",
+      "expected_category": "Authentication Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "I want to cancel my subscription immediately.",
-      "expected": "Billing Issue",
-      "predicted": "Billing Issue",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0002837181091308594,
-      "provider": "rule_engine"
+      "ticket": "The API is returning 500 Internal Server Error for all requests.",
+      "expected_category": "Bug/Technical Issue",
+      "expected_priority": "critical",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "How do I invite a new team member?",
-      "expected": "General Question",
-      "predicted": "General Question",
-      "confidence": 0.8,
-      "correct": true,
-      "latency": 0.0004513263702392578,
-      "provider": "rule_engine"
+      "ticket": "Can I upgrade my plan to the Enterprise tier?",
+      "expected_category": "General Question",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
     },
     {
-      "text": "The VPN connection is unstable.",
-      "expected": "Network Issue",
-      "predicted": "Network Issue",
-      "confidence": 0.8,
+      "ticket": "The printer is not connecting to the network.",
+      "expected_category": "Hardware Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "I was charged twice for the same invoice.",
+      "expected_category": "Billing Issue",
+      "expected_priority": "critical",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "Where can I find the documentation for the new API?",
+      "expected_category": "General Question",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "The mobile app freezes on the splash screen.",
+      "expected_category": "Bug/Technical Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "I want to request a new feature: Dark Mode.",
+      "expected_category": "Feature Request",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "My account has been locked due to suspicious activity.",
+      "expected_category": "Authentication Issue",
+      "expected_priority": "critical",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "The integration with Salesforce is not syncing data.",
+      "expected_category": "Integration Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "I have a question about the data privacy policy.",
+      "expected_category": "General Question",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "The system is very slow today, pages take forever to load.",
+      "expected_category": "Network Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "I need to update my credit card information.",
+      "expected_category": "Billing Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "The search function is not finding any results.",
+      "expected_category": "Bug/Technical Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "Can you add support for exporting to CSV?",
+      "expected_category": "Feature Request",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "I didn't receive the confirmation email for my order.",
+      "expected_category": "Notification Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "My keyboard keys are sticking and not typing.",
+      "expected_category": "Hardware Issue",
+      "expected_priority": "medium",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "The dashboard is showing incorrect data for yesterday.",
+      "expected_category": "Bug/Technical Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "I want to cancel my subscription immediately.",
+      "expected_category": "Billing Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "How do I invite a new team member?",
+      "expected_category": "General Question",
+      "expected_priority": "low",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
+      "correct": false,
+      "latency": 0.0,
+      "provider": "gemini"
+    },
+    {
+      "ticket": "The VPN connection is unstable.",
+      "expected_category": "Network Issue",
+      "expected_priority": "high",
+      "predicted_category": "Network Issue",
+      "predicted_priority": "high",
       "correct": true,
-      "latency": 0.00029468536376953125,
-      "provider": "rule_engine"
+      "latency": 0.0,
+      "provider": "gemini"
     }
   ]
 }
