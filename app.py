@@ -297,6 +297,90 @@ def evaluation_results():
     except FileNotFoundError:
         return jsonify({"error": "Evaluation results not found. Run evaluate_model.py first."}), 404
 
+@app.route('/api/evaluation/run', methods=['POST'])
+@require_api_key
+def run_evaluation():
+    """Run the evaluation and return results."""
+    try:
+        import csv
+        import time
+        
+        results = []
+        correct_count = 0
+        total_count = 0
+        
+        with open('test_dataset.csv', 'r') as f:
+            reader = csv.DictReader(f)
+            tickets = list(reader)
+            total_count = len(tickets)
+            
+            for i, ticket in enumerate(tickets):
+                text = ticket['text']
+                expected_category = ticket['expected_category']
+                expected_priority = ticket['expected_priority']
+                
+                try:
+                    start_time = time.time()
+                    result = classifier.classify(text)
+                    latency = time.time() - start_time
+                    
+                    predicted_category = result.get('category', 'Unknown')
+                    predicted_priority = result.get('priority', 'unknown')
+                    
+                    is_correct = (predicted_category == expected_category and 
+                                predicted_priority == expected_priority)
+                    
+                    if is_correct:
+                        correct_count += 1
+                    
+                    results.append({
+                        'ticket': text,
+                        'expected_category': expected_category,
+                        'expected_priority': expected_priority,
+                        'predicted_category': predicted_category,
+                        'predicted_priority': predicted_priority,
+                        'correct': is_correct,
+                        'latency': round(latency, 3),
+                        'provider': result.get('provider', 'unknown')
+                    })
+                except Exception as e:
+                    logger.error(f"Error evaluating ticket {i}: {e}")
+                    results.append({
+                        'ticket': text,
+                        'expected_category': expected_category,
+                        'expected_priority': expected_priority,
+                        'predicted_category': 'Error',
+                        'predicted_priority': 'unknown',
+                        'correct': False,
+                        'latency': 0,
+                        'provider': 'error',
+                        'error': str(e)
+                    })
+        
+        accuracy = (correct_count / total_count * 100) if total_count > 0 else 0
+        avg_latency = sum(r['latency'] for r in results) / len(results) if results else 0
+        
+        output = {
+            'accuracy': round(accuracy, 2),
+            'total': total_count,
+            'correct': correct_count,
+            'incorrect': total_count - correct_count,
+            'avg_latency': round(avg_latency, 3),
+            'results': results
+        }
+        
+        # Save results
+        with open('evaluation_results.json', 'w') as f:
+            json.dump(output, f, indent=2)
+        
+        return jsonify(output), 200
+        
+    except FileNotFoundError:
+        return jsonify({"error": "Test dataset not found. Please ensure test_dataset.csv exists."}), 404
+    except Exception as e:
+        logger.error(f"Evaluation error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/v1/feedback', methods=['POST'])
 @app.route('/api/feedback', methods=['POST'])
 @limiter.limit("10 per minute")
