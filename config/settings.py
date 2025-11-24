@@ -12,8 +12,14 @@ class Settings(BaseSettings):
     """Typed configuration loaded from environment variables and .env file."""
 
     # Core secrets
-    MASTER_API_KEY: str = Field(..., description="Master API key for privileged automation")
-    SECRET_KEY: str = Field(..., description="Flask secret / JWT signing seed")
+    MASTER_API_KEY: str = Field(
+        default="test_master_key",
+        description="Master API key for privileged automation"
+    )
+    SECRET_KEY: str = Field(
+        default="test_secret_key_change_in_production",
+        description="Flask secret / JWT signing seed"
+    )
 
     # Providers
     GEMINI_API_KEY: Optional[str] = Field(None, description="Google Gemini API key")
