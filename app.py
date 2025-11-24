@@ -533,8 +533,6 @@ def root():
 
 @app.route('/api/v1/health', methods=['GET'])
 @limiter.exempt
-@optional_api_key
-
 def health():
     try:
         provider_status = {}
