@@ -266,6 +266,8 @@ class TicketRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     request_id: str
     correct: bool
+    ticket: Optional[str] = None
+    predicted: Optional[str] = None
     comments: Optional[str] = None
 
 # ===== ROUTES =====
@@ -296,6 +298,7 @@ def evaluation_results():
         return jsonify({"error": "Evaluation results not found. Run evaluate_model.py first."}), 404
 
 @app.route('/api/v1/feedback', methods=['POST'])
+@app.route('/api/feedback', methods=['POST'])
 @limiter.limit("10 per minute")
 def submit_feedback():
     """Submit feedback for a classification result."""
@@ -310,6 +313,8 @@ def submit_feedback():
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "request_id": data.request_id,
             "correct": data.correct,
+            "ticket": data.ticket,
+            "predicted": data.predicted,
             "comments": data.comments
         }
         
@@ -965,6 +970,123 @@ def graceful_shutdown(signum, frame):
 signal.signal(signal.SIGTERM, graceful_shutdown)
 signal.signal(signal.SIGINT, graceful_shutdown)
 
+
+# ===== EVALUATION ENDPOINT =====
+
+from evaluation_test_data import TEST_TICKETS
+
+@app.route('/api/evaluation/run', methods=['POST'])
+@require_api_key
+def run_evaluation():
+    """Run evaluation on test dataset"""
+    if not classifier:
+        return make_response({'error': 'Classifier not initialized'}, 503)
+        
+    results = []
+    correct_count = 0
+    
+    for ticket in TEST_TICKETS:
+        try:
+            predicted = classifier.classify(ticket['text'])
+            is_correct = predicted['category'] == ticket['expected']
+            if is_correct:
+                correct_count += 1
+                
+            results.append({
+                'ticket': ticket['text'],
+                'expected': ticket['expected'],
+                'predicted': predicted['category'],
+                'confidence': predicted.get('confidence', 0),
+                'correct': is_correct,
+                'priority': predicted.get('priority', 'low')
+            })
+        except Exception as e:
+            logger.error(f"Evaluation error for ticket '{ticket['text']}': {e}")
+            results.append({
+                'ticket': ticket['text'],
+                'expected': ticket['expected'],
+                'predicted': 'Error',
+                'confidence': 0,
+                'correct': False,
+                'error': str(e)
+            })
+    
+    accuracy = correct_count / len(results) if results else 0
+    
+    return make_response({
+        'accuracy': round(accuracy * 100, 2),
+        'total': len(results),
+        'correct': correct_count,
+        'results': results
+    })
+
+# ===== CSV BATCH ENDPOINT =====
+
+@app.route('/api/classify/batch', methods=['POST'])
+@require_api_key
+@limiter.limit(get_rate_limit)
+def classify_batch_csv():
+    """Batch classification from CSV upload"""
+    if 'file' not in request.files:
+        return make_response({'error': 'No file uploaded'}, 400)
+    
+    file = request.files['file']
+    if not file.filename.endswith('.csv'):
+        return make_response({'error': 'Only CSV files accepted'}, 400)
+    
+    try:
+        import pandas as pd
+        df = pd.read_csv(file)
+        
+        if 'ticket' not in df.columns:
+            return make_response({'error': 'CSV must have "ticket" column'}, 400)
+        
+        # Limit rows based on tier
+        tier = get_user_tier()
+        max_rows = {
+            'free': 10,
+            'starter': 50,
+            'professional': 100,
+            'enterprise': 1000
+        }.get(tier, 10)
+        
+        if len(df) > max_rows:
+            return make_response({
+                'error': f'Row limit exceeded for tier {tier}. Maximum: {max_rows}'
+            }, 400)
+            
+        results = []
+        for _, row in df.iterrows():
+            ticket_text = str(row['ticket'])
+            if not ticket_text.strip():
+                continue
+                
+            try:
+                result = classifier.classify(ticket_text)
+                results.append({
+                    'ticket': ticket_text,
+                    'category': result['category'],
+                    'priority': result['priority'],
+                    'confidence': result.get('confidence', 0)
+                })
+            except Exception as e:
+                results.append({
+                    'ticket': ticket_text,
+                    'error': str(e)
+                })
+        
+        return make_response({'total': len(results), 'results': results})
+        
+    except ImportError:
+        return make_response({'error': 'pandas library not installed'}, 500)
+    except Exception as e:
+        logger.error(f"CSV processing error: {e}")
+        return make_response({'error': str(e)}, 500)
+
+# ===== FEEDBACK ENDPOINT =====
+
+
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
@@ -973,3 +1095,4 @@ if __name__ == '__main__':
     logger.info(f"Environment: {os.getenv('FLASK_ENV', 'production')}")
     
     app.run(host='0.0.0.0', port=port, debug=debug)
+
