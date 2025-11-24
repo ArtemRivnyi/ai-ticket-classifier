@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('classifyForm');
     const ticketInput = document.getElementById('ticketText');
-    const fillSampleBtn = document.getElementById('fillSampleBtn');
-    const btnText = document.getElementById('btnText');
-    const btnSpinner = document.getElementById('btnSpinner');
+    const fillSampleBtn = document.getElementById('fillSampleBtn'); // May not exist
+    const btnText = document.getElementById('submitBtnText'); // Updated ID
+    const btnSpinner = document.getElementById('submitBtnSpinner'); // Updated ID
     const emptyState = document.getElementById('emptyState');
     const resultContent = document.getElementById('resultContent');
     const skeletonLoader = document.getElementById('skeletonLoader');
@@ -153,23 +153,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setLoading(isLoading) {
         if (isLoading) {
-            btnText.textContent = 'Processing...';
-            btnSpinner.classList.remove('hidden');
-            fillSampleBtn.disabled = true;
-            ticketInput.disabled = true;
+            if (btnText) btnText.textContent = 'Processing...';
+            if (btnSpinner) btnSpinner.classList.remove('hidden');
+            if (fillSampleBtn) fillSampleBtn.disabled = true;
+            if (ticketInput) ticketInput.disabled = true;
 
             // Show skeleton, hide others
-            emptyState.classList.add('hidden');
-            resultContent.classList.add('hidden');
-            skeletonLoader.classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (resultContent) resultContent.classList.add('hidden');
+            if (skeletonLoader) skeletonLoader.classList.remove('hidden');
         } else {
-            btnText.textContent = 'Classify Ticket';
-            btnSpinner.classList.add('hidden');
-            fillSampleBtn.disabled = false;
-            ticketInput.disabled = false;
+            if (btnText) btnText.textContent = 'Classify Ticket';
+            if (btnSpinner) btnSpinner.classList.add('hidden');
+            if (fillSampleBtn) fillSampleBtn.disabled = false;
+            if (ticketInput) ticketInput.disabled = false;
 
             // Hide skeleton
-            skeletonLoader.classList.add('hidden');
+            if (skeletonLoader) skeletonLoader.classList.add('hidden');
         }
     }
 
