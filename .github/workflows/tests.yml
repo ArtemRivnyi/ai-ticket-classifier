@@ -1,0 +1,51 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, GEMINI_API_PROD_READY ]
+  pull_request:
+    branches: [ main, GEMINI_API_PROD_READY ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests with coverage
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        REDIS_URL: redis://localhost:6379
+        ALLOW_PROVIDERLESS: true
+      run: |
+        pytest --cov=. --cov-report=term-missing --cov-report=xml -v
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+    
+    - name: Check coverage threshold
+      run: |
+        coverage report --fail-under=75

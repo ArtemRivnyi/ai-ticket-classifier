@@ -11,6 +11,7 @@ from providers.multi_provider import (
 from unittest.mock import Mock, patch
 import os
 
+
 def test_circuit_breaker_initial_state():
     """Test circuit breaker initial state"""
     cb = CircuitBreaker()
@@ -114,12 +115,23 @@ def test_multi_provider_get_status(mocker):
 
 def test_multi_provider_classify_no_providers(mocker):
     """Test classification when no providers available"""
-    provider = MultiProvider()
-    provider.gemini_available = False
-    provider.openai_available = False
-    
-    with pytest.raises(Exception, match="No AI providers available"):
-        provider.classify("Test ticket")
+    # Patch ALLOW_PROVIDERLESS to False so the test expects an exception
+    with patch.dict(os.environ, {'ALLOW_PROVIDERLESS': 'false'}):
+        # Create a new provider instance with the patched environment
+        with patch('providers.multi_provider.os.getenv') as mock_getenv:
+            def getenv_side_effect(key, default=''):
+                if key == 'ALLOW_PROVIDERLESS':
+                    return 'false'
+                return os.environ.get(key, default)
+            mock_getenv.side_effect = getenv_side_effect
+            
+            provider = MultiProvider()
+            provider.gemini_available = False
+            provider.openai_available = False
+            provider.allow_providerless = False  # Explicitly set to False
+            
+            with pytest.raises(Exception, match="No AI providers available"):
+                provider.classify("Test ticket")
 
 def test_multi_provider_classify_with_gemini(mocker):
     """Test classification with Gemini provider"""
@@ -225,7 +237,7 @@ def test_multi_provider_determine_priority():
     priorities = {
         'Network Issue': 'high',
         'Account Problem': 'medium',
-        'Payment Issue': 'high',
+        'Billing Issue': 'critical',  # Payment Issue normalizes to Billing Issue which is critical
         'Feature Request': 'low',
         'Other': 'medium'
     }

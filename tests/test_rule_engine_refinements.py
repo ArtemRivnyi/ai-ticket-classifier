@@ -31,12 +31,12 @@ def test_classify_actual_billing_issue(rule_engine):
     text = "I was charged twice for the same invoice"
     result = rule_engine.classify(text)
     assert result is not None
-    assert result['category'] == 'Payment Issue' or result['category'] == 'Billing Bug'
+    assert result['category'] == 'Billing Issue'  # Correct category name
 
 def test_classify_unrecognized_charge_specific(rule_engine):
     """Test that specific unrecognized charge patterns still work"""
     text = "There is an unknown charge on my card"
     result = rule_engine.classify(text)
     assert result is not None
-    assert result['category'] == 'Payment Issue'
+    assert result['category'] == 'Billing Issue'  # Correct category name
     assert result['subcategory'] == 'Unrecognized Charge'

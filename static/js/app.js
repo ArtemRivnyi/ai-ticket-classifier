@@ -79,10 +79,22 @@ document.addEventListener('DOMContentLoaded', () => {
         "Nice to have: add animation to the loading screen."
     ];
 
-    fillSampleBtn.addEventListener('click', () => {
-        const randomSample = samples[Math.floor(Math.random() * samples.length)];
-        ticketInput.value = randomSample;
+    // Quick Try Buttons
+    document.querySelectorAll('.quick-try-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            ticketInput.value = btn.dataset.text;
+            // Optional: Auto-submit or highlight
+            ticketInput.focus();
+        });
     });
+
+    // Legacy fill sample button (hidden but kept for compatibility if needed)
+    if (fillSampleBtn) {
+        fillSampleBtn.addEventListener('click', () => {
+            const randomSample = samples[Math.floor(Math.random() * samples.length)];
+            ticketInput.value = randomSample;
+        });
+    }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -278,10 +290,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Expose sendFeedback to global scope for onclick
-    window.sendFeedback = function (isCorrect) {
+    window.sendFeedback = async function (isCorrect) {
         document.getElementById('feedbackConfirmation').classList.remove('hidden');
-        // In a real app, you would send this to the backend
-        console.log('Feedback:', isCorrect);
-        showToast('Thanks for your feedback!', 'success');
+
+        const reqId = document.getElementById('resReqId').textContent;
+
+        try {
+            await fetch('/api/v1/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    request_id: reqId,
+                    correct: isCorrect
+                })
+            });
+            showToast('Thanks for your feedback!', 'success');
+        } catch (error) {
+            console.error('Error sending feedback:', error);
+            showToast('Failed to save feedback', 'error');
+        }
     };
 });

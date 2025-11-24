@@ -1,0 +1,31 @@
+text,expected_category,expected_priority
+"I cannot log in to my account even after resetting my password.",Authentication Issue,high
+"The payment for my subscription failed with error code 404.",Billing Issue,critical
+"My internet connection keeps dropping every 10 minutes.",Network Issue,high
+"I need a refund for the last month, I didn't use the service.",Billing Issue,high
+"How do I change my profile picture?",General Question,low
+"The application crashes when I try to export the report to PDF.",Bug/Technical Issue,medium
+"I'm not receiving any email notifications from the platform.",Notification Issue,medium
+"Is there a way to integrate this with Slack?",Feature Request,low
+"My laptop screen is flickering and then goes black.",Hardware Issue,high
+"I forgot my password and the reset link is expired.",Authentication Issue,medium
+"The API is returning 500 Internal Server Error for all requests.",Bug/Technical Issue,critical
+"Can I upgrade my plan to the Enterprise tier?",General Question,low
+"The printer is not connecting to the network.",Hardware Issue,medium
+"I was charged twice for the same invoice.",Billing Issue,critical
+"Where can I find the documentation for the new API?",General Question,low
+"The mobile app freezes on the splash screen.",Bug/Technical Issue,high
+"I want to request a new feature: Dark Mode.",Feature Request,low
+"My account has been locked due to suspicious activity.",Authentication Issue,critical
+"The integration with Salesforce is not syncing data.",Integration Issue,high
+"I have a question about the data privacy policy.",General Question,low
+"The system is very slow today, pages take forever to load.",Network Issue,medium
+"I need to update my credit card information.",Billing Issue,high
+"The search function is not finding any results.",Bug/Technical Issue,medium
+"Can you add support for exporting to CSV?",Feature Request,low
+"I didn't receive the confirmation email for my order.",Notification Issue,medium
+"My keyboard keys are sticking and not typing.",Hardware Issue,medium
+"The dashboard is showing incorrect data for yesterday.",Bug/Technical Issue,high
+"I want to cancel my subscription immediately.",Billing Issue,high
+"How do I invite a new team member?",General Question,low
+"The VPN connection is unstable.",Network Issue,high

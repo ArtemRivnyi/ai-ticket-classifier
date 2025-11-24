@@ -12,9 +12,17 @@ class TestMiddlewareAuthCoverage:
     
     def test_api_key_manager_create_key_no_redis(self, mocker):
         """Test APIKeyManager.create_key when Redis is not available"""
-        with patch('middleware.auth.redis_client', None):
-            with pytest.raises(Exception, match="Redis not available"):
-                middleware.auth.APIKeyManager.create_key('user1', 'test_key', 'free')
+        import importlib
+        with patch.dict('os.environ', {'ALLOW_PROVIDERLESS': 'false'}):
+            with patch('middleware.auth.redis_client', None):
+                # Reload module to pick up the environment variable change
+                importlib.reload(middleware.auth)
+                try:
+                    with pytest.raises(Exception, match="Redis not available"):
+                        middleware.auth.APIKeyManager.create_key('user1', 'test_key', 'free')
+                finally:
+                    # Reload again to restore original state
+                    importlib.reload(middleware.auth)
     
     def test_api_key_manager_get_key_data_no_redis(self, mocker):
         """Test APIKeyManager.get_key_data when Redis is not available"""

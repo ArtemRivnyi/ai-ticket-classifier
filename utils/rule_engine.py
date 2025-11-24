@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 VALID_CATEGORIES = [
     'Account Problem',
     'Authentication Issue',
-    'Billing Bug',
+    'Billing Issue',
     'Bug/Technical Issue',
     'Data / Reporting Issue',
     'Feature Request',
@@ -17,19 +17,17 @@ VALID_CATEGORIES = [
     'Mixed Issue',
     'Network Issue',
     'Notification Issue',
-    'Payment Issue',
     'Security Incident',
     'Spam / Abuse',
     'Other'
 ]
 
 SUBCATEGORIES = {
-    'Authentication Issue': ['Login Failure', '2FA/MFA Issue', 'Password Reset', 'Session Expired'],
+    'Authentication Issue': ['Login Failure', '2FA/MFA Issue', 'Password Reset', 'Session Expired', 'Reset Link Expired'],
     'Hardware Issue': ['Device Malfunction', 'Battery/Power', 'Connectivity (Hardware)', 'Firmware'],
-    'Billing Bug': ['Invoice Mismatch', 'UI/Backend Mismatch', 'Webhook Failure'],
+    'Billing Issue': ['Invoice Mismatch', 'UI/Backend Mismatch', 'Webhook Failure', 'Transaction Failed', 'Refund Request', 'Unrecognized Charge', 'Double Charge'],
     'Integration Issue': ['API Failure', 'Webhook Error', 'SSO/OAuth', 'Third-party Service'],
     'Notification Issue': ['Email Delivery', 'Slack/SMS', 'Partial Delivery'],
-    'Payment Issue': ['Transaction Failed', 'Refund Request', 'Unrecognized Charge', 'Double Charge'],
     'Network Issue': ['Connectivity Loss', 'Latency/Slowness', 'VPN Issue', 'WiFi'],
     'Account Problem': ['Profile Update', 'Settings', 'Permissions'],
     'Bug/Technical Issue': ['Crash/Error', 'Performance', 'UI/UX Glitch'],
@@ -57,16 +55,16 @@ CATEGORY_SYNONYMS = {
     'otp': 'Authentication Issue',
     'verification': 'Authentication Issue',
     'mfa': 'Authentication Issue',
-    'billing': 'Payment Issue',
-    'payment': 'Payment Issue',
-    'charge': 'Payment Issue',
-    'charged': 'Payment Issue',
-    'refund': 'Payment Issue',
-    'invoice': 'Payment Issue',
-    'invoice mismatch': 'Billing Bug',
-    'billing bug': 'Billing Bug',
-    'ui payment': 'Billing Bug',
-    'processor mismatch': 'Billing Bug',
+    'billing': 'Billing Issue',
+    'payment': 'Billing Issue',
+    'charge': 'Billing Issue',
+    'charged': 'Billing Issue',
+    'refund': 'Billing Issue',
+    'invoice': 'Billing Issue',
+    'invoice mismatch': 'Billing Issue',
+    'billing bug': 'Billing Issue',
+    'ui payment': 'Billing Issue',
+    'processor mismatch': 'Billing Issue',
     'idea': 'Feature Request',
     'suggestion': 'Feature Request',
     'roadmap': 'Feature Request',
@@ -105,23 +103,34 @@ CATEGORY_SYNONYMS = {
 
 PRIORITY_MAP = {
     'Security Incident': 'critical',
+    'Mixed Issue': 'critical',
     'Network Issue': 'high',
-    'Billing Bug': 'high',
-    'Payment Issue': 'high',
+    'Billing Issue': 'critical', # Default to critical for financial issues
     'Authentication Issue': 'high',
-    'Hardware Issue': 'medium',
-    'Integration Issue': 'medium',
+    'Hardware Issue': 'high',
+    'Integration Issue': 'high', # Changed to high for Salesforce/API failures
     'Bug/Technical Issue': 'medium',
     'Account Problem': 'medium',
     'Data / Reporting Issue': 'medium',
     'Notification Issue': 'medium',
-    'Mixed Issue': 'medium',
     'Spam / Abuse': 'low',
     'Feature Request': 'low',
     'General Question': 'low',
     'Other': 'medium'
 }
 
+# Specific subcategory priority overrides
+SUBCATEGORY_PRIORITY_OVERRIDES = {
+    ('Authentication Issue', 'Reset Link Expired'): 'medium',
+    ('Hardware Issue', 'Connectivity (Hardware)'): 'medium', # Printer/USB usually medium
+    ('Notification Issue', 'Slack/SMS'): 'medium',
+    ('Billing Issue', 'Refund Request'): 'high', # Refunds are high but maybe not critical
+    ('Billing Issue', 'Transaction Failed'): 'high', # Failed transaction is high
+    ('Billing Issue', 'Unrecognized Charge'): 'high',
+    ('Billing Issue', 'UI/Backend Mismatch'): 'medium',
+}
+
+# CRITICAL priority keywords
 # CRITICAL priority keywords
 CRITICAL_KEYWORDS = [
     r'production down',
@@ -131,7 +140,11 @@ CRITICAL_KEYWORDS = [
     r'losing money',
     r'complete outage',
     r'system crash',
-    r'data loss'
+    r'data loss',
+    r'charged twice',
+    r'invoice mismatch',
+    r'wrong amount',
+    r'security breach'
 ]
 
 BLACKLIST_KEYWORDS = [
@@ -146,17 +159,16 @@ BLACKLIST_KEYWORDS = [
 # Specific/Critical categories > Generic categories
 CATEGORY_PRECEDENCE = [
     'Security Incident',
-    'Billing Bug',
+    'Billing Issue',
     'Hardware Issue',
     'Integration Issue',
     'Notification Issue',
     'Authentication Issue',
-    'Payment Issue',
     'Account Problem',
     'Network Issue',
+    'Feature Request',  # Moved before Bug/Technical Issue
     'Bug/Technical Issue',
     'Data / Reporting Issue',
-    'Feature Request',
     'General Question',
     'Spam / Abuse',
     'Mixed Issue',
@@ -166,7 +178,7 @@ CATEGORY_PRECEDENCE = [
 def _compile_category_rules() -> List[Dict]:
     return [
         {
-            'category': 'Billing Bug',
+            'category': 'Billing Issue',
             'subcategory': 'Invoice Mismatch',
             'patterns': [
                 r'invoice (mismatch|says)',
@@ -178,7 +190,7 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Billing Bug',
+            'category': 'Billing Issue',
             'subcategory': 'Webhook Failure',
             'patterns': [
                 r'processor (did not confirm|charged)',
@@ -187,7 +199,7 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Billing Bug',
+            'category': 'Billing Issue',
             'subcategory': 'UI/Backend Mismatch',
             'patterns': [
                 r'dashboard.*paid.*dunning',
@@ -198,6 +210,8 @@ def _compile_category_rules() -> List[Dict]:
                 r'backend.*unpaid',
                 r'status.*active.*features.*locked',
                 r'subscription.*active.*locked',
+                r'update.*payment.*method',
+                r'card.*expired',
             ],
         },
         {
@@ -211,6 +225,9 @@ def _compile_category_rules() -> List[Dict]:
                 r'create an api',
                 r'\badd dark mode',
                 r'\badd.*dark mode',
+                r'would be great',
+                r'nice (to have|if)',
+                r'could you add',
             ],
         },
         {
@@ -259,6 +276,7 @@ def _compile_category_rules() -> List[Dict]:
                 r'jamming',
                 r'not detecting',
                 r'stopped working',
+                r'flickering',
             ],
         },
         {
@@ -266,6 +284,7 @@ def _compile_category_rules() -> List[Dict]:
             'subcategory': 'Connectivity (Hardware)',
             'patterns': [
                 r'\brouter\b',
+                r'usb cable',
             ],
         },
         {
@@ -373,6 +392,7 @@ def _compile_category_rules() -> List[Dict]:
                 r'\botp\b',
                 r'verification code',
                 r'authenticator',
+                r'two-factor',
             ],
         },
         {
@@ -398,6 +418,15 @@ def _compile_category_rules() -> List[Dict]:
         },
         {
             'category': 'Authentication Issue',
+            'subcategory': 'Reset Link Expired',
+            'patterns': [
+                r'link.*expired',
+                r'expired.*link',
+                r'token.*expired',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
             'subcategory': 'Password Reset',
             'patterns': [
                 r'reset link',
@@ -406,7 +435,7 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Payment Issue',
+            'category': 'Billing Issue',
             'subcategory': 'Double Charge',
             'patterns': [
                 r'charged twice',
@@ -417,7 +446,7 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Payment Issue',
+            'category': 'Billing Issue',
             'subcategory': 'Refund Request',
             'patterns': [
                 r'refund',
@@ -425,7 +454,7 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Payment Issue',
+            'category': 'Billing Issue',
             'subcategory': 'Transaction Failed',
             'patterns': [
                 r'transaction failed',
@@ -439,7 +468,7 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Payment Issue',
+            'category': 'Billing Issue',
             'subcategory': 'Unrecognized Charge',
             'patterns': [
                 r'\bcharged\b',
@@ -515,22 +544,10 @@ def _compile_category_rules() -> List[Dict]:
             'patterns': [
                 r'cannot connect',
                 r'connection timeout',
-                r'\binternet\b',
-                r'packet loss',
-            ],
-        },
-        {
-            'category': 'Network Issue',
-            'subcategory': 'VPN Issue',
-            'patterns': [
-                r'\bvpn\b',
-            ],
-        },
-        {
-            'category': 'Network Issue',
-            'subcategory': 'WiFi',
-            'patterns': [
                 r'\bwifi\b',
+                r'connection dropping',
+                r'keeps dropping',
+                r'\binternet\b',
             ],
         },
         {
@@ -599,10 +616,13 @@ def _compile_category_rules() -> List[Dict]:
             'category': 'Mixed Issue',
             'subcategory': 'Multiple Issues',
             'patterns': [
-                r'\bAND\b.*failed',
+                r'\bAND\b.*(failed|issue|problem|not working)',
                 r'two (separate|different) (issues|problems)',
                 r'multiple (issues|problems)',
-                r'both.*and',
+                r'both.*and.*(issue|problem|failed)',
+                r'also.*and.*(issue|problem|failed)',
+                r'plus.*(issue|problem)',
+                r'.*and also.*',
             ],
         },
     ]
@@ -637,11 +657,12 @@ class RuleEngine:
         # Special case: If Mixed Issue explicit pattern matches, it takes precedence
         mixed_match = next((m for m in matches if m['category'] == 'Mixed Issue'), None)
         if mixed_match:
+            logger.info(f"🔀 Mixed Issue detected, overriding other matches")
             return {
                 'category': 'Mixed Issue',
                 'subcategory': mixed_match['subcategory'] or 'Multiple Issues',
-                'confidence': 0.85,
-                'priority': 'high',
+                'confidence': 0.80,
+                'priority': 'critical',  # Multiple issues = critical
                 'provider': 'rule_engine'
             }
 
@@ -671,6 +692,10 @@ class RuleEngine:
         # Determine priority
         priority = PRIORITY_MAP.get(best_match['category'], 'medium')
         
+        # Check for subcategory overrides
+        if (best_match['category'], best_match['subcategory']) in SUBCATEGORY_PRIORITY_OVERRIDES:
+            priority = SUBCATEGORY_PRIORITY_OVERRIDES[(best_match['category'], best_match['subcategory'])]
+
         # Check for CRITICAL keywords
         if any(re.search(pattern, text) for pattern in CRITICAL_KEYWORDS):
             priority = 'critical'
@@ -678,7 +703,7 @@ class RuleEngine:
         return {
             'category': best_match['category'],
             'subcategory': best_match['subcategory'],
-            'confidence': 0.85,  # High confidence for rule matches
+            'confidence': 0.80,  # Lowered to allow more Gemini usage
             'priority': priority,
             'provider': 'rule_engine',
             'matched_pattern': matched_pattern

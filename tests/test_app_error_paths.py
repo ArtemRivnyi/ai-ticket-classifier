@@ -197,10 +197,14 @@ class TestEndpointErrorPaths:
         mock_classifier = Mock()
         mock_classifier.gemini_available = False
         mock_classifier.openai_available = False
+        # Ensure get_status returns a serializable dict just in case
+        mock_classifier.get_status.return_value = {}
         
         with patch('app.classifier', mock_classifier):
-            response = client.get('/api/v1/status', headers=headers)
-            assert response.status_code in [401, 503]
+            # Force ALLOW_PROVIDERLESS to False to trigger the 503 check
+            with patch('app.ALLOW_PROVIDERLESS', False):
+                response = client.get('/api/v1/status', headers=headers)
+                assert response.status_code in [401, 503]
     
     def test_status_endpoint_exception(self, client, headers):
         """Test status endpoint exception handling"""

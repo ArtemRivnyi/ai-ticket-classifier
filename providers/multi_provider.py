@@ -20,7 +20,8 @@ from utils.rule_engine import (
     PRIORITY_MAP,
     CRITICAL_KEYWORDS,
     BLACKLIST_KEYWORDS,
-    CATEGORY_PRECEDENCE
+    CATEGORY_PRECEDENCE,
+    SUBCATEGORY_PRIORITY_OVERRIDES
 )
 
 class CircuitState(Enum):
@@ -318,14 +319,23 @@ Respond with a JSON object containing 'category' and 'subcategory'. Example:
             result['subcategory'] = None
         
         # Determine priority
-        priority = PRIORITY_MAP.get(normalized, 'medium')
+        # Use priority from result if already set (e.g., from rule_engine)
+        if 'priority' in result and result['priority']:
+            priority = result['priority']
+        else:
+            priority = PRIORITY_MAP.get(normalized, 'medium')
+            
+            # Check for subcategory overrides
+            if (normalized, subcategory) in SUBCATEGORY_PRIORITY_OVERRIDES:
+                priority = SUBCATEGORY_PRIORITY_OVERRIDES[(normalized, subcategory)]
         
-        # Check for CRITICAL keywords
+        # Check for CRITICAL keywords (override unless already critical)
         if self._is_critical(ticket_text):
             priority = 'critical'
             
-        # Check for LOW priority keywords
-        if self._is_low_priority(ticket_text):
+        # Check for LOW priority keywords (override unless already set to something else specific?)
+        # Actually, low priority keywords should probably override medium/high if it's clearly a minor issue
+        if self._is_low_priority(ticket_text) and priority != 'critical':
             priority = 'low'
         
         result['priority'] = priority

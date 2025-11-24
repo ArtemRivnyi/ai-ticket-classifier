@@ -10,7 +10,7 @@ import sys
 # Skip exit during testing (pytest imports modules)
 _is_testing = 'pytest' in sys.modules or any('pytest' in arg for arg in sys.argv)
 
-if sys.version_info[:2] != (3, 12):
+if sys.version_info[:2] not in [(3, 12), (3, 14)]:
     try:
         print("=" * 70)
         print("ERROR: Python 3.12 is REQUIRED for this project")
@@ -39,6 +39,7 @@ import re
 from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
+import json
 
 from flask import Flask, request, jsonify, Response, g, current_app, send_from_directory, render_template
 from flask_cors import CORS
@@ -50,6 +51,8 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from dotenv import load_dotenv
+load_dotenv()
+
 
 # Structured logging setup
 from config.logging_config import setup_logging, logger as structured_logger
@@ -255,10 +258,85 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 )
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
-# Serve Landing Page
+# ===== PYDANTIC MODELS =====
+
+class TicketRequest(BaseModel):
+    ticket: str = Field(..., min_length=10, max_length=1000)
+
+class FeedbackRequest(BaseModel):
+    request_id: str
+    correct: bool
+    comments: Optional[str] = None
+
+# ===== ROUTES =====
+
 @app.route('/')
 def index():
+    """Render the main page."""
     return render_template('index.html')
+
+@app.route('/about')
+def about():
+    """Render the about page."""
+    return render_template('about.html')
+
+@app.route('/evaluation')
+def evaluation():
+    """Render the evaluation page."""
+    return render_template('evaluation.html')
+
+@app.route('/api/v1/evaluation-results')
+def evaluation_results():
+    """Serve the evaluation results JSON."""
+    try:
+        with open('evaluation_results.json', 'r') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except FileNotFoundError:
+        return jsonify({"error": "Evaluation results not found. Run evaluate_model.py first."}), 404
+
+@app.route('/api/v1/feedback', methods=['POST'])
+@limiter.limit("10 per minute")
+def submit_feedback():
+    """Submit feedback for a classification result."""
+    try:
+        json_data = request.get_json(silent=True)
+        if json_data is None:
+             return jsonify({'error': 'Request must be JSON or valid JSON'}), 400
+            
+        data = FeedbackRequest(**json_data)
+        
+        feedback_entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "request_id": data.request_id,
+            "correct": data.correct,
+            "comments": data.comments
+        }
+        
+        # Append to local file (simple storage for MVP)
+        feedback_file = 'feedback.json'
+        existing_feedback = []
+        
+        if os.path.exists(feedback_file):
+            try:
+                with open(feedback_file, 'r') as f:
+                    existing_feedback = json.load(f)
+            except json.JSONDecodeError:
+                pass # Start fresh if corrupted
+                
+        existing_feedback.append(feedback_entry)
+        
+        with open(feedback_file, 'w') as f:
+            json.dump(existing_feedback, f, indent=2)
+            
+        return jsonify({'status': 'success', 'message': 'Feedback received'}), 200
+        
+    except ValidationError as e:
+        return jsonify({'error': 'Validation error', 'details': e.errors()}), 400
+    except Exception as e:
+        logger.error(f"Feedback error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 # ===== PYDANTIC MODELS =====
 

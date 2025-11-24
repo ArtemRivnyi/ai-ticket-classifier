@@ -194,13 +194,26 @@ class TestMultiProviderCoverage:
     def test_multi_provider_classify_no_providers(self, mocker):
         """Test MultiProvider.classify when no providers available"""
         from providers.multi_provider import MultiProvider
-        provider = MultiProvider()
-        provider.gemini_available = False
-        provider.openai_available = False
         
-        # Should raise exception when no providers available
-        with pytest.raises(Exception, match="No AI providers available"):
-            provider.classify("test ticket")
+        # Patch ALLOW_PROVIDERLESS to False so the test expects an exception
+        with patch.dict(os.environ, {'ALLOW_PROVIDERLESS': 'false'}):
+            # Create a new provider instance with the patched environment
+            with patch('providers.multi_provider.os.getenv') as mock_getenv:
+                def getenv_side_effect(key, default=''):
+                    if key == 'ALLOW_PROVIDERLESS':
+                        return 'false'
+                    return os.environ.get(key, default)
+                mock_getenv.side_effect = getenv_side_effect
+                
+                provider = MultiProvider()
+                provider.gemini_available = False
+                provider.openai_available = False
+                provider.allow_providerless = False  # Explicitly set to False
+                
+                # Should raise exception when no providers available
+                with pytest.raises(Exception, match="No AI providers available"):
+                    provider.classify("test ticket")
+
 
 
 class TestGeminiProviderCoverage:

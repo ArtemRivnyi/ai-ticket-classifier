@@ -55,8 +55,9 @@ def test_api_key_manager_create_key(mock_redis_client):
 def test_api_key_manager_create_key_no_redis():
     """Test creating key when Redis is unavailable"""
     with patch('middleware.auth.redis_client', None):
-        with pytest.raises(Exception, match="Redis not available"):
-            APIKeyManager.create_key('user123', 'Test Key', 'free')
+        with patch('middleware.auth.ALLOW_PROVIDERLESS', False):
+            with pytest.raises(Exception, match="Redis not available"):
+                APIKeyManager.create_key('user123', 'Test Key', 'free')
 
 def test_api_key_manager_get_key_data(mock_redis_client):
     """Test getting key data"""
