@@ -88,6 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Example ticket buttons
+    document.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            ticketInput.value = btn.dataset.text;
+            ticketInput.focus();
+        });
+    });
+
     // Legacy fill sample button (hidden but kept for compatibility if needed)
     if (fillSampleBtn) {
         fillSampleBtn.addEventListener('click', () => {
