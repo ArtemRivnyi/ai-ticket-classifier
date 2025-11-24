@@ -298,19 +298,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Expose sendFeedback to global scope for onclick
+    // Expose sendFeedback to global scope for onclick
     window.sendFeedback = async function (isCorrect) {
         document.getElementById('feedbackConfirmation').classList.remove('hidden');
 
         const reqId = document.getElementById('resReqId').textContent;
+        const ticketText = document.getElementById('ticketText').value;
+        const category = document.getElementById('resCategory').textContent;
 
         try {
-            await fetch('/api/v1/feedback', {
+            await fetch('/api/feedback', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     request_id: reqId,
+                    ticket: ticketText,
+                    predicted: category,
                     correct: isCorrect
                 })
             });
@@ -320,4 +325,65 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Failed to save feedback', 'error');
         }
     };
+
+    // Expose tryExample to global scope
+    window.tryExample = function (text) {
+        ticketInput.value = text;
+        ticketInput.focus();
+        // Optional: Auto-submit
+        // form.dispatchEvent(new Event('submit'));
+    };
+
+    // CSV Upload Handler
+    const csvForm = document.getElementById('csvForm');
+    if (csvForm) {
+        csvForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showToast('Please select a CSV file', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const btn = csvForm.querySelector('button');
+            const originalText = btn.textContent;
+            btn.textContent = 'Processing...';
+            btn.disabled = true;
+
+            try {
+                const apiKey = "sk_ORulUQRLvLHAueF3Ht1gXj9gTsY7xme3QD-UeVrO8nY";
+                const response = await fetch('/api/classify/batch', {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Key': apiKey
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast(`Processed ${data.total} tickets successfully!`, 'success');
+                    console.log('Batch results:', data.results);
+                    // In a real app, we would display these results in a table/modal
+                    // For MVP, just showing toast and logging is fine, or we could alert
+                    alert(`Batch processing complete!\nTotal: ${data.total}\nCheck console for details.`);
+                } else {
+                    showToast(data.error || 'Batch processing failed', 'error');
+                }
+            } catch (error) {
+                console.error('Batch error:', error);
+                showToast('Error uploading file', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+                fileInput.value = '';
+            }
+        });
+    }
 });

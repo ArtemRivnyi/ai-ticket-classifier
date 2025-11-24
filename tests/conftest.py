@@ -3,6 +3,11 @@ Pytest configuration and shared fixtures
 """
 import pytest
 import os
+
+# Set required environment variables for testing before any other imports
+os.environ.setdefault('MASTER_API_KEY', 'test_master_key')
+os.environ.setdefault('SECRET_KEY', 'test_secret_key')
+os.environ.setdefault('JWT_SECRET', 'test_jwt_secret')
 import sys
 from pathlib import Path
 from unittest.mock import patch
