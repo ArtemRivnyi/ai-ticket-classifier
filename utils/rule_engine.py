@@ -613,16 +613,106 @@ def _compile_category_rules() -> List[Dict]:
             ],
         },
         {
-            'category': 'Mixed Issue',
-            'subcategory': 'Multiple Issues',
+            'category': 'General Question',
+            'subcategory': 'Documentation',
             'patterns': [
-                r'\bAND\b.*(failed|issue|problem|not working)',
-                r'two (separate|different) (issues|problems)',
-                r'multiple (issues|problems)',
-                r'both.*and.*(issue|problem|failed)',
-                r'also.*and.*(issue|problem|failed)',
-                r'plus.*(issue|problem)',
-                r'.*and also.*',
+                r'documentation',
+                r'guide',
+                r'manual',
+                r'where can i find',
+            ],
+        },
+        {
+            'category': 'Bug/Technical Issue',
+            'subcategory': 'Crash/Error',
+            'patterns': [
+                r'freezes',
+                r'frozen',
+                r'stuck',
+                r'not finding',
+                r'search function',
+                r'incorrect data',
+                r'wrong data',
+            ],
+        },
+        {
+            'category': 'Authentication Issue',
+            'subcategory': 'Account Locked',
+            'patterns': [
+                r'locked',
+                r'account.*locked',
+                r'suspicious activity',
+            ],
+        },
+        {
+            'category': 'Billing Issue',
+            'subcategory': 'Payment Method',
+            'patterns': [
+                r'credit card',
+                r'update.*card',
+                r'payment method',
+            ],
+        },
+        {
+            'category': 'Billing Issue',
+            'subcategory': 'Subscription Management',
+            'patterns': [
+                r'cancel.*subscription',
+                r'unsubscribe',
+                r'stop.*billing',
+            ],
+        },
+        {
+            'category': 'Hardware Issue',
+            'subcategory': 'Device Malfunction',
+            'patterns': [
+                r'keyboard',
+                r'mouse',
+                r'(?<!splash )screen', # Avoid matching "splash screen"
+                r'monitor',
+                r'laptop',
+                r'sticking',
+            ],
+        },
+        {
+            'category': 'Bug/Technical Issue',
+            'subcategory': 'Crash/Error',
+            'patterns': [
+                r'freezes',
+                r'frozen',
+                r'stuck',
+                r'not finding',
+                r'search function',
+                r'incorrect data',
+                r'wrong data',
+                r'500 internal server error',
+                r'splash screen',
+            ],
+        },
+        {
+            'category': 'Network Issue',
+            'subcategory': 'Connectivity Loss',
+            'patterns': [
+                r'unstable',
+                r'dropping',
+                r'disconnecting',
+            ],
+        },
+        {
+            'category': 'Feature Request',
+            'subcategory': 'New Feature',
+            'patterns': [
+                r'is there a way to',
+                r'can i integrate',
+                r'support for',
+            ],
+        },
+        {
+            'category': 'General Question',
+            'subcategory': None,
+            'patterns': [
+                r'question about',
+                r'inquiry',
             ],
         },
     ]

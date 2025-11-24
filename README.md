@@ -28,6 +28,8 @@
 **Key Capabilities:**
 - **Hybrid Intelligence**: Combines a deterministic Rule Engine for instant, zero-cost matches with LLMs (Gemini/GPT-4) for complex understanding.
 - **Resilience**: Implements Circuit Breakers and automatic failover between AI providers to ensure 99.9% uptime.
+- **Batch Processing**: Supports CSV uploads for bulk ticket classification with auto-detection of columns.
+- **User Experience**: Features Dark Mode, Classification History, and smooth UI transitions.
 - **Production Ready**: Fully dockerized, monitored with Prometheus/Sentry, and secured with API key authentication and rate limiting.
 
 ---

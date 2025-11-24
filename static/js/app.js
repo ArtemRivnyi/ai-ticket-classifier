@@ -45,6 +45,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+
+    if (themeToggle && themeIcon) {
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            themeIcon.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            const isDark = body.classList.contains('dark');
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    }
+
     // Health Check
     async function checkSystemHealth() {
         try {
@@ -131,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 displayResult(data);
                 addToHistory(data, text);
                 showToast('Classification successful', 'success');
+                setLoading(false);
             } else {
                 showToast(data.error || 'Failed to classify ticket', 'error');
                 setLoading(false); // Reset loading state on error
@@ -158,29 +180,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fillSampleBtn) fillSampleBtn.disabled = true;
             if (ticketInput) ticketInput.disabled = true;
 
-            // Show skeleton, hide others
-            if (emptyState) emptyState.classList.add('hidden');
-            if (resultContent) resultContent.classList.add('hidden');
-            if (skeletonLoader) skeletonLoader.classList.remove('hidden');
+            // Smooth transition: Fade out result, then show skeleton
+            if (resultContent && !resultContent.classList.contains('hidden')) {
+                resultContent.classList.add('opacity-0');
+                setTimeout(() => {
+                    resultContent.classList.add('hidden');
+                    if (emptyState) emptyState.classList.add('hidden');
+                    if (skeletonLoader) {
+                        skeletonLoader.classList.remove('hidden');
+                        // Force reflow
+                        void skeletonLoader.offsetWidth;
+                        skeletonLoader.classList.remove('opacity-0');
+                    }
+                }, 300);
+            } else {
+                if (emptyState) emptyState.classList.add('hidden');
+                if (skeletonLoader) skeletonLoader.classList.remove('hidden');
+            }
+
         } else {
             if (btnText) btnText.textContent = 'Classify Ticket';
             if (btnSpinner) btnSpinner.classList.add('hidden');
             if (fillSampleBtn) fillSampleBtn.disabled = false;
             if (ticketInput) ticketInput.disabled = false;
-
-            // Hide skeleton
-            if (skeletonLoader) skeletonLoader.classList.add('hidden');
         }
     }
 
     function displayResult(data) {
         // Hide skeleton
-        skeletonLoader.classList.add('hidden');
-        // Show result
-        resultContent.classList.remove('hidden');
-        // Trigger reflow to enable transition
-        void resultContent.offsetWidth;
-        resultContent.classList.remove('opacity-0');
+        if (skeletonLoader) skeletonLoader.classList.add('hidden');
+
+        // Show result with fade in
+        if (resultContent) {
+            resultContent.classList.remove('hidden');
+            // Trigger reflow to enable transition
+            void resultContent.offsetWidth;
+            resultContent.classList.remove('opacity-0');
+        }
 
         // Update fields
         document.getElementById('resCategory').textContent = data.category;
@@ -225,8 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset feedback section
         document.getElementById('feedbackSection').classList.remove('hidden');
         document.getElementById('feedbackConfirmation').classList.add('hidden');
-
-        setLoading(false);
     }
 
     // History Management
@@ -367,7 +401,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const apiKey = "sk_ORulUQRLvLHAueF3Ht1gXj9gTsY7xme3QD-UeVrO8nY";
-                const response = await fetch('/api/classify/batch', {
+                // Updated endpoint to dedicated CSV handler
+                const response = await fetch('/api/v1/classify/batch-csv', {
                     method: 'POST',
                     headers: {
                         'X-API-Key': apiKey
@@ -380,9 +415,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     showToast(`Processed ${data.total} tickets successfully!`, 'success');
                     console.log('Batch results:', data.results);
-                    // In a real app, we would display these results in a table/modal
-                    // For MVP, just showing toast and logging is fine, or we could alert
-                    alert(`Batch processing complete!\nTotal: ${data.total}\nCheck console for details.`);
+
+                    // Create a simple results summary
+                    let summary = `Processed ${data.total} tickets.\n`;
+                    summary += `Successful: ${data.successful}\n`;
+                    summary += `Failed: ${data.failed}`;
+                    alert(summary);
+
                 } else {
                     showToast(data.error || 'Batch processing failed', 'error');
                 }

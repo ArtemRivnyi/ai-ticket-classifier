@@ -163,47 +163,9 @@ class MultiProvider:
             logger.info(f"🚀 MultiProvider initialized (Gemini: {self.gemini_available}, OpenAI: {self.openai_available})")
     
     def classify(self, ticket_text: str) -> Dict:
-        """Classify ticket using Rule Engine first, then AI"""
+        """Classify ticket using AI first, then Rule Engine as fallback"""
         
-        # 1. Try Rule Engine FIRST (Deterministic & Fast)
-        # We prioritize rules because they are now highly specific and accurate
-        rule_match = self.rule_classifier.classify(ticket_text)
-        if rule_match:
-            logger.info(f"✅ Rule Engine matched: {rule_match['category']}")
-            return self._post_process_result(rule_match, ticket_text)
-
-        # Check if any provider is available for fallback
-        if not self.gemini_available and not self.openai_available and not self.allow_providerless:
-            raise Exception("No AI providers available. Please set GEMINI_API_KEY or OPENAI_API_KEY")
-        
-        prompt = f"""
-You are an AI assistant that classifies support tickets into EXACTLY one of the approved categories and subcategories.
-
-IMPORTANT CONTEXT:
-- If ticket mentions "crash" or "bug" or "error", it's Bug/Technical Issue (not Payment/Account)
-- If ticket mentions "production/server down" + "multiple users", Priority = CRITICAL
-- Look at PRIMARY issue, not secondary keywords
-- If it's a simple question ("how to", "what is"), it's General Question
-
-Allowed Categories and Subcategories:
-{chr(10).join([f"{k}: {', '.join(v)}" for k, v in SUBCATEGORIES.items()])}
-
-Examples:
-- "VPN is down for the whole office" → Category: Network Issue, Subcategory: VPN Issue
-- "Please refund the duplicate charge from yesterday" → Category: Payment Issue, Subcategory: Refund Request
-- "I need to reset my password again" → Category: Authentication Issue, Subcategory: Password Reset
-- "Could you add dark mode to the dashboard?" → Category: Feature Request, Subcategory: New Feature
-- "App crashes when I upload files" → Category: Bug/Technical Issue, Subcategory: Crash/Error
-- "How do I export my data?" → Category: General Question, Subcategory: How-to
-- "Click here to claim free crypto" → Category: Spam / Abuse, Subcategory: Spam
-
-Ticket: {ticket_text}
-
-Respond with a JSON object containing 'category' and 'subcategory'. Example:
-{{"category": "Network Issue", "subcategory": "VPN Issue"}}"""
-
-        # 2. Try AI (Gemini/OpenAI) if rules failed
-        
+        # 1. Try AI (Gemini/OpenAI) FIRST
         ai_result = None
         
         # Try Gemini first
@@ -211,6 +173,37 @@ Respond with a JSON object containing 'category' and 'subcategory'. Example:
             try:
                 def classify_with_gemini():
                     import json
+                    # Re-construct prompt here to ensure it's fresh
+                    prompt = f"""
+You are an expert AI support agent. Your job is to classify support tickets into EXACTLY one of the approved categories and subcategories.
+
+CRITICAL RULES:
+1. **Hardware vs Software**: If a physical device (printer, laptop, mouse, screen) is broken/jammed/not working, it is ALWAYS "Hardware Issue".
+2. **Login/Access**: Any issue with signing in, passwords, 2FA, or account lockouts is "Authentication Issue".
+3. **Money/Billing**: Any mention of invoices, charges, credit cards, or refunds is "Payment Issue".
+4. **Bugs/Crashes**: If software throws an error, crashes, or behaves unexpectedly (and isn't a login/payment issue), it is "Bug/Technical Issue".
+5. **Questions**: "How do I...", "Where is...", "What is..." are "General Question".
+6. **Feature Requests**: "Can you add...", "It would be nice if...", "I want..." are "Feature Request".
+
+Allowed Categories and Subcategories:
+{chr(10).join([f"{k}: {', '.join(v)}" for k, v in SUBCATEGORIES.items()])}
+
+Few-Shot Examples:
+- "VPN is down for the whole office" -> {{"category": "Network Issue", "subcategory": "VPN Issue"}}
+- "Please refund the duplicate charge" -> {{"category": "Payment Issue", "subcategory": "Refund Request"}}
+- "I need to reset my password again" -> {{"category": "Authentication Issue", "subcategory": "Password Reset"}}
+- "The printer is jammed and showing error code E503" -> {{"category": "Hardware Issue", "subcategory": "Device Failure"}}
+- "App crashes when I upload files" -> {{"category": "Bug/Technical Issue", "subcategory": "Crash/Error"}}
+- "How do I export my data?" -> {{"category": "General Question", "subcategory": "How-to"}}
+- "Click here to claim free crypto" -> {{"category": "Spam / Abuse", "subcategory": "Spam"}}
+- "My laptop screen is flickering" -> {{"category": "Hardware Issue", "subcategory": "Device Failure"}}
+- "I cannot access my account, it says locked" -> {{"category": "Authentication Issue", "subcategory": "Account Locked"}}
+
+Ticket: {ticket_text}
+
+Respond ONLY with a valid JSON object containing 'category' and 'subcategory'.
+Example: {{"category": "Network Issue", "subcategory": "VPN Issue"}}"""
+
                     response = self.gemini_model.generate_content(prompt)
                     text = response.text.strip()
                     # Try to parse JSON
@@ -241,13 +234,17 @@ Respond with a JSON object containing 'category' and 'subcategory'. Example:
             except Exception as e:
                 logger.error(f"Gemini classification failed: {e}")
                 if not self.openai_available:
-                    raise
+                    # Don't raise yet, try fallback
+                    pass
         
         # Fallback to OpenAI if Gemini fails
         if not ai_result and self.openai_available:
             try:
                 def classify_with_openai():
                     import json
+                    # Re-construct prompt (same as above)
+                    prompt = f"""You are an expert AI support agent. Classify into: {', '.join(VALID_CATEGORIES)}. Ticket: {ticket_text}. Respond JSON."""
+                    
                     response = self.openai_client.chat.completions.create(
                         model="gpt-3.5-turbo",
                         messages=[
@@ -277,20 +274,28 @@ Respond with a JSON object containing 'category' and 'subcategory'. Example:
                 
             except Exception as e:
                 logger.error(f"OpenAI classification failed: {e}")
-                raise
+                # Don't raise yet, try fallback
+                pass
         
-        # Use AI result
+        # Use AI result if available
         if ai_result:
             return self._post_process_result(ai_result, ticket_text)
+
+        # 2. Try Rule Engine as FALLBACK
+        logger.info("⚠️ AI providers failed or unavailable, falling back to Rule Engine")
+        rule_match = self.rule_classifier.classify(ticket_text)
+        if rule_match:
+            logger.info(f"✅ Rule Engine matched (fallback): {rule_match['category']}")
+            return self._post_process_result(rule_match, ticket_text)
         
-        # If we get here, all providers failed or unavailable
+        # If we get here, all providers failed
         if self.allow_providerless:
             logger.info("Rule-only mode: returning fallback classification")
             fallback_result = {
                 'category': 'Other',
                 'subcategory': 'Unclassified',
                 'confidence': 0.5,
-                'provider': 'rule_engine'
+                'provider': 'fallback_rule_engine'
             }
             return self._post_process_result(fallback_result, ticket_text)
         raise Exception("All providers failed")

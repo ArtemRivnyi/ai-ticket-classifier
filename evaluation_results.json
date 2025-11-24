@@ -1,10 +1,10 @@
 {
   "metrics": {
-    "accuracy": 53.333333333333336,
+    "accuracy": 90.0,
     "total_tickets": 30,
-    "correct_tickets": 16,
-    "avg_latency": 0.0019260803858439127,
-    "timestamp": "2025-11-24 12:15:57"
+    "correct_tickets": 27,
+    "avg_latency": 0.0005358775456746419,
+    "timestamp": "2025-11-24 22:38:22"
   },
   "results": [
     {
@@ -13,7 +13,7 @@
       "predicted": "Authentication Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.017005205154418945,
+      "latency": 0.0064945220947265625,
       "provider": "rule_engine"
     },
     {
@@ -22,7 +22,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.001001119613647461,
+      "latency": 0.0005507469177246094,
       "provider": "rule_engine"
     },
     {
@@ -31,7 +31,7 @@
       "predicted": "Network Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0014986991882324219,
+      "latency": 0.00026416778564453125,
       "provider": "rule_engine"
     },
     {
@@ -40,7 +40,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0010030269622802734,
+      "latency": 0.00042247772216796875,
       "provider": "rule_engine"
     },
     {
@@ -49,7 +49,7 @@
       "predicted": "General Question",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0010027885437011719,
+      "latency": 0.0002994537353515625,
       "provider": "rule_engine"
     },
     {
@@ -58,7 +58,7 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00197601318359375,
+      "latency": 0.00027179718017578125,
       "provider": "rule_engine"
     },
     {
@@ -67,16 +67,16 @@
       "predicted": "Notification Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0010182857513427734,
+      "latency": 0.0002753734588623047,
       "provider": "rule_engine"
     },
     {
       "text": "Is there a way to integrate this with Slack?",
       "expected": "Feature Request",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.001027822494506836,
+      "predicted": "Feature Request",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00041294097900390625,
       "provider": "rule_engine"
     },
     {
@@ -85,7 +85,7 @@
       "predicted": "Hardware Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0019659996032714844,
+      "latency": 0.00046753883361816406,
       "provider": "rule_engine"
     },
     {
@@ -94,7 +94,7 @@
       "predicted": "Authentication Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0010018348693847656,
+      "latency": 0.00025773048400878906,
       "provider": "rule_engine"
     },
     {
@@ -103,7 +103,7 @@
       "predicted": "Integration Issue",
       "confidence": 0.8,
       "correct": false,
-      "latency": 0.0020089149475097656,
+      "latency": 0.0002219676971435547,
       "provider": "rule_engine"
     },
     {
@@ -112,7 +112,7 @@
       "predicted": "Account Problem",
       "confidence": 0.8,
       "correct": false,
-      "latency": 0.0009908676147460938,
+      "latency": 0.0002415180206298828,
       "provider": "rule_engine"
     },
     {
@@ -121,7 +121,7 @@
       "predicted": "Hardware Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.002191305160522461,
+      "latency": 0.00023484230041503906,
       "provider": "rule_engine"
     },
     {
@@ -130,25 +130,25 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0009999275207519531,
+      "latency": 0.00022172927856445312,
       "provider": "rule_engine"
     },
     {
       "text": "Where can I find the documentation for the new API?",
       "expected": "General Question",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0019981861114501953,
+      "predicted": "General Question",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00025844573974609375,
       "provider": "rule_engine"
     },
     {
       "text": "The mobile app freezes on the splash screen.",
       "expected": "Bug/Technical Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0010001659393310547,
+      "predicted": "Bug/Technical Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.0002446174621582031,
       "provider": "rule_engine"
     },
     {
@@ -157,16 +157,16 @@
       "predicted": "Feature Request",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.002003908157348633,
+      "latency": 0.0004029273986816406,
       "provider": "rule_engine"
     },
     {
       "text": "My account has been locked due to suspicious activity.",
       "expected": "Authentication Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0019941329956054688,
+      "predicted": "Authentication Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.0003800392150878906,
       "provider": "rule_engine"
     },
     {
@@ -175,16 +175,16 @@
       "predicted": "Integration Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0010056495666503906,
+      "latency": 0.000408172607421875,
       "provider": "rule_engine"
     },
     {
       "text": "I have a question about the data privacy policy.",
       "expected": "General Question",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0009686946868896484,
+      "predicted": "General Question",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00038313865661621094,
       "provider": "rule_engine"
     },
     {
@@ -193,25 +193,25 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": false,
-      "latency": 0.002034902572631836,
+      "latency": 0.0005133152008056641,
       "provider": "rule_engine"
     },
     {
       "text": "I need to update my credit card information.",
       "expected": "Billing Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0009605884552001953,
+      "predicted": "Billing Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00029921531677246094,
       "provider": "rule_engine"
     },
     {
       "text": "The search function is not finding any results.",
       "expected": "Bug/Technical Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0014302730560302734,
+      "predicted": "Bug/Technical Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00023937225341796875,
       "provider": "rule_engine"
     },
     {
@@ -220,7 +220,7 @@
       "predicted": "Feature Request",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0010080337524414062,
+      "latency": 0.00023818016052246094,
       "provider": "rule_engine"
     },
     {
@@ -229,34 +229,34 @@
       "predicted": "Notification Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0017795562744140625,
+      "latency": 0.0003209114074707031,
       "provider": "rule_engine"
     },
     {
       "text": "My keyboard keys are sticking and not typing.",
       "expected": "Hardware Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0019030570983886719,
+      "predicted": "Hardware Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.0002684593200683594,
       "provider": "rule_engine"
     },
     {
       "text": "The dashboard is showing incorrect data for yesterday.",
       "expected": "Bug/Technical Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0010006427764892578,
+      "predicted": "Bug/Technical Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00045299530029296875,
       "provider": "rule_engine"
     },
     {
       "text": "I want to cancel my subscription immediately.",
       "expected": "Billing Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0010027885437011719,
+      "predicted": "Billing Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.0002837181091308594,
       "provider": "rule_engine"
     },
     {
@@ -265,16 +265,16 @@
       "predicted": "General Question",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0019979476928710938,
+      "latency": 0.0004513263702392578,
       "provider": "rule_engine"
     },
     {
       "text": "The VPN connection is unstable.",
       "expected": "Network Issue",
-      "predicted": "Other",
-      "confidence": 0.5,
-      "correct": false,
-      "latency": 0.0010020732879638672,
+      "predicted": "Network Issue",
+      "confidence": 0.8,
+      "correct": true,
+      "latency": 0.00029468536376953125,
       "provider": "rule_engine"
     }
   ]
