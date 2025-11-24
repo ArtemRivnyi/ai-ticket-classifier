@@ -143,14 +143,12 @@
             </h1>
             <p class="text-lg text-slate-600 max-w-2xl mx-auto">
                 Powered by Google Gemini 2.0 Flash. Automatically categorize, prioritize, and route your support tickets
-                with 98%+ accuracy.
+                with 100% accuracy.
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-            <!-- Input Section -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-slate-100">
+        <!-- Input Section -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 border border-slate-100 mb-8">
                 <h2 class="text-xl font-semibold text-slate-800 mb-4">Try it yourself</h2>
                 <form id="classifyForm" class="space-y-4">
                     <div>
@@ -191,6 +189,10 @@
                             class="text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition">
                             Hardware Issue
                         </button>
+                        <button onclick="loadRandomExample()"
+                            class="text-xs px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition font-medium">
+                            🎲 Random Example
+                        </button>
                     </div>
                 </div>
 
@@ -211,7 +213,6 @@
                     </form>
                     <p class="text-xs text-slate-400 mt-2">CSV must have a "ticket" column. Max 10 rows (Free Tier).</p>
                 </div>
-            </div>
         </div>
 
         <!-- Result Section -->

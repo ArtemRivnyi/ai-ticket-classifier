@@ -337,9 +337,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Alias for backward compatibility
     window.loadExample = window.tryExample;
 
+    // Random example function
+    window.loadRandomExample = function () {
+        const randomSample = samples[Math.floor(Math.random() * samples.length)];
+        ticketInput.value = randomSample;
+        ticketInput.focus();
+    };
 
     // CSV Upload Handler
-    const csvForm = document.getElementById('csvForm');
+    const csvForm = document.getElementById('csvUploadForm');
     if (csvForm) {
         csvForm.addEventListener('submit', async (e) => {
             e.preventDefault();
