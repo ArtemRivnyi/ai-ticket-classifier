@@ -2,7 +2,7 @@
 Tests for app.py helper functions and edge cases
 """
 import pytest
-from app import sanitize_input, get_user_tier, get_rate_limit, send_webhook
+from app import sanitize_input, get_user_tier, get_rate_limit
 from flask import Flask
 from app import app
 from unittest.mock import patch, Mock
@@ -72,29 +72,4 @@ def test_get_rate_limit_unknown_tier():
         request.api_key_tier = 'unknown_tier'
         assert get_rate_limit() == "100 per hour; 20 per minute"
 
-def test_send_webhook_success(mocker):
-    """Test send_webhook successful delivery"""
-    import requests
-    mock_response = Mock()
-    mock_response.status_code = 200
-    mocker.patch('requests.post', return_value=mock_response)
-    
-    send_webhook('https://example.com/webhook', {'test': 'data'})
-    requests.post.assert_called_once()
-
-def test_send_webhook_failure(mocker):
-    """Test send_webhook handles failure"""
-    import requests
-    mocker.patch('requests.post', side_effect=Exception("Connection error"))
-    
-    with pytest.raises(Exception):
-        send_webhook('https://example.com/webhook', {'test': 'data'})
-
-def test_send_webhook_timeout(mocker):
-    """Test send_webhook handles timeout"""
-    import requests
-    mocker.patch('requests.post', side_effect=requests.Timeout("Request timeout"))
-    
-    with pytest.raises(Exception):
-        send_webhook('https://example.com/webhook', {'test': 'data'})
 

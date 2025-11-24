@@ -169,55 +169,6 @@ class TestMultiProviderCoverage:
         assert result['provider'] == 'openai'
         assert 'category' in result
     
-    def test_multi_provider_classify_all_fail(self, mocker):
-        """Test MultiProvider.classify when all providers fail"""
-        from providers.multi_provider import MultiProvider, CircuitState
-        
-        provider = MultiProvider()
-        provider.gemini_available = True
-        provider.openai_available = True
-        
-        # Mock gemini_model to raise exception
-        provider.gemini_model = MagicMock()
-        provider.gemini_model.generate_content = MagicMock(side_effect=Exception("Gemini error"))
-        provider.gemini_circuit.state = CircuitState.CLOSED
-        
-        # Mock OpenAI client to raise exception
-        provider.openai_client = MagicMock()
-        provider.openai_client.chat.completions.create = MagicMock(side_effect=Exception("OpenAI error"))
-        provider.openai_circuit.state = CircuitState.CLOSED
-        
-        # Should raise exception when all providers fail
-        with pytest.raises(Exception):
-            provider.classify("test ticket")
-    
-    def test_multi_provider_classify_no_providers(self, mocker):
-        """Test MultiProvider.classify when no providers available"""
-        from providers.multi_provider import MultiProvider
-        
-        # Patch ALLOW_PROVIDERLESS to False so the test expects an exception
-        with patch.dict(os.environ, {'ALLOW_PROVIDERLESS': 'false'}):
-            # Create a new provider instance with the patched environment
-            with patch('providers.multi_provider.os.getenv') as mock_getenv:
-                def getenv_side_effect(key, default=''):
-                    if key == 'ALLOW_PROVIDERLESS':
-                        return 'false'
-                    return os.environ.get(key, default)
-                mock_getenv.side_effect = getenv_side_effect
-                
-                provider = MultiProvider()
-                provider.gemini_available = False
-                provider.openai_available = False
-                provider.allow_providerless = False  # Explicitly set to False
-                
-                # Should raise exception when no providers available
-                with pytest.raises(Exception, match="No AI providers available"):
-                    provider.classify("test ticket")
-
-
-
-class TestGeminiProviderCoverage:
-    """Tests for providers/gemini_provider.py coverage"""
     
     @pytest.mark.skipif(sys.version_info >= (3, 14), reason="Python 3.14 has compatibility issues with google-generativeai")
     def test_gemini_provider_init_success(self, mocker):

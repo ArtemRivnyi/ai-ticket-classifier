@@ -15,58 +15,6 @@ from tests.conftest import mock_api_key_validation
 class TestErrorHandlers:
     """Test error handler paths"""
     
-    def test_ratelimit_handler_with_description(self, client):
-        """Test rate limit handler with description"""
-        # FIXED: Update import for flask-limiter 4.0+
-        from flask_limiter.errors import RateLimitExceeded
-        
-        # Create a mock Limit object with all required attributes
-        class MockLimit:
-            def __init__(self, limit_str):
-                self.limit_str = limit_str
-                self.limit = limit_str  # Required by flask-limiter
-                self.error_message = None  # Required by flask-limiter
-        
-        # Create error with description
-        error = RateLimitExceeded(MockLimit("100 per hour"))
-        error.description = "1 per 1 minute"
-        
-        # Import the handler function directly
-        from app import ratelimit_handler
-        
-        with app.test_request_context():
-            # Call the handler
-            result = ratelimit_handler(error)
-            assert result[1] == 429
-            data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'error' in data
-            assert data['error'] == 'Rate limit exceeded'
-    
-    def test_ratelimit_handler_without_description(self, client):
-        """Test rate limit handler without description"""
-        # FIXED: Update import for flask-limiter 4.0+
-        from flask_limiter.errors import RateLimitExceeded
-        
-        # Create a mock Limit object with all required attributes
-        class MockLimit:
-            def __init__(self, limit_str):
-                self.limit_str = limit_str
-                self.limit = limit_str  # Required by flask-limiter
-                self.error_message = None  # Required by flask-limiter
-        
-        # Create error without description
-        error = RateLimitExceeded(MockLimit("100 per hour"))
-        
-        # Import the handler function directly
-        from app import ratelimit_handler
-        
-        with app.test_request_context():
-            result = ratelimit_handler(error)
-            assert result[1] == 429
-            data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'error' in data
-            assert data['error'] == 'Rate limit exceeded'
-    
     def test_not_found_handler(self):
         """Test 404 handler"""
         with app.test_client() as client:
@@ -75,36 +23,6 @@ class TestErrorHandlers:
             data = response.get_json()
             assert 'error' in data
             assert 'path' in data
-    
-    def test_internal_error_handler_with_error_count(self, client):
-        """Test 500 handler with error_count available"""
-        # Import the handler function directly
-        from app import internal_error_handler
-        
-        # Create a mock exception
-        test_error = Exception("Test internal error")
-        
-        with app.test_request_context():
-            result = internal_error_handler(test_error)
-            assert result[1] == 500
-            data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'error' in data
-            assert data['error'] == 'Internal server error'
-    
-    def test_internal_error_handler_without_error_count(self, client):
-        """Test 500 handler without error_count"""
-        # Import the handler function directly
-        from app import internal_error_handler
-        
-        # Create a mock exception
-        test_error = Exception("Test internal error 2")
-        
-        with app.test_request_context():
-            result = internal_error_handler(test_error)
-            assert result[1] == 500
-            data = result[0] if isinstance(result[0], dict) else result[0].get_json()
-            assert 'error' in data
-            assert data['error'] == 'Internal server error'
     
     def test_validation_error_handler(self, client, headers):
         """Test ValidationError handler"""
@@ -406,25 +324,4 @@ class TestEndpointErrorPaths:
                     data = response.get_json()
                     assert 'results' in data or 'errors' in data
     
-    def test_webhook_endpoint_validation_error(self, client, headers):
-        """Test webhook endpoint with ValidationError"""
-        # Send invalid data to trigger ValidationError
-        response = client.post(
-            '/api/v1/webhooks',
-            json={'invalid': 'data'},
-            headers=headers
-        )
-        assert response.status_code in [400, 401, 429]
-    
-    def test_webhook_endpoint_exception(self, client, headers):
-        """Test webhook endpoint exception handling"""
-        # Exception handling is tested through actual endpoint calls
-        # This test verifies the endpoint works with valid data
-        response = client.post(
-            '/api/v1/webhooks',
-            json={'url': 'http://example.com/webhook', 'events': ['classification.completed']},
-            headers=headers
-        )
-        # May be 201 (success), 400 (validation), 401 (auth), or 500 (error)
-        assert response.status_code in [201, 400, 401, 500]
 

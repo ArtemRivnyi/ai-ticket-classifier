@@ -147,16 +147,4 @@ def test_batch_with_single_ticket(client, mocker, headers):
     assert data['total'] == 1
     assert data['successful'] == 1
 
-def test_webhook_with_custom_events(client, headers):
-    """Test webhook creation with custom events"""
-    payload = {
-        'url': 'https://example.com/webhook',
-        'secret': 'webhook_secret',
-        'events': ['classification.completed', 'batch.completed']
-    }
-    
-    response = client.post('/api/v1/webhooks', json=payload, headers=headers)
-    assert response.status_code == 201
-    data = response.get_json()
-    assert len(data['events']) == 2
 

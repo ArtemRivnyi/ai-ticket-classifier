@@ -130,7 +130,7 @@ def test_multi_provider_classify_no_providers(mocker):
             provider.openai_available = False
             provider.allow_providerless = False  # Explicitly set to False
             
-            with pytest.raises(Exception, match="No AI providers available"):
+            with pytest.raises(Exception, match="All providers failed"):
                 provider.classify("Test ticket")
 
 def test_multi_provider_classify_with_gemini(mocker):

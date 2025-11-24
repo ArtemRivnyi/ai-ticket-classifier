@@ -185,61 +185,6 @@ def test_batch_endpoint_too_many_tickets(client, headers):
                           headers=headers)
     assert response.status_code == 400
 
-def test_batch_endpoint_with_webhook(client, mocker, headers):
-    """Test batch endpoint with webhook URL"""
-    from app import classifier
-    
-    mock_results = [
-        {'category': 'Network Issue', 'confidence': 0.9, 'priority': 'high', 'provider': 'gemini'}
-    ] * 3
-    
-    if classifier:
-        def mock_classify(ticket):
-            return mock_results.pop(0) if mock_results else mock_results[0]
-        mocker.patch.object(classifier, 'classify', side_effect=mock_classify)
-        mocker.patch.object(classifier, 'gemini_available', True)
-    else:
-        mock_classifier = mocker.Mock()
-        def mock_classify(ticket):
-            return mock_results.pop(0) if mock_results else mock_results[0]
-        mock_classifier.classify = mocker.Mock(side_effect=mock_classify)
-        mock_classifier.gemini_available = True
-        mocker.patch('app.classifier', mock_classifier)
-    
-    mocker.patch('app.send_webhook')
-    
-    response = client.post('/api/v1/batch',
-                          json={
-                              'tickets': ['Ticket 1', 'Ticket 2', 'Ticket 3'],
-                              'webhook_url': 'https://example.com/webhook'
-                          },
-                          headers=headers)
-    assert response.status_code == 200
-
-def test_webhook_endpoint(client, headers):
-    """Test webhook creation endpoint"""
-    payload = {
-        'url': 'https://example.com/webhook',
-        'secret': 'webhook_secret',
-        'events': ['classification.completed']
-    }
-    
-    response = client.post('/api/v1/webhooks', json=payload, headers=headers)
-    assert response.status_code == 201
-    data = response.get_json()
-    assert 'webhook_id' in data
-    assert data['url'] == payload['url']
-
-def test_webhook_endpoint_invalid_url(client, headers):
-    """Test webhook creation with invalid URL"""
-    payload = {
-        'url': 'not-a-valid-url',
-        'events': ['classification.completed']
-    }
-    
-    response = client.post('/api/v1/webhooks', json=payload, headers=headers)
-    # Pydantic may accept it or reject it depending on validation
-    assert response.status_code in [201, 400]
 
 def test_metrics_endpoint(client):
     """Test metrics endpoint"""

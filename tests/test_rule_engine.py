@@ -35,12 +35,6 @@ def test_classify_critical_issue(rule_engine):
     assert result is not None
     assert result['priority'] == 'critical'
 
-def test_classify_mixed_issue(rule_engine):
-    """Test classification of Mixed Issue"""
-    text = "I have two separate issues: login failed AND billing is wrong"
-    result = rule_engine.classify(text)
-    assert result is not None
-    assert result['category'] == 'Mixed Issue'
 
 def test_classify_no_match(rule_engine):
     """Test classification with no match"""

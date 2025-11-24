@@ -607,6 +607,11 @@ def status():
         logger.error(f"Status error: {e}")
         return make_response({'error': str(e)}, 500)
 
+@app.route('/metrics')
+def metrics():
+    """Prometheus metrics endpoint"""
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
 # ===== CLASSIFICATION ENDPOINTS =====
 
 @app.route('/api/v1/classify', methods=['POST'])
@@ -929,114 +934,45 @@ def batch_classify_csv():
             'message': str(e) if os.getenv('FLASK_ENV') == 'development' else 'An error occurred'
         }, 500)
 
-@app.route('/api/v1/classify/batch-csv', methods=['POST'])
-@require_api_key
-@limiter.limit(get_rate_limit)
-def batch_classify_csv():
-    """Handle CSV file upload for batch classification"""
-    start_time = time.time()
-    trace_logger = get_trace_logger()
-    
-    try:
-        if 'file' not in request.files:
-            return make_response({'error': 'No file part'}, 400)
-            
-        file = request.files['file']
-        if file.filename == '':
-            return make_response({'error': 'No selected file'}, 400)
-            
-        if not file.filename.endswith('.csv'):
-            return make_response({'error': 'File must be a CSV'}, 400)
-            
-        try:
-            import pandas as pd
-        except ImportError:
-            logger.error("Pandas not installed")
-            return make_response({'error': 'Server configuration error: pandas not installed'}, 500)
-            
-        try:
-            df = pd.read_csv(file)
-        except Exception as e:
-            return make_response({'error': f'Invalid CSV file: {str(e)}'}, 400)
-            
-        # Check for 'ticket' column (case insensitive)
-        ticket_col = None
-        for col in df.columns:
-            if col.lower() == 'ticket' or col.lower() == 'description' or col.lower() == 'text':
-                ticket_col = col
-                break
-                
-        if not ticket_col:
-            return make_response({'error': 'CSV must contain a "ticket", "description", or "text" column'}, 400)
-            
-        # Limit rows based on tier
-        tier = get_user_tier()
-        max_rows = {
-            'free': 10,
-            'starter': 50,
-            'professional': 100,
-            'enterprise': 1000
-        }.get(tier, 10)
-        
-        if len(df) > max_rows:
-            return make_response({'error': f'Row limit exceeded for {tier} tier. Max: {max_rows}'}, 400)
-            
-        tickets = df[ticket_col].astype(str).tolist()
-        tickets = [sanitize_input(t) for t in tickets if t and str(t).strip()]
-        
-        if not tickets:
-            return make_response({'error': 'No valid tickets found in CSV'}, 400)
-            
-        # Reuse existing batch logic or call classifier directly
-        if not classifier:
-             return make_response({
-                'error': 'Classification service unavailable',
-                'message': 'AI provider not initialized'
-            }, 503)
-
-        results = []
-        errors = []
-        
-        for i, ticket in enumerate(tickets):
-            try:
-                result = classifier.classify(ticket)
-                results.append(result)
-                
-                # Record metrics
-                if classification_count:
-                    classification_count.labels(
-                        category=result.get('category', 'unknown'),
-                        provider=result.get('provider', 'unknown'),
-                        status='success'
-                    ).inc()
-            except Exception as e:
-                logger.error(f"Error classifying CSV ticket {i}: {e}")
-                errors.append({
-                    'index': i,
-                    'ticket': ticket[:50] + '...',
-                    'error': str(e)
-                })
-                
-        duration = time.time() - start_time
-        
-        return make_response({
-            'total': len(tickets),
-            'successful': len(results),
-            'failed': len(errors),
-            'results': results,
-            'errors': errors,
-            'processing_time': round(duration, 2)
-        }, 200)
-
-    except Exception as e:
-        trace_logger.error("csv_upload_error", error=str(e))
-        return make_response({
-            'error': 'Internal server error',
-            'message': str(e)
-        }, 500)
 
 # ===== FEEDBACK ENDPOINT =====
 
+
+# ===== ERROR HANDLERS =====
+
+@app.errorhandler(400)
+def bad_request(e):
+    """Handle 400 Bad Request errors"""
+    return make_response({
+        'error': 'Bad request',
+        'message': str(e.description) if hasattr(e, 'description') else 'Invalid request'
+    }, 400)
+
+@app.errorhandler(404)
+def not_found(e):
+    """Handle 404 Not Found errors"""
+    return make_response({
+        'error': 'Not found',
+        'message': 'The requested resource was not found',
+        'path': request.path
+    }, 404)
+
+@app.errorhandler(429)
+def rate_limit_exceeded(e):
+    """Handle 429 Rate Limit Exceeded errors"""
+    return make_response({
+        'error': 'Rate limit exceeded',
+        'message': 'Too many requests. Please try again later.'
+    }, 429)
+
+@app.errorhandler(500)
+def internal_error(e):
+    """Handle 500 Internal Server Error"""
+    logger.error(f"Internal server error: {e}")
+    return make_response({
+        'error': 'Internal server error',
+        'message': 'An unexpected error occurred'
+    }, 500)
 
 
 if __name__ == '__main__':
