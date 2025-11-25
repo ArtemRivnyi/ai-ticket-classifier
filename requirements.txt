@@ -24,7 +24,7 @@ sentry-sdk[flask]==2.8.0
 redis==5.0.7
 
 # AI Providers
-google-generativeai==0.7.2
+google-generativeai>=0.8.3
 openai==1.35.10
 
 # Authentication
@@ -39,6 +39,7 @@ requests==2.32.3
 python-dotenv==1.0.1
 tenacity==9.0.0
 structlog==24.4.0
+protobuf>=5.29.0,<6.0.0
 
 # Testing
 pytest==8.3.3
