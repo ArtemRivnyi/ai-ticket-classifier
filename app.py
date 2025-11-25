@@ -883,28 +883,6 @@ def batch_classify():
                 if classification_count:
                     classification_count.labels(
                         category=result.get('category', 'unknown'),
-                        provider=result.get('provider', 'unknown'),
-                        status='success'
-                    ).inc()
-                    
-            except Exception as e:
-                logger.error(f"Error classifying ticket {i}: {e}")
-                errors.append({
-                    'index': i,
-                    'ticket': ticket[:50] + '...',
-                    'error': str(e)
-                })
-        
-        duration = time.time() - start_time
-        
-        return make_response({
-            'total': len(tickets),
-            'successful': len(results),
-            'failed': len(errors),
-            'results': results,
-            'errors': errors,
-            'processing_time': round(duration, 2)
-        }, 200)
         
     except Exception as e:
         trace_logger.error("batch_classification_error", error=str(e))
