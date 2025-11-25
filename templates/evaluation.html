@@ -86,7 +86,8 @@
                 <div class="flex items-center space-x-4">
                     <a href="/" class="text-slate-600 hover:text-indigo-600 font-medium transition">Home</a>
                     <a href="/about" class="text-slate-600 hover:text-indigo-600 font-medium transition">About</a>
-                    <a href="/evaluation" class="text-slate-600 hover:text-indigo-600 font-medium transition">Evaluation</a>
+                    <a href="/evaluation"
+                        class="text-slate-600 hover:text-indigo-600 font-medium transition">Evaluation</a>
                     <a href="/docs" class="text-slate-600 hover:text-indigo-600 font-medium transition">API Docs</a>
                     <a href="https://github.com/ArtemRivnyi/ai-ticket-classifier" target="_blank"
                         class="text-slate-600 hover:text-indigo-600 font-medium transition">GitHub</a>
@@ -112,8 +113,8 @@
                     <span id="evalBtnText">Run Evaluation</span>
                     <svg id="evalBtnSpinner" class="animate-spin ml-2 h-5 w-5 text-white hidden"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                            stroke-width="4"></circle>
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
                         <path class="opacity-75" fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                         </path>
@@ -236,7 +237,7 @@
                     document.getElementById('metricAccuracy').textContent = `${data.accuracy.toFixed(1)}%`;
                     document.getElementById('metricTotal').textContent = data.total;
                     document.getElementById('metricCorrect').textContent = data.correct;
-                    document.getElementById('metricLatency').textContent = 'N/A';
+                    document.getElementById('metricLatency').textContent = `${data.avg_latency.toFixed(3)}s`;
                     document.getElementById('lastRunTime').textContent = new Date().toLocaleTimeString();
 
                     // Update Table
