@@ -120,13 +120,46 @@ class TestMultiProviderCoverage:
             # Without API key, openai_available should be False
             assert provider.openai_available is False
         finally:
+            # Restore original key
+            if original_openai_key:
+                os.environ['OPENAI_API_KEY'] = original_openai_key
+    
+    def test_multi_provider_classify_gemini_success(self):
+        """Test successful Gemini classification"""
+        from providers.multi_provider import MultiProvider
+        
+        provider = MultiProvider()
+        provider.gemini_available = True
+        provider.openai_available = False
+        
+        # Mock Gemini classifier with model attribute (matching production)
+        mock_response = Mock()
+        mock_response.text = "Network Issue"
+        mock_model = Mock()
+        mock_model.generate_content.return_value = mock_response
+        
+        # Create mock GeminiClassifier with model attribute
+        mock_gemini_classifier = Mock()
+        mock_gemini_classifier.model = mock_model
+        provider.gemini_classifier = mock_gemini_classifier
+        
+        result = provider.classify("VPN connection dropped")
+        assert result['category'] == 'Network Issue'
+        assert result['provider'] == 'gemini'
+    
+    def test_multi_provider_classify_gemini_fallback_to_openai(self, mocker):
+        """Test MultiProvider.classify falls back to OpenAI when Gemini fails"""
+        from providers.multi_provider import MultiProvider, CircuitState
+        
         provider = MultiProvider()
         provider.gemini_available = True
         provider.openai_available = True
         
-        # Mock gemini_model to raise exception
-        provider.gemini_model = MagicMock()
-        provider.gemini_model.generate_content = MagicMock(side_effect=Exception("Gemini error"))
+        # Mock gemini_classifier to raise exception  
+        mock_gemini_classifier = Mock()
+        mock_gemini_classifier.model = Mock()
+        mock_gemini_classifier.model.generate_content = Mock(side_effect=Exception("Gemini error"))
+        provider.gemini_classifier = mock_gemini_classifier
         
         # Set circuit breaker to CLOSED so it tries Gemini first
         provider.gemini_circuit.state = CircuitState.CLOSED
