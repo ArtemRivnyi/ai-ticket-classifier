@@ -78,7 +78,15 @@ accuracy_test_results.json
 # Test results
 *_test_results.json
 test_live_deployment.py
+evaluation_results.json
+test_results.json
 
+# Temporary test/debug files
+fix_*.py
+reproduce_*.py
+*_fix.txt
+test_debug*.txt
+test_output.txt
 
 # Duplicate venvs
 venv312/

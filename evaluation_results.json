@@ -3,8 +3,8 @@
     "accuracy": 90.0,
     "total_tickets": 30,
     "correct_tickets": 27,
-    "avg_latency": 0.0004978497823079427,
-    "timestamp": "2025-11-25 11:09:19"
+    "avg_latency": 0.0004511753718058268,
+    "timestamp": "2025-11-25 11:23:09"
   },
   "results": [
     {
@@ -13,7 +13,7 @@
       "predicted": "Authentication Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.007563352584838867,
+      "latency": 0.007020711898803711,
       "provider": "rule_engine"
     },
     {
@@ -22,7 +22,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0004661083221435547,
+      "latency": 0.0004630088806152344,
       "provider": "rule_engine"
     },
     {
@@ -31,7 +31,7 @@
       "predicted": "Network Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00021648406982421875,
+      "latency": 0.00022912025451660156,
       "provider": "rule_engine"
     },
     {
@@ -40,7 +40,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00020837783813476562,
+      "latency": 0.0002200603485107422,
       "provider": "rule_engine"
     },
     {
@@ -49,7 +49,7 @@
       "predicted": "General Question",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002110004425048828,
+      "latency": 0.00020575523376464844,
       "provider": "rule_engine"
     },
     {
@@ -58,7 +58,7 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00020194053649902344,
+      "latency": 0.0002090930938720703,
       "provider": "rule_engine"
     },
     {
@@ -67,7 +67,7 @@
       "predicted": "Notification Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00022602081298828125,
+      "latency": 0.00022339820861816406,
       "provider": "rule_engine"
     },
     {
@@ -76,7 +76,7 @@
       "predicted": "Feature Request",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002067089080810547,
+      "latency": 0.0002079010009765625,
       "provider": "rule_engine"
     },
     {
@@ -85,7 +85,7 @@
       "predicted": "Hardware Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00022530555725097656,
+      "latency": 0.00021719932556152344,
       "provider": "rule_engine"
     },
     {
@@ -94,7 +94,7 @@
       "predicted": "Authentication Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00021076202392578125,
+      "latency": 0.00021505355834960938,
       "provider": "rule_engine"
     },
     {
@@ -103,7 +103,7 @@
       "predicted": "Integration Issue",
       "confidence": 0.8,
       "correct": false,
-      "latency": 0.00021767616271972656,
+      "latency": 0.00021195411682128906,
       "provider": "rule_engine"
     },
     {
@@ -112,7 +112,7 @@
       "predicted": "Account Problem",
       "confidence": 0.8,
       "correct": false,
-      "latency": 0.0002346038818359375,
+      "latency": 0.0002090930938720703,
       "provider": "rule_engine"
     },
     {
@@ -121,7 +121,7 @@
       "predicted": "Hardware Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002281665802001953,
+      "latency": 0.0002129077911376953,
       "provider": "rule_engine"
     },
     {
@@ -130,7 +130,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00020813941955566406,
+      "latency": 0.00022673606872558594,
       "provider": "rule_engine"
     },
     {
@@ -139,7 +139,7 @@
       "predicted": "General Question",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002384185791015625,
+      "latency": 0.00021648406982421875,
       "provider": "rule_engine"
     },
     {
@@ -148,7 +148,7 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00021266937255859375,
+      "latency": 0.0002262592315673828,
       "provider": "rule_engine"
     },
     {
@@ -157,7 +157,7 @@
       "predicted": "Feature Request",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00022220611572265625,
+      "latency": 0.00019288063049316406,
       "provider": "rule_engine"
     },
     {
@@ -166,7 +166,7 @@
       "predicted": "Authentication Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002300739288330078,
+      "latency": 0.00021076202392578125,
       "provider": "rule_engine"
     },
     {
@@ -175,7 +175,7 @@
       "predicted": "Integration Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00023031234741210938,
+      "latency": 0.00020933151245117188,
       "provider": "rule_engine"
     },
     {
@@ -184,7 +184,7 @@
       "predicted": "General Question",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00022554397583007812,
+      "latency": 0.00020599365234375,
       "provider": "rule_engine"
     },
     {
@@ -193,7 +193,7 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": false,
-      "latency": 0.0004413127899169922,
+      "latency": 0.00021266937255859375,
       "provider": "rule_engine"
     },
     {
@@ -202,7 +202,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0004353523254394531,
+      "latency": 0.0001990795135498047,
       "provider": "rule_engine"
     },
     {
@@ -211,7 +211,7 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00031065940856933594,
+      "latency": 0.00020933151245117188,
       "provider": "rule_engine"
     },
     {
@@ -220,7 +220,7 @@
       "predicted": "Feature Request",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0003161430358886719,
+      "latency": 0.0002231597900390625,
       "provider": "rule_engine"
     },
     {
@@ -229,7 +229,7 @@
       "predicted": "Notification Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002491474151611328,
+      "latency": 0.00021147727966308594,
       "provider": "rule_engine"
     },
     {
@@ -238,7 +238,7 @@
       "predicted": "Hardware Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00024580955505371094,
+      "latency": 0.00027179718017578125,
       "provider": "rule_engine"
     },
     {
@@ -247,7 +247,7 @@
       "predicted": "Bug/Technical Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00024271011352539062,
+      "latency": 0.00023126602172851562,
       "provider": "rule_engine"
     },
     {
@@ -256,7 +256,7 @@
       "predicted": "Billing Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00025343894958496094,
+      "latency": 0.00022077560424804688,
       "provider": "rule_engine"
     },
     {
@@ -265,7 +265,7 @@
       "predicted": "General Question",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.00024080276489257812,
+      "latency": 0.000209808349609375,
       "provider": "rule_engine"
     },
     {
@@ -274,7 +274,7 @@
       "predicted": "Network Issue",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.0002162456512451172,
+      "latency": 0.00021219253540039062,
       "provider": "rule_engine"
     }
   ]
