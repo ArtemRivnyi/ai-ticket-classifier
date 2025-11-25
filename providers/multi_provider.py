@@ -169,7 +169,7 @@ Ticket: {ticket_text}
 Respond ONLY with a valid JSON object containing 'category' and 'subcategory'.
 Example: {{"category": "Network Issue", "subcategory": "VPN Issue"}}"""
 
-                    response = self.gemini_model.generate_content(prompt)
+                    response = self.gemini_classifier.model.generate_content(prompt)
                     text = response.text.strip()
                     # Try to parse JSON
                     try:
