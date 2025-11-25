@@ -943,7 +943,7 @@ def batch_classify_csv():
         # Check for 'ticket' column (case insensitive)
         ticket_col = None
         # Prioritize 'text' and 'description' over 'ticket' (which might be an ID)
-        priority_cols = ['text', 'description', 'ticket', 'content', 'body', 'issue']
+        priority_cols = ['text', 'summary', 'description', 'ticket', 'content', 'body', 'issue']
         
         columns_lower = {col.lower(): col for col in df.columns}
         
