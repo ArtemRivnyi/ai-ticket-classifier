@@ -942,13 +942,18 @@ def batch_classify_csv():
             
         # Check for 'ticket' column (case insensitive)
         ticket_col = None
-        for col in df.columns:
-            if col.lower() == 'ticket' or col.lower() == 'description' or col.lower() == 'text':
-                ticket_col = col
+        # Prioritize 'text' and 'description' over 'ticket' (which might be an ID)
+        priority_cols = ['text', 'description', 'ticket', 'content', 'body', 'issue']
+        
+        columns_lower = {col.lower(): col for col in df.columns}
+        
+        for priority in priority_cols:
+            if priority in columns_lower:
+                ticket_col = columns_lower[priority]
                 break
                 
         if not ticket_col:
-            return make_response({'error': 'CSV must contain a "ticket", "description", or "text" column'}, 400)
+            return make_response({'error': 'CSV must contain a "text", "description", or "ticket" column'}, 400)
             
         # Limit rows based on tier
         tier = get_user_tier()

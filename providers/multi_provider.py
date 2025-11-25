@@ -88,56 +88,21 @@ class MultiProvider:
         self.openai_circuit = CircuitBreaker()
         self.rule_classifier = RuleEngine()
         
-        # Initialize Gemini
+        # Initialize Gemini using GeminiClassifier
         try:
-            import google.generativeai as genai
+            from providers.gemini_provider import GeminiClassifier
             api_key = os.getenv('GEMINI_API_KEY')
             if not api_key:
                 logger.warning("⚠️ GEMINI_API_KEY not found")
             else:
                 try:
-                    genai.configure(api_key=api_key)
-                    # Try different models in order of preference
-                    models_to_try = [
-                        'gemini-2.0-flash-exp',
-                        'gemini-2.0-flash',
-                        'gemini-1.5-pro',
-                        'gemini-1.5-flash',
-                        'gemini-pro'
-                    ]
-                    
-                    model_initialized = False
-                    for model_name in models_to_try:
-                        try:
-                            self.gemini_model = genai.GenerativeModel(model_name)
-                            self.gemini_available = True
-                            logger.info(f"✅ Gemini provider initialized with {model_name}")
-                            model_initialized = True
-                            break
-                        except Exception as model_error:
-                            logger.debug(f"Failed to initialize {model_name}: {model_error}")
-                            continue
-                    
-                    if not model_initialized:
-                        raise Exception("Could not initialize any Gemini model")
-                        
-                except Exception as config_error:
-                    error_str = str(config_error).lower()
-                    if 'metaclass' in error_str or 'tp_new' in error_str:
-                        # Python version compatibility issue - try to work around
-                        logger.warning(f"⚠️ Gemini provider has Python version compatibility issue: {config_error}")
-                        logger.warning("⚠️ Trying alternative initialization...")
-                        try:
-                            # Try simpler model initialization
-                            self.gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-                            self.gemini_available = True
-                            logger.info("✅ Gemini provider initialized (workaround applied)")
-                        except:
-                            logger.error(f"❌ Gemini provider failed even with workaround: {config_error}")
-                    else:
-                        raise
+                    self.gemini_classifier = GeminiClassifier()
+                    self.gemini_available = True
+                    logger.info("✅ Gemini provider initialized via GeminiClassifier")
+                except Exception as e:
+                    logger.warning(f"⚠️ Gemini provider failed: {e}")
         except ImportError as import_error:
-            logger.warning(f"⚠️ google-generativeai not available: {import_error}")
+            logger.warning(f"⚠️ GeminiClassifier not available: {import_error}")
         except Exception as e:
             logger.warning(f"⚠️ Gemini provider failed: {e}")
         
@@ -232,7 +197,15 @@ Example: {{"category": "Network Issue", "subcategory": "VPN Issue"}}"""
                 ai_result = self.gemini_circuit.call(classify_with_gemini)
                 
             except Exception as e:
-                logger.error(f"Gemini classification failed: {e}")
+                error_str = str(e).lower()
+                if '429' in error_str or 'resource exhausted' in error_str or 'quota' in error_str:
+                    logger.warning(f"⚠️ Gemini Rate Limit (429): {e}")
+                    # Open circuit immediately for rate limits to avoid wasting requests? 
+                    # Or just let circuit breaker handle it (it counts failures).
+                    # We'll let circuit breaker handle it, but log as warning to reduce noise.
+                else:
+                    logger.error(f"Gemini classification failed: {e}")
+                
                 if not self.openai_available:
                     # Don't raise yet, try fallback
                     pass

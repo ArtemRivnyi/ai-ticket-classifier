@@ -340,6 +340,8 @@ def _compile_category_rules() -> List[Dict]:
                 r'salesforce',
                 r'hubspot',
                 r'jira',
+                r'third-party',
+                r'external service',
             ],
         },
         {
@@ -372,6 +374,8 @@ def _compile_category_rules() -> List[Dict]:
                 r'\bsms\b',
                 r'\balert\b',
                 r'push message',
+                r'slack integration',
+                r'slack.*notification',
             ],
         },
         {
