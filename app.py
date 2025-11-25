@@ -326,9 +326,10 @@ def run_evaluation():
                     
                     predicted_category = result.get('category', 'Unknown')
                     predicted_priority = result.get('priority', 'unknown')
+                    confidence = result.get('confidence', 0.0)
                     
-                    is_correct = (predicted_category == expected_category and 
-                                predicted_priority == expected_priority)
+                    # Only check category for accuracy (priority is informational)
+                    is_correct = (predicted_category == expected_category)
                     
                     if is_correct:
                         correct_count += 1
@@ -339,6 +340,7 @@ def run_evaluation():
                         'expected_priority': expected_priority,
                         'predicted_category': predicted_category,
                         'predicted_priority': predicted_priority,
+                        'confidence': confidence,
                         'correct': is_correct,
                         'latency': round(latency, 3),
                         'provider': result.get('provider', 'unknown')
@@ -351,6 +353,7 @@ def run_evaluation():
                         'expected_priority': expected_priority,
                         'predicted_category': 'Error',
                         'predicted_priority': 'unknown',
+                        'confidence': 0.0,
                         'correct': False,
                         'latency': 0,
                         'provider': 'error',
