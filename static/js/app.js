@@ -211,55 +211,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fillSampleBtn) fillSampleBtn.disabled = true;
             if (ticketInput) ticketInput.disabled = true;
 
-            // Smooth transition: Fade out result, then show skeleton
-            if (resultContent && !resultContent.classList.contains('hidden')) {
-                resultContent.classList.add('opacity-0');
-                setTimeout(() => {
-                    resultContent.classList.add('hidden');
-                    if (emptyState) emptyState.classList.add('hidden');
-                    if (skeletonLoader) {
-                        skeletonLoader.classList.remove('hidden');
-                        // Force reflow
-                        void skeletonLoader.offsetWidth;
-                        skeletonLoader.classList.remove('opacity-0');
-                    }
-                }, 300);
-            } else {
-                if (emptyState) emptyState.classList.add('hidden');
-                if (skeletonLoader) skeletonLoader.classList.remove('hidden');
-            }
+            // Immediately hide result and show skeleton (no setTimeout delay)
+            if (resultContent) resultContent.classList.add('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (skeletonLoader) skeletonLoader.classList.remove('hidden');
 
         } else {
             if (btnText) btnText.textContent = 'Classify Ticket';
             if (btnSpinner) btnSpinner.classList.add('hidden');
             if (fillSampleBtn) fillSampleBtn.disabled = false;
             if (ticketInput) ticketInput.disabled = false;
-        }
-    }
 
-    function displayResult(data) {
-        // Hide skeleton
-        if (skeletonLoader) skeletonLoader.classList.add('hidden');
-
-        // Show result with fade in
-        if (resultContent) {
-            resultContent.classList.remove('hidden');
-            // Trigger reflow to enable transition
-            void resultContent.offsetWidth;
-            resultContent.classList.remove('opacity-0');
-        }
-
-        // Update fields
-        document.getElementById('resCategory').textContent = data.category;
-
-        // Confidence color
-        const confidenceEl = document.getElementById('resConfidence');
-        const confidence = (data.confidence * 100).toFixed(0);
-        confidenceEl.textContent = `${confidence}%`;
-
-        if (confidence > 80) {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
-        } else if (confidence > 50) {
+            // Always hide skeleton when loading completes
             confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
         } else {
             confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
