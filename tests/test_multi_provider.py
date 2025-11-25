@@ -139,12 +139,16 @@ def test_multi_provider_classify_with_gemini(mocker):
     provider.gemini_available = True
     provider.openai_available = False
     
-    # Mock Gemini model
+    # Mock Gemini classifier and model (matching production code structure)
     mock_response = Mock()
     mock_response.text = "Network Issue"
     mock_model = Mock()
     mock_model.generate_content.return_value = mock_response
-    provider.gemini_model = mock_model
+    
+    # Create mock GeminiClassifier with model attribute
+    mock_gemini_classifier = Mock()
+    mock_gemini_classifier.model = mock_model
+    provider.gemini_classifier = mock_gemini_classifier
     
     # Mock rule classifier to return None (force fallback to AI)
     provider.rule_classifier = Mock()
@@ -211,10 +215,12 @@ def test_multi_provider_circuit_breaker_integration(mocker):
     provider.gemini_available = True
     provider.openai_available = False
     
-    # Mock Gemini to fail multiple times
+    # Mock Gemini classifier and model to fail multiple times
     mock_model = Mock()
     mock_model.generate_content.side_effect = Exception("API Error")
-    provider.gemini_model = mock_model
+    mock_gemini_classifier = Mock()
+    mock_gemini_classifier.model = mock_model
+    provider.gemini_classifier = mock_gemini_classifier
     
     # Mock rule classifier to return None (force fallback to AI)
     provider.rule_classifier = Mock()
