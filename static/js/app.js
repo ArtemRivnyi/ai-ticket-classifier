@@ -223,6 +223,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if (ticketInput) ticketInput.disabled = false;
 
             // Always hide skeleton when loading completes
+            if (skeletonLoader) skeletonLoader.classList.add('hidden');
+        }
+    }
+
+    function displayResult(data) {
+        // Hide skeleton first
+        if (skeletonLoader) skeletonLoader.classList.add('hidden');
+
+        // Hide empty state
+        if (emptyState) emptyState.classList.add('hidden');
+
+        // Always show result content (remove all hidden classes)
+        if (resultContent) {
+            resultContent.classList.remove('hidden');
+            resultContent.classList.remove('opacity-0');
+        }
+
+        // Update highlighted ticket FIRST (before other content)
+        if (highlightedTicketContainer && highlightedTicketText) {
+            const ticketValue = ticketInput.value.trim();
+            if (ticketValue) {
+                highlightedTicketText.textContent = ticketValue;
+                highlightedTicketContainer.classList.remove('hidden');
+            }
+        }
+
+        // Update fields
+        document.getElementById('resCategory').textContent = data.category;
+
+        // Confidence color
+        const confidenceEl = document.getElementById('resConfidence');
+        const confidence = (data.confidence * 100).toFixed(0);
+        confidenceEl.textContent = `${confidence}%`;
+
+        if (confidence > 80) {
+            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
+        } else if (confidence > 50) {
             confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
         } else {
             confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
