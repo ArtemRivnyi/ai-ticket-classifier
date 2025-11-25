@@ -87,17 +87,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Run health check on load
     checkSystemHealth();
 
-    // Sample tickets covering all categories
+    // Sample tickets covering all categories (25 diverse examples)
     const samples = [
+        // Authentication Issues
         "I cannot log in. The verification code is invalid.",
         "Reset link expired before I could use it.",
+        "My account has been locked after too many failed attempts.",
+        "Two-factor authentication is not sending codes to my phone.",
+
+        // Billing Issues
         "I was charged twice for the same subscription.",
-        "Camera stopped working after firmware update.",
-        "Slack integration only sends alerts to half of our team.",
         "Invoice says $100 but processor charged $150.",
-        "Email notifications not delivered to some users.",
-        "Cannot log in AND my payment failed. Two separate issues.",
-        "Nice to have: add animation to the loading screen."
+        "My payment method failed and I can't update it.",
+        "Need a refund for services not rendered last month.",
+
+        // Hardware Issues
+        "Camera stopped working after firmware update.",
+        "My laptop screen is flickering and goes black randomly.",
+        "Printer is jammed and showing error code E503.",
+        "Keyboard keys are sticking and not typing properly.",
+
+        // Integration Issues
+        "Slack integration only sends alerts to half of our team.",
+        "Salesforce sync stopped working after the update.",
+        "API returns 500 errors for all webhook requests.",
+
+        // Network Issues
+        "VPN keeps disconnecting every few minutes.",
+        "Internet connection drops every 10 minutes exactly.",
+        "Cannot access the internal network from remote.",
+
+        // Bug/Technical Issues
+        "App crashes when trying to export PDF reports.",
+        "Dashboard shows incorrect data for yesterday.",
+        "Search function returns no results even for valid queries.",
+
+        // Feature Requests
+        "Nice to have: add animation to the loading screen.",
+        "Can you add dark mode support to the mobile app?",
+        "Would love to see CSV export functionality.",
+
+        // Mixed/Critical
+        "Cannot log in AND my payment failed. Two separate issues."
     ];
 
     // Quick Try Buttons
