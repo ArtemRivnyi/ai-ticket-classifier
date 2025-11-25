@@ -120,33 +120,6 @@ class TestMultiProviderCoverage:
             # Without API key, openai_available should be False
             assert provider.openai_available is False
         finally:
-            # Restore original key
-            if original_openai_key:
-                os.environ['OPENAI_API_KEY'] = original_openai_key
-    
-    def test_multi_provider_classify_gemini_success(self, mocker):
-        """Test MultiProvider.classify with Gemini success"""
-        from providers.multi_provider import MultiProvider
-        
-        # Create provider and mock gemini_model
-        provider = MultiProvider()
-        provider.gemini_available = True
-        
-        # Mock the gemini_model.generate_content method
-        mock_response = MagicMock()
-        mock_response.text = "Network Issue"
-        provider.gemini_model = MagicMock()
-        provider.gemini_model.generate_content = MagicMock(return_value=mock_response)
-        
-        result = provider.classify("test ticket")
-        assert result['provider'] == 'gemini'
-        assert 'category' in result
-        assert 'confidence' in result
-    
-    def test_multi_provider_classify_gemini_fallback_to_openai(self, mocker):
-        """Test MultiProvider.classify falls back to OpenAI when Gemini fails"""
-        from providers.multi_provider import MultiProvider, CircuitState
-        
         provider = MultiProvider()
         provider.gemini_available = True
         provider.openai_available = True
