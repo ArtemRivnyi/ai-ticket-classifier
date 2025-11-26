@@ -7,9 +7,10 @@ from unittest.mock import MagicMock
 
 
 def test_run_evaluation_no_auth(client):
-    """Test evaluation endpoint requires authentication"""
+    """Test evaluation endpoint allows anonymous access for public demo"""
     response = client.post('/api/evaluation/run')
-    assert response.status_code in [401, 403]
+    # Should work without auth (200) or require dataset (404)
+    assert response.status_code in [200, 404]
 
 
 def test_batch_csv_no_file(client, headers):
