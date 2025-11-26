@@ -63,3 +63,17 @@ def test_classify_endpoint_invalid_input(client):
     # Flask/Marshmallow usually returns 400 or 422 for missing fields
     assert response.status_code in [400, 422, 500] # 500 if unhandled exception, but we want to catch that too.
     # Ideally it should be 400.
+
+def test_root_ui(client):
+    """Test that root URL returns HTML UI"""
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b'<!DOCTYPE html>' in response.data or b'<html' in response.data
+
+def test_api_root(client):
+    """Test that /api returns JSON info"""
+    response = client.get('/api')
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert 'version' in data
+    assert 'message' in data

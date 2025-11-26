@@ -605,7 +605,7 @@ def after_request(response):
 
 # ===== ROOT ENDPOINT =====
 
-@app.route('/', methods=['GET'])
+@app.route('/api', methods=['GET'])
 @limiter.exempt
 
 def root():
