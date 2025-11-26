@@ -2,14 +2,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('classifyForm');
     const ticketInput = document.getElementById('ticketText');
     const fillSampleBtn = document.getElementById('fillSampleBtn'); // May not exist
-    const btnText = document.getElementById('submitBtnText'); // Updated ID
-    const btnSpinner = document.getElementById('submitBtnSpinner'); // Updated ID
+    const btnText = document.getElementById('submitBtnText');
+    const btnSpinner = document.getElementById('submitBtnSpinner');
     const emptyState = document.getElementById('emptyState');
     const resultContent = document.getElementById('resultContent');
     const skeletonLoader = document.getElementById('skeletonLoader');
     const highlightedTicketContainer = document.getElementById('highlightedTicketContainer');
     const highlightedTicketText = document.getElementById('highlightedTicketText');
     const systemStatus = document.getElementById('systemStatus');
+
+    // Mobile Menu Logic
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+
+    if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            // Change icon based on state
+            const isExpanded = navLinks.classList.contains('active');
+            mobileMenuBtn.innerHTML = isExpanded
+                ? '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>'
+                : '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>';
+        });
+    }
+
+    // Rate Limiting State
+    let isProcessing = false;
 
     // Toast Notification System
     function showToast(message, type = 'error') {
@@ -48,23 +66,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme Toggle Logic
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
+    const themeToggleMobile = document.getElementById('themeToggleMobile');
+    const themeIconMobile = document.getElementById('themeIconMobile');
     const body = document.body;
 
-    if (themeToggle && themeIcon) {
-        // Load saved theme preference
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            body.classList.add('dark');
-            themeIcon.textContent = '☀️';
-        }
+    function toggleTheme() {
+        body.classList.toggle('dark');
+        const isDark = body.classList.contains('dark');
+        const icon = isDark ? '☀️' : '🌙';
 
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark');
-            const isDark = body.classList.contains('dark');
-            themeIcon.textContent = isDark ? '☀️' : '🌙';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
+        if (themeIcon) themeIcon.textContent = icon;
+        if (themeIconMobile) themeIconMobile.textContent = icon;
+
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    if (savedTheme === 'dark') {
+        body.classList.add('dark');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (themeIconMobile) themeIconMobile.textContent = '☀️';
+    }
+
+    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+    if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
 
     // Health Check
     async function checkSystemHealth() {
@@ -72,92 +98,85 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/v1/health');
             if (response.ok) {
                 systemStatus.innerHTML = '● System Online';
-                systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800';
+                systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 hidden md:inline-block';
             } else {
                 throw new Error('Health check failed');
             }
         } catch (error) {
             console.error('System health check failed:', error);
             systemStatus.innerHTML = '● System Offline';
-            systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800';
-            showToast('Cannot connect to server. Please try again later.', 'error');
+            systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 hidden md:inline-block';
+            // Don't show toast for health check to avoid annoyance
         }
     }
 
     // Run health check on load
     checkSystemHealth();
 
-    // Sample tickets covering all categories (25 diverse examples)
+    // Analytics Tracking
+    function trackClassification(category) {
+        // Placeholder for analytics
+        console.log(`[Analytics] Classification Event: ${category}`);
+        if (window.gtag) {
+            gtag('event', 'classify', {
+                'event_category': 'ticket_classification',
+                'event_label': category
+            });
+        }
+    }
+
+    // Sample tickets covering all categories
     const samples = [
-        // Authentication Issues
         "I cannot log in. The verification code is invalid.",
         "Reset link expired before I could use it.",
         "My account has been locked after too many failed attempts.",
-        "Two-factor authentication is not sending codes to my phone.",
-
-        // Billing Issues
         "I was charged twice for the same subscription.",
         "Invoice says $100 but processor charged $150.",
-        "My payment method failed and I can't update it.",
-        "Need a refund for services not rendered last month.",
-
-        // Hardware Issues
         "Camera stopped working after firmware update.",
         "My laptop screen is flickering and goes black randomly.",
-        "Printer is jammed and showing error code E503.",
-        "Keyboard keys are sticking and not typing properly.",
-
-        // Integration Issues
         "Slack integration only sends alerts to half of our team.",
-        "Salesforce sync stopped working after the update.",
-        "API returns 500 errors for all webhook requests.",
-
-        // Network Issues
         "VPN keeps disconnecting every few minutes.",
         "Internet connection drops every 10 minutes exactly.",
-        "Cannot access the internal network from remote.",
-
-        // Bug/Technical Issues
         "App crashes when trying to export PDF reports.",
-        "Dashboard shows incorrect data for yesterday.",
-        "Search function returns no results even for valid queries.",
-
-        // Feature Requests
-        "Nice to have: add animation to the loading screen.",
-        "Can you add dark mode support to the mobile app?",
-        "Would love to see CSV export functionality.",
-
-        // Mixed/Critical
-        "Cannot log in AND my payment failed. Two separate issues."
+        "Can you add dark mode support to the mobile app?"
     ];
 
-    // Quick Try Buttons
-    document.querySelectorAll('.quick-try-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            ticketInput.value = btn.dataset.text;
-            // Optional: Auto-submit or highlight
-            ticketInput.focus();
-        });
-    });
+    // Dynamic Example Buttons
+    const exampleButtonsData = [
+        { text: "Network Issue", description: "My internet connection keeps dropping every few minutes" },
+        { text: "Password Reset", description: "I forgot my password and need to reset it" },
+        { text: "Hardware Issue", description: "The printer is jammed and showing error code E503" },
+        { text: "Billing Query", description: "Need clarification on last month's invoice charges" }
+    ];
 
-    // Example ticket buttons
-    document.querySelectorAll('.example-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            ticketInput.value = btn.dataset.text;
-            ticketInput.focus();
-        });
-    });
+    const exampleButtonsContainer = document.getElementById('exampleButtonsContainer');
+    if (exampleButtonsContainer) {
+        exampleButtonsContainer.innerHTML = ''; // Clear existing
 
-    // Legacy fill sample button (hidden but kept for compatibility if needed)
-    if (fillSampleBtn) {
-        fillSampleBtn.addEventListener('click', () => {
-            const randomSample = samples[Math.floor(Math.random() * samples.length)];
-            ticketInput.value = randomSample;
+        exampleButtonsData.forEach(btn => {
+            const button = document.createElement('button');
+            button.className = 'example-btn text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition';
+            button.textContent = btn.text;
+            button.onclick = () => loadExample(btn.description);
+            exampleButtonsContainer.appendChild(button);
         });
+
+        // Add Random Button
+        const randomBtn = document.createElement('button');
+        randomBtn.className = 'example-btn text-xs px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition font-medium';
+        randomBtn.innerHTML = '🎲 Random Example';
+        randomBtn.onclick = () => loadRandomExample();
+        exampleButtonsContainer.appendChild(randomBtn);
     }
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Rate Limiting Check
+        if (isProcessing) {
+            showToast('Please wait for the current classification to complete.', 'error');
+            return;
+        }
 
         const text = ticketInput.value.trim();
         if (!text) return;
@@ -177,25 +196,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ ticket: text })
             });
 
+            // Network error handling (response.ok check)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const data = await response.json();
 
-            if (response.ok) {
-                displayResult(data);
-                addToHistory(data, text);
-                showToast('Classification successful', 'success');
-                setLoading(false);
-            } else {
-                showToast(data.error || 'Failed to classify ticket', 'error');
-                setLoading(false); // Reset loading state on error
-                // Ensure empty state is visible if no result is shown
-                if (resultContent.classList.contains('hidden')) {
-                    emptyState.classList.remove('hidden');
-                }
-            }
+            displayResult(data);
+            addToHistory(data, text);
+            trackClassification(data.category);
+            showToast('Classification successful', 'success');
+            setLoading(false);
 
         } catch (error) {
             console.error('Error:', error);
-            showToast('An error occurred while connecting to the API.', 'error');
+            showToast('Classification failed. Please check your connection and try again.', 'error');
             setLoading(false);
             // Ensure empty state is visible if no result is shown
             if (resultContent.classList.contains('hidden')) {
@@ -205,13 +221,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function setLoading(isLoading) {
+        isProcessing = isLoading; // Update rate limiting flag
+
         if (isLoading) {
             if (btnText) btnText.textContent = 'Processing...';
             if (btnSpinner) btnSpinner.classList.remove('hidden');
             if (fillSampleBtn) fillSampleBtn.disabled = true;
             if (ticketInput) ticketInput.disabled = true;
 
-            // Immediately hide result and show skeleton (no setTimeout delay)
+            // Immediately hide result and show skeleton
             if (resultContent) resultContent.classList.add('hidden');
             if (emptyState) emptyState.classList.add('hidden');
             if (skeletonLoader) skeletonLoader.classList.remove('hidden');
@@ -234,13 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide empty state
         if (emptyState) emptyState.classList.add('hidden');
 
-        // Always show result content (remove all hidden classes)
+        // Always show result content
         if (resultContent) {
             resultContent.classList.remove('hidden');
             resultContent.classList.remove('opacity-0');
         }
 
-        // Update highlighted ticket FIRST (before other content)
+        // Update highlighted ticket
         if (highlightedTicketContainer && highlightedTicketText) {
             const ticketValue = ticketInput.value.trim();
             if (ticketValue) {
@@ -255,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Confidence color
         const confidenceEl = document.getElementById('resConfidence');
         const confidence = (data.confidence * 100).toFixed(0);
-        confidenceEl.textContent = `${confidence}%`;
+        confidenceEl.textContent = `${confidence}% Confidence`; // Fixed format
 
         if (confidence > 80) {
             confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
@@ -308,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
         history.unshift(historyItem);
-        if (history.length > 10) history.pop(); // Keep last 10
+        if (history.length > 50) history.pop(); // Keep last 50 (Increased from 10)
         localStorage.setItem('classificationHistory', JSON.stringify(history));
 
         renderHistory(history);
@@ -362,8 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('History cleared', 'success');
     }
 
-    // Expose sendFeedback to global scope for onclick
-    // Expose sendFeedback to global scope for onclick
+    // Expose sendFeedback to global scope
     window.sendFeedback = async function (isCorrect) {
         document.getElementById('feedbackConfirmation').classList.remove('hidden');
 
@@ -395,8 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.tryExample = function (text) {
         ticketInput.value = text;
         ticketInput.focus();
-        // Optional: Auto-submit
-        // form.dispatchEvent(new Event('submit'));
     };
 
     // Alias for backward compatibility
@@ -422,6 +437,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // File Size Validation (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('File too large. Maximum size is 5MB.', 'error');
+                return;
+            }
+
             const formData = new FormData();
             formData.append('file', file);
 
@@ -432,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const apiKey = "sk_ORulUQRLvLHAueF3Ht1gXj9gTsY7xme3QD-UeVrO8nY";
-                // Updated endpoint to dedicated CSV handler
+
                 const response = await fetch('/api/v1/classify/batch-csv', {
                     method: 'POST',
                     headers: {
@@ -447,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast(`Processed ${data.total} tickets successfully!`, 'success');
                     console.log('Batch results:', data.results);
 
-                    // Create a simple results summary
                     let summary = `Processed ${data.total} tickets.\n`;
                     summary += `Successful: ${data.successful}\n`;
                     summary += `Failed: ${data.failed}`;
