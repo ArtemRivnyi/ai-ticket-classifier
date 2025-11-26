@@ -266,5 +266,21 @@
     "ticket": null,
     "predicted": null,
     "comments": "Great job!"
+  },
+  {
+    "timestamp": "2025-11-26T16:18:29.910722+00:00",
+    "request_id": "test-req-123",
+    "correct": true,
+    "ticket": null,
+    "predicted": null,
+    "comments": "Great job!"
+  },
+  {
+    "timestamp": "2025-11-26T16:20:00.332689+00:00",
+    "request_id": "test-req-123",
+    "correct": true,
+    "ticket": null,
+    "predicted": null,
+    "comments": "Great job!"
   }
 ]
