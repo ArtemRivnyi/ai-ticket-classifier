@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('classifyForm');
     const ticketInput = document.getElementById('ticketText');
-    const fillSampleBtn = document.getElementById('fillSampleBtn'); // May not exist
     const btnText = document.getElementById('submitBtnText');
     const btnSpinner = document.getElementById('submitBtnSpinner');
     const emptyState = document.getElementById('emptyState');
@@ -17,9 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (mobileMenuBtn && navLinks) {
         mobileMenuBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
+            navLinks.classList.toggle('hidden');
+            navLinks.classList.toggle('flex');
+
             // Change icon based on state
-            const isExpanded = navLinks.classList.contains('active');
+            const isExpanded = !navLinks.classList.contains('hidden');
             mobileMenuBtn.innerHTML = isExpanded
                 ? '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>'
                 : '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>';
@@ -226,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isLoading) {
             if (btnText) btnText.textContent = 'Processing...';
             if (btnSpinner) btnSpinner.classList.remove('hidden');
-            if (fillSampleBtn) fillSampleBtn.disabled = true;
             if (ticketInput) ticketInput.disabled = true;
 
             // Immediately hide result and show skeleton
@@ -237,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (btnText) btnText.textContent = 'Classify Ticket';
             if (btnSpinner) btnSpinner.classList.add('hidden');
-            if (fillSampleBtn) fillSampleBtn.disabled = false;
             if (ticketInput) ticketInput.disabled = false;
 
             // Always hide skeleton when loading completes
