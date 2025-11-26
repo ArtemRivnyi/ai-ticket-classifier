@@ -20,25 +20,6 @@
 ---
 
 ## 🎯 Demo & Screenshots
-
-[![Live Demo](https://img.shields.io/badge/🚀_Live-Demo-brightgreen?style=for-the-badge)](https://ai-ticket-classifier-production.up.railway.app/)
-
-
----
-
-## 🚀 Features
-
-- **⚡ Real-time Classification**: Powered by Google Gemini 2.0 Flash for sub-second responses.
-- **📊 Batch Processing**: Upload CSV files to classify hundreds of tickets in seconds.
-- **🎯 High Accuracy**: 95%+ accuracy rate with hybrid AI + Rule Engine approach.
-- **📱 Responsive Design**: Fully optimized for mobile and desktop devices.
-- **📈 Cost Savings Calculator**: Built-in ROI calculator to estimate business impact.
-- **🛡️ Resilience**: Automatic failover to OpenAI GPT-4 if Gemini is unavailable.
-
-## 💡 Business Impact
-
-- **Speed**: Reduces support ticket triage time from **5 minutes** (manual) to **0.5 seconds** (AI).
-- **Cost**: Lowers operational costs by up to **60%** by automating L1 triage.
 - **Consistency**: Eliminates human error and fatigue, ensuring 24/7 consistent tagging.
 
 ---
