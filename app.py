@@ -298,7 +298,8 @@ def evaluation_results():
         return jsonify({"error": "Evaluation results not found. Run evaluate_model.py first."}), 404
 
 @app.route('/api/evaluation/run', methods=['POST'])
-@require_api_key
+@optional_api_key
+@limiter.limit("5 per minute")
 def run_evaluation():
     """Run the evaluation and return results."""
     try:
