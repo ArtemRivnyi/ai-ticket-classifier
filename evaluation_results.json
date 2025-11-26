@@ -3,7 +3,7 @@
   "total": 30,
   "correct": 27,
   "incorrect": 3,
-  "avg_latency": 0.017,
+  "avg_latency": 0.001,
   "results": [
     {
       "ticket": "I cannot log in to my account even after resetting my password.",
@@ -11,9 +11,9 @@
       "expected_priority": "high",
       "predicted_category": "Authentication Issue",
       "predicted_priority": "high",
-      "confidence": 0.87,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.105,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -22,9 +22,9 @@
       "expected_priority": "critical",
       "predicted_category": "Billing Issue",
       "predicted_priority": "high",
-      "confidence": 0.88,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.008,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -33,9 +33,9 @@
       "expected_priority": "high",
       "predicted_category": "Network Issue",
       "predicted_priority": "high",
-      "confidence": 0.83,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.01,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -46,7 +46,7 @@
       "predicted_priority": "high",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.005,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -55,9 +55,9 @@
       "expected_priority": "low",
       "predicted_category": "General Question",
       "predicted_priority": "low",
-      "confidence": 0.68,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.005,
+      "latency": 0.0,
       "provider": "rule_engine"
     },
     {
@@ -66,9 +66,9 @@
       "expected_priority": "medium",
       "predicted_category": "Bug/Technical Issue",
       "predicted_priority": "medium",
-      "confidence": 0.71,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.011,
+      "latency": 0.0,
       "provider": "rule_engine"
     },
     {
@@ -77,9 +77,9 @@
       "expected_priority": "medium",
       "predicted_category": "Notification Issue",
       "predicted_priority": "medium",
-      "confidence": 0.68,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.007,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -88,9 +88,9 @@
       "expected_priority": "low",
       "predicted_category": "Feature Request",
       "predicted_priority": "low",
-      "confidence": 0.77,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.121,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -99,9 +99,9 @@
       "expected_priority": "high",
       "predicted_category": "Hardware Issue",
       "predicted_priority": "high",
-      "confidence": 0.83,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.033,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -110,9 +110,9 @@
       "expected_priority": "medium",
       "predicted_category": "Authentication Issue",
       "predicted_priority": "medium",
-      "confidence": 0.87,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.007,
+      "latency": 0.0,
       "provider": "rule_engine"
     },
     {
@@ -121,9 +121,9 @@
       "expected_priority": "critical",
       "predicted_category": "Integration Issue",
       "predicted_priority": "high",
-      "confidence": 0.87,
+      "confidence": 0.8,
       "correct": false,
-      "latency": 0.015,
+      "latency": 0.0,
       "provider": "rule_engine"
     },
     {
@@ -132,9 +132,9 @@
       "expected_priority": "low",
       "predicted_category": "Account Problem",
       "predicted_priority": "medium",
-      "confidence": 0.7,
+      "confidence": 0.8,
       "correct": false,
-      "latency": 0.005,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -143,9 +143,9 @@
       "expected_priority": "medium",
       "predicted_category": "Hardware Issue",
       "predicted_priority": "high",
-      "confidence": 0.78,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.013,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -154,9 +154,9 @@
       "expected_priority": "critical",
       "predicted_category": "Billing Issue",
       "predicted_priority": "critical",
-      "confidence": 0.96,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.009,
+      "latency": 0.002,
       "provider": "rule_engine"
     },
     {
@@ -165,9 +165,9 @@
       "expected_priority": "low",
       "predicted_category": "General Question",
       "predicted_priority": "low",
-      "confidence": 0.79,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.016,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -176,9 +176,9 @@
       "expected_priority": "high",
       "predicted_category": "Bug/Technical Issue",
       "predicted_priority": "medium",
-      "confidence": 0.79,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.007,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -187,9 +187,9 @@
       "expected_priority": "low",
       "predicted_category": "Feature Request",
       "predicted_priority": "low",
-      "confidence": 0.69,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.013,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -198,9 +198,9 @@
       "expected_priority": "critical",
       "predicted_category": "Authentication Issue",
       "predicted_priority": "high",
-      "confidence": 0.77,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.006,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -209,9 +209,9 @@
       "expected_priority": "high",
       "predicted_category": "Integration Issue",
       "predicted_priority": "high",
-      "confidence": 0.7,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.017,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -220,9 +220,9 @@
       "expected_priority": "low",
       "predicted_category": "General Question",
       "predicted_priority": "low",
-      "confidence": 0.73,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.025,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -231,9 +231,9 @@
       "expected_priority": "medium",
       "predicted_category": "Bug/Technical Issue",
       "predicted_priority": "medium",
-      "confidence": 0.7,
+      "confidence": 0.8,
       "correct": false,
-      "latency": 0.006,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -244,7 +244,7 @@
       "predicted_priority": "critical",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.007,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -253,9 +253,9 @@
       "expected_priority": "medium",
       "predicted_category": "Bug/Technical Issue",
       "predicted_priority": "medium",
-      "confidence": 0.81,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.009,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -264,9 +264,9 @@
       "expected_priority": "low",
       "predicted_category": "Feature Request",
       "predicted_priority": "low",
-      "confidence": 0.82,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.011,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -275,9 +275,9 @@
       "expected_priority": "medium",
       "predicted_category": "Notification Issue",
       "predicted_priority": "medium",
-      "confidence": 0.68,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.005,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -286,9 +286,9 @@
       "expected_priority": "medium",
       "predicted_category": "Hardware Issue",
       "predicted_priority": "high",
-      "confidence": 0.71,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.008,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -299,7 +299,7 @@
       "predicted_priority": "medium",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.018,
+      "latency": 0.002,
       "provider": "rule_engine"
     },
     {
@@ -310,7 +310,7 @@
       "predicted_priority": "critical",
       "confidence": 0.8,
       "correct": true,
-      "latency": 0.004,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -319,9 +319,9 @@
       "expected_priority": "low",
       "predicted_category": "General Question",
       "predicted_priority": "low",
-      "confidence": 0.67,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.011,
+      "latency": 0.001,
       "provider": "rule_engine"
     },
     {
@@ -330,9 +330,9 @@
       "expected_priority": "high",
       "predicted_category": "Network Issue",
       "predicted_priority": "high",
-      "confidence": 0.69,
+      "confidence": 0.8,
       "correct": true,
-      "latency": 0.003,
+      "latency": 0.001,
       "provider": "rule_engine"
     }
   ]

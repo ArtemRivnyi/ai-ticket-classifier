@@ -80,6 +80,7 @@ accuracy_test_results.json
 test_live_deployment.py
 evaluation_results.json
 test_results.json
+feedback.json
 
 # Temporary test/debug files
 fix_*.py
