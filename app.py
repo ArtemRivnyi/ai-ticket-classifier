@@ -597,6 +597,17 @@ def after_request(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     
+    # Content Security Policy - Allow Tailwind CDN (unsafe-eval) and other resources
+    csp = (
+        "default-src 'self' https:; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; "
+        "style-src 'self' 'unsafe-inline' https:; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' https: data:; "
+        "connect-src 'self' https:;"
+    )
+    response.headers['Content-Security-Policy'] = csp
+    
     if os.getenv('FORCE_HTTPS', 'false').lower() == 'true':
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
