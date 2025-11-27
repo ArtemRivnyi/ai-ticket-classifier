@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         exampleButtonsData.forEach(btn => {
             const button = document.createElement('button');
-            button.className = 'example-btn text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition';
+            button.className = 'example-btn text-xs px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg transition border border-slate-200';
             button.textContent = btn.text;
             button.onclick = () => loadExample(btn.description);
             exampleButtonsContainer.appendChild(button);
