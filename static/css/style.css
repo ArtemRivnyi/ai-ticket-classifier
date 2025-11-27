@@ -54,7 +54,22 @@ body {
 }
 
 .dark .text-slate-400 {
-    color: #64748b !important;
+    color: #cbd5e1 !important;
+}
+
+/* Dark mode headings - ensure visibility */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+    color: #f1f5f9 !important;
+}
+
+/* Dark mode labels and form elements */
+.dark label {
+    color: #cbd5e1 !important;
 }
 
 .dark .border-slate-100,
