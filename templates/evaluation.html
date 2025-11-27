@@ -2,68 +2,89 @@
 <html lang="en">
 
 <head>
-    body {
-    font-family: 'Inter', sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Evaluation - AI Ticket Classifier</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
+    <script>
+        const originalWarn = console.warn;
+        console.warn = (...args) => {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+            originalWarn.apply(console, args);
+        };
+        // Suppress extension errors
+        const originalError = console.error;
+        console.error = (...args) => {
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('runtime.lastError')) return;
+            originalError.apply(console, args);
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
 
-    /* Dark mode styles */
-    .dark {
-    background-color: #0f172a !important;
-    }
+        /* Dark mode styles */
+        .dark {
+            background-color: #0f172a !important;
+        }
 
-    .dark nav {
-    background-color: #1e293b !important;
-    border-color: #334155 !important;
-    }
+        .dark nav {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
 
-    .dark .bg-white {
-    background-color: #1e293b !important;
-    }
+        .dark .bg-white {
+            background-color: #1e293b !important;
+        }
 
-    .dark .bg-slate-50 {
-    background-color: #0f172a !important;
-    }
+        .dark .bg-slate-50 {
+            background-color: #0f172a !important;
+        }
 
-    .dark .text-slate-800,
-    .dark .text-slate-900 {
-    color: #f1f5f9 !important;
-    }
+        .dark .text-slate-800,
+        .dark .text-slate-900 {
+            color: #f1f5f9 !important;
+        }
 
-    .dark .text-slate-600,
-    .dark .text-slate-700 {
-    color: #cbd5e1 !important;
-    }
+        .dark .text-slate-600,
+        .dark .text-slate-700 {
+            color: #cbd5e1 !important;
+        }
 
-    .dark .text-slate-500 {
-    color: #94a3b8 !important;
-    }
+        .dark .text-slate-500 {
+            color: #94a3b8 !important;
+        }
 
-    .dark .border-slate-100,
-    .dark .border-slate-200 {
-    border-color: #334155 !important;
-    }
+        .dark .border-slate-100,
+        .dark .border-slate-200 {
+            border-color: #334155 !important;
+        }
 
-    .dark table {
-    background-color: #1e293b !important;
-    }
+        .dark table {
+            background-color: #1e293b !important;
+        }
 
-    .dark thead {
-    background-color: #0f172a !important;
-    }
+        .dark thead {
+            background-color: #0f172a !important;
+        }
 
-    .dark tbody {
-    background-color: #1e293b !important;
-    }
+        .dark tbody {
+            background-color: #1e293b !important;
+        }
 
-    .theme-toggle {
-    transition: transform 0.3s ease;
-    cursor: pointer;
-    }
+        .theme-toggle {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
 
-    .theme-toggle:hover {
-    transform: scale(1.1);
-    }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 
