@@ -13,14 +13,8 @@
             if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
             originalWarn.apply(console, args);
         };
-        // Suppress extension errors
-        const originalError = console.error;
-        console.error = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && args[0].includes('runtime.lastError')) return;
-            originalError.apply(console, args);
-        };
     </script>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.4.1">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
