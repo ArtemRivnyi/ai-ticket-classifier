@@ -20,17 +20,17 @@ class GeminiClassifier:
         
         genai.configure(api_key=api_key)
         
-        # Use Gemini 2.0 Flash for best performance
+        # Use Gemini 2.0 Flash (Stable) for best performance and reliability
         try:
             self.model = genai.GenerativeModel('gemini-2.0-flash')
             logger.info("Using gemini-2.0-flash")
         except:
             try:
-                self.model = genai.GenerativeModel('models/gemini-1.5-pro')
-                logger.info("Using gemini-1.5-pro")
+                self.model = genai.GenerativeModel('gemini-flash-latest')
+                logger.info("Using gemini-flash-latest")
             except:
-                self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
-                logger.info("Using gemini-1.5-flash-latest")
+                self.model = genai.GenerativeModel('gemini-pro-latest')
+                logger.info("Using gemini-pro-latest")
     
     @retry(
         stop=stop_after_attempt(3),

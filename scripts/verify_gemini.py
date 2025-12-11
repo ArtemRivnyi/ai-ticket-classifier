@@ -10,7 +10,7 @@ print(f"API Key present: {bool(api_key)}")
 if api_key:
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         response = model.generate_content("Hello")
         print(f"Gemini Response: {response.text}")
     except Exception as e:
