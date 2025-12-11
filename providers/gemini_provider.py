@@ -2,8 +2,15 @@ import google.generativeai as genai
 import os
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import logging
+from google.api_core import exceptions as google_exceptions
 
 logger = logging.getLogger(__name__)
+
+class RateLimitError(Exception):
+    def __init__(self, provider, retry_after=60):
+        self.provider = provider
+        self.retry_after = retry_after
+        super().__init__(f"{provider} rate limit exceeded. Retry after {retry_after}s")
 
 class GeminiClassifier:
     def __init__(self):
@@ -15,8 +22,8 @@ class GeminiClassifier:
         
         # Use Gemini 2.0 Flash for best performance
         try:
-            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
-            logger.info("Using gemini-2.0-flash-exp")
+            self.model = genai.GenerativeModel('gemini-2.0-flash')
+            logger.info("Using gemini-2.0-flash")
         except:
             try:
                 self.model = genai.GenerativeModel('models/gemini-1.5-pro')
@@ -189,6 +196,10 @@ Return ONLY valid JSON, nothing else."""
                 'confidence': result.get('confidence', 0.85),
                 'provider': 'gemini'
             }
+
+        except google_exceptions.ResourceExhausted as e:
+            logger.error(f"⚠️ Gemini rate limit exceeded")
+            raise RateLimitError("Gemini", retry_after=60)
             
         except json.JSONDecodeError as e:
             logger.error(f"JSON parse error: {str(e)}, response: {result_text}")

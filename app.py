@@ -47,6 +47,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_caching import Cache
 from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -168,6 +169,24 @@ except Exception as e:
         strategy="fixed-window",
         headers_enabled=True
     )
+
+# Initialize Caching
+cache_config = {
+    'CACHE_TYPE': 'SimpleCache',
+    'CACHE_DEFAULT_TIMEOUT': 300
+}
+
+if redis_available:
+    cache_config = {
+        'CACHE_TYPE': 'RedisCache',
+        'CACHE_REDIS_URL': redis_url,
+        'CACHE_DEFAULT_TIMEOUT': 300
+    }
+    logger.info("✅ Cache configured with Redis")
+else:
+    logger.info("ℹ️ Cache configured with SimpleCache (fallback)")
+
+cache = Cache(app, config=cache_config)
 
 # Import providers and middleware
 try:
@@ -513,7 +532,7 @@ def get_rate_limit() -> str:
     """Get rate limit string based on tier"""
     tier = get_user_tier()
     tier_limits = {
-        'free': "100 per hour; 20 per minute",
+        'free': "100 per hour; 10 per minute",
         'starter': "1000 per hour",
         'professional': "10000 per hour",
         'enterprise': "100000 per hour"
@@ -716,8 +735,24 @@ def metrics():
 @app.route('/api/v1/classify', methods=['POST'])
 @require_api_key
 @limiter.limit(get_rate_limit)
-
 def classify():
+    # Custom cache key generator based on ticket text
+    def make_cache_key(*args, **kwargs):
+        if request.is_json and request.json and 'ticket' in request.json:
+            return f"classify:{request.json['ticket']}"
+        return None
+
+    # Check cache manually to handle the response object correctly
+    if request.is_json and request.json and 'ticket' in request.json:
+        cache_key = f"classify:{request.json['ticket']}"
+        cached_response = cache.get(cache_key)
+        if cached_response:
+            logger.info("✅ Cache hit for classification")
+            # If cached response is a dict, wrap it
+            if isinstance(cached_response, dict):
+                return make_response(cached_response)
+            return cached_response
+
     start_time = time.time()
     trace_logger = get_trace_logger()
     
@@ -779,6 +814,11 @@ def classify():
                 }, 503)
         
         result = classifier.classify(ticket)
+        
+        # Cache the result
+        if request.is_json and request.json and 'ticket' in request.json:
+            cache_key = f"classify:{request.json['ticket']}"
+            cache.set(cache_key, result, timeout=3600) # Cache for 1 hour
         
         # Record existing metrics
         if classification_count:
