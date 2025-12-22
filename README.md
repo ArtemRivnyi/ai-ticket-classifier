@@ -76,43 +76,6 @@ graph TB
 | **API Docs** | Swagger UI, OpenAPI 3.0 |
 
 ---
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.12+
-- Docker & Docker Compose (optional)
-- Redis (or use Docker)
-
-### Local Development
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/ArtemRivnyi/ai-ticket-classifier.git
-cd ai-ticket-classifier
-```
-
-2. **Set up environment**
-```bash
-cp .env.example .env
-# Edit .env with your API keys:
-# - GEMINI_API_KEY
-# - MASTER_API_KEY
-# - SECRET_KEY
-```
-
-3. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-4. **Run with Docker Compose** (recommended)
-```bash
-docker-compose up
-```
-
-Or **run locally**:
-```bash
 python app.py
 ```
 
