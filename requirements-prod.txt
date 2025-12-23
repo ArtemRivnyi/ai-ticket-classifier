@@ -39,6 +39,47 @@ requests==2.32.3
 python-dotenv==1.0.1
 tenacity==9.0.0
 structlog==24.4.0
+# Core Framework - Python 3.12 ONLY
+Flask==3.0.3
+flask-cors==4.0.0
+gunicorn==22.0.0
+
+# Rate Limiting - FIXED VERSION
+flask-limiter==4.0.0
+limits==3.13.0
+
+# API Documentation
+flasgger==0.9.7.1
+
+# Data Validation
+pydantic==2.8.2
+pydantic-settings==2.3.4
+flask-swagger-ui==4.11.1
+email-validator==2.2.0
+
+# Monitoring
+prometheus-client==0.20.0
+sentry-sdk[flask]==2.8.0
+
+# Storage
+redis==5.0.7
+
+# AI Providers
+google-generativeai==0.7.2
+openai==1.35.10
+
+# Authentication
+PyJWT==2.8.0
+cryptography==42.0.8
+
+# Database
+SQLAlchemy==2.0.31
+
+# Utilities
+requests==2.32.3
+python-dotenv==1.0.1
+tenacity==9.0.0
+structlog==24.4.0
 
 # Testing
 pytest==8.3.3
@@ -47,3 +88,6 @@ pytest-mock==3.14.0
 
 # Data Processing
 pandas==2.2.2
+
+# Caching
+Flask-Caching==2.1.0
