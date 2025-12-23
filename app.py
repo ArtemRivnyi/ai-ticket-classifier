@@ -294,7 +294,7 @@ class FeedbackRequest(BaseModel):
 @app.route('/')
 def index():
     """Render the main page."""
-    return render_template('index.html')
+    return render_template('index.html', demo_api_key=os.getenv('MASTER_API_KEY'))
 
 @app.route('/about')
 def about():

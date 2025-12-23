@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(true);
 
         try {
-            const apiKey = "sk_ORulUQRLvLHAueF3Ht1gXj9gTsY7xme3QD-UeVrO8nY";
+            const apiKey = window.DEMO_API_KEY;
 
             const response = await fetch('/api/v1/classify', {
                 method: 'POST',
@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
 
             try {
-                const apiKey = "sk_ORulUQRLvLHAueF3Ht1gXj9gTsY7xme3QD-UeVrO8nY";
+                const apiKey = window.DEMO_API_KEY;
 
                 const response = await fetch('/api/v1/classify/batch-csv', {
                     method: 'POST',
