@@ -1,12 +1,8 @@
 services:
   - type: web
     name: ai-ticket-classifier
-    env: python
-    buildCommand: pip install -r requirements-prod.txt
-    startCommand: gunicorn --config gunicorn_config.py app:app
+    env: docker
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.12.0
       - key: FLASK_ENV
         value: production
       - key: GEMINI_API_KEY
@@ -14,6 +10,8 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: MASTER_API_KEY
         sync: false
       - key: SECRET_KEY
         generateValue: true
