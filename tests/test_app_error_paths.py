@@ -9,7 +9,7 @@ from flask import Flask
 from pydantic import ValidationError
 
 from app import app
-from tests.conftest import mock_api_key_validation
+
 
 
 class TestErrorHandlers:
@@ -26,8 +26,20 @@ class TestErrorHandlers:
     
     def test_validation_error_handler(self, client, headers):
         """Test ValidationError handler"""
-        # Trigger ValidationError by sending invalid data
-        with patch('app.require_api_key', lambda f: f):
+        # Patch API key to be enterprise tier to avoid rate limits
+        with patch('middleware.auth.APIKeyManager.get_key_data', return_value={
+            'id': 'test_key_id',
+            'key_hash': 'test_hash',
+            'user_id': 'test_user',
+            'name': 'Test Key',
+            'tier': 'enterprise',
+            'is_active': 'true',
+            'created_at': '2025-01-01T00:00:00Z',
+            'last_used': '',
+            'requests_count': '0',
+            'rate_limit': '100000'
+        }):
+            # Trigger ValidationError by sending invalid data
             response = client.post(
                 '/api/v1/classify',
                 json={'ticket': ''},  # Empty ticket triggers ValidationError

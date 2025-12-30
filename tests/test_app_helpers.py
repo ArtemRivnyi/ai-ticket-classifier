@@ -55,7 +55,7 @@ def test_get_rate_limit_all_tiers():
         from flask import request
         
         tiers = {
-            'free': "100 per hour; 20 per minute",
+            'free': "100 per hour; 10 per minute",
             'starter': "1000 per hour",
             'professional': "10000 per hour",
             'enterprise': "100000 per hour"
@@ -70,6 +70,6 @@ def test_get_rate_limit_unknown_tier():
     with app.test_request_context():
         from flask import request
         request.api_key_tier = 'unknown_tier'
-        assert get_rate_limit() == "100 per hour; 20 per minute"
+        assert get_rate_limit() == "100 per hour; 10 per minute"
 
 

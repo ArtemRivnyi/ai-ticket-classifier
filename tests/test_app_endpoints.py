@@ -218,6 +218,20 @@ def test_error_handler_500(client, mocker, headers):
     """Test 500 error handler"""
     from app import classifier
     
+    # Patch API key to be enterprise tier to avoid rate limits
+    mocker.patch('middleware.auth.APIKeyManager.get_key_data', return_value={
+        'id': 'test_key_id',
+        'key_hash': 'test_hash',
+        'user_id': 'test_user',
+        'name': 'Test Key',
+        'tier': 'enterprise',
+        'is_active': 'true',
+        'created_at': '2025-01-01T00:00:00Z',
+        'last_used': '',
+        'requests_count': '0',
+        'rate_limit': '100000'
+    })
+    
     if classifier:
         mocker.patch.object(classifier, 'classify', side_effect=Exception("Internal error"))
         mocker.patch.object(classifier, 'gemini_available', True)
@@ -256,6 +270,20 @@ def test_rate_limit_error_handler(client, mocker, headers):
 
 def test_classify_service_unavailable(client, mocker, headers):
     """Test classification when service is unavailable"""
+    # Patch API key to be enterprise tier to avoid rate limits
+    mocker.patch('middleware.auth.APIKeyManager.get_key_data', return_value={
+        'id': 'test_key_id',
+        'key_hash': 'test_hash',
+        'user_id': 'test_user',
+        'name': 'Test Key',
+        'tier': 'enterprise',
+        'is_active': 'true',
+        'created_at': '2025-01-01T00:00:00Z',
+        'last_used': '',
+        'requests_count': '0',
+        'rate_limit': '100000'
+    })
+
     mocker.patch('app.classifier', None)
     
     response = client.post('/api/v1/classify',
@@ -268,6 +296,20 @@ def test_classify_service_unavailable(client, mocker, headers):
 
 def test_batch_service_unavailable(client, mocker, headers):
     """Test batch classification when service is unavailable"""
+    # Patch API key to be enterprise tier to avoid rate limits
+    mocker.patch('middleware.auth.APIKeyManager.get_key_data', return_value={
+        'id': 'test_key_id',
+        'key_hash': 'test_hash',
+        'user_id': 'test_user',
+        'name': 'Test Key',
+        'tier': 'enterprise',
+        'is_active': 'true',
+        'created_at': '2025-01-01T00:00:00Z',
+        'last_used': '',
+        'requests_count': '0',
+        'rate_limit': '100000'
+    })
+
     mocker.patch('app.classifier', None)
     
     response = client.post('/api/v1/batch',

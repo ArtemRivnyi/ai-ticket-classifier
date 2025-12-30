@@ -72,16 +72,44 @@ def test_internal_error_handler():
             assert 'error' in data
             assert 'Internal server error' in data['error']
 
-def test_validation_error_handler(client, headers):
+def test_validation_error_handler(client, mocker, headers):
     """Test ValidationError handler"""
+    # Patch API key to be enterprise tier to avoid rate limits
+    mocker.patch('middleware.auth.APIKeyManager.get_key_data', return_value={
+        'id': 'test_key_id',
+        'key_hash': 'test_hash',
+        'user_id': 'test_user',
+        'name': 'Test Key',
+        'tier': 'enterprise',
+        'is_active': 'true',
+        'created_at': '2025-01-01T00:00:00Z',
+        'last_used': '',
+        'requests_count': '0',
+        'rate_limit': '100000'
+    })
+
     # Send invalid JSON that will trigger ValidationError
     response = client.post('/api/v1/classify',
                           data='invalid json',
                           headers={**headers, 'Content-Type': 'application/json'})
     assert response.status_code in [400, 500]  # May be 400 or 500 depending on where error occurs
 
-def test_bad_request_handler(client, headers):
+def test_bad_request_handler(client, mocker, headers):
     """Test 400 Bad Request handler"""
+    # Patch API key to be enterprise tier to avoid rate limits
+    mocker.patch('middleware.auth.APIKeyManager.get_key_data', return_value={
+        'id': 'test_key_id',
+        'key_hash': 'test_hash',
+        'user_id': 'test_user',
+        'name': 'Test Key',
+        'tier': 'enterprise',
+        'is_active': 'true',
+        'created_at': '2025-01-01T00:00:00Z',
+        'last_used': '',
+        'requests_count': '0',
+        'rate_limit': '100000'
+    })
+
     # Send request with invalid JSON but with API key
     response = client.post('/api/v1/classify',
                           data='not json',
