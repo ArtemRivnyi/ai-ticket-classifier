@@ -56,7 +56,7 @@ def test_get_rate_limit():
     """Test getting rate limit string"""
     with app.test_request_context():
         # Default
-        assert get_rate_limit() == "100 per hour; 20 per minute"
+        assert get_rate_limit() == "100 per hour; 10 per minute"
         
         # Different tiers
         request.api_key_tier = 'starter'
