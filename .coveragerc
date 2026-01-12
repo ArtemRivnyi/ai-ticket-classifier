@@ -1,0 +1,8 @@
+[run]
+omit =
+    tests/*
+    venv/*
+    .venv/*
+    */site-packages/*
+    setup.py
+    conftest.py

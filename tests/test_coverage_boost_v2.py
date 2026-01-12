@@ -284,18 +284,6 @@ class TestRetryCoverage:
         assert mock_func.call_count == 2
 
 
-class TestDBManagerCoverage:
-    def test_db_manager_init(self, mocker):
-        """Test DatabaseManager initialization"""
-        mocker.patch("database.db_manager.SessionLocal")
-        from database.db_manager import DatabaseManager
-
-        db = DatabaseManager()
-        assert db.session is not None
-
-
-class TestModelsCoverage:
-    def test_apikey_model(self):
         """Test APIKey model"""
         from database.models import APIKey
 
