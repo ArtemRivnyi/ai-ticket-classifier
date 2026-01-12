@@ -56,8 +56,7 @@ from flask_cors import CORS
 from utils.errors import APIError
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+
 from flask_caching import Cache
 from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
@@ -132,7 +131,16 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-this-in-production")
 settings = get_settings()
 allowed_origins = settings.cors_origins_list()
 if not allowed_origins:
-    allowed_origins = ["*"]
+    if os.getenv("FLASK_ENV") == "production":
+        # In production, we must have explicit allowed origins
+        # Defaulting to * is unsafe
+        logger.warning(
+            "⚠️ CORS_ORIGINS not set in production. Defaulting to localhost for safety."
+        )
+        allowed_origins = ["http://localhost:5000", "http://127.0.0.1:5000"]
+    else:
+        # In development, default to * is acceptable but specific is better
+        allowed_origins = ["*"]
 
 CORS(
     app,
