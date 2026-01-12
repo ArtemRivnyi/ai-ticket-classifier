@@ -1,9 +1,7 @@
-[![API Docs](https://img.shields.io/badge/📚_API-Docs-blue?style=for-the-badge)](https://ai-ticket-classifier-production.up.railway.app/docs/)
+[![API Docs](https://img.shields.io/badge/📚_API-Docs-blue?style=for-the-badge)](https://ai-ticket-classifier.onrender.com/docs/)
 [![Portfolio](https://img.shields.io/badge/👨‍💻_My-Portfolio-orange?style=for-the-badge)](https://artemrivnyi.com)
 
 **Enterprise-grade AI support ticket classification API** powered by Google Gemini 2.0 Flash with OpenAI GPT-4 fallback.
-
-</div>
 
 ---
 
@@ -20,9 +18,23 @@
 
 ---
 
+## ✨ Key Features
+
+- **Multi-Provider AI**: Primary processing via Google Gemini 2.0 Flash, with automatic fallback to OpenAI GPT-4 for 99.9% reliability.
+- **Batch Processing**: Classify up to 100 tickets in a single API call or upload a CSV file.
+- **Enterprise Security**:
+    - **Rate Limiting**: Redis-backed rate limiting (IP + API Key).
+    - **Input Sanitization**: Strict validation and HTML sanitization using `bleach`.
+    - **Security Headers**: Strict CSP, HSTS, and XSS protection.
+    - **Secure Dependencies**: Automated vulnerability scanning with `pip-audit`.
+- **Comprehensive Monitoring**: Prometheus metrics, Sentry error tracking, and structured logging.
+- **Developer Friendly**: Full Swagger/OpenAPI documentation and easy-to-use REST endpoints.
+
+---
+
 ## 🏗️ Architecture
 
-The system is designed for high availability and resilience, featuring a primary AI provider (Gemini) with a robust fallback mechanism (OpenAI).
+The system is designed for high availability and resilience.
 
 ```mermaid
 graph TB
@@ -31,11 +43,10 @@ graph TB
         B[API Client]
     end
     
-    subgraph "Railway Platform"
+    subgraph "Render Platform"
         C[Load Balancer]
-        D[Flask App<br/>103 Workers]
+        D[Flask App<br/>Gunicorn]
         E[Redis<br/>Cache & Rate Limiting]
-        RE[Rule Engine<br/>Deterministic]
     end
     
     subgraph "External Services"
@@ -49,15 +60,13 @@ graph TB
     B --> C
     C --> D
     D --> E
-    D --> RE
-    RE -->|No Match| F
+    D -->|No Match| F
     F -->|Fallback| G
     D --> H
     D --> I
     
     style D fill:#4CAF50
     style E fill:#DC382D
-    style RE fill:#FF9800
     style F fill:#4285F4
 ```
 
@@ -71,19 +80,9 @@ graph TB
 | **AI/ML** | Google Gemini 2.0 Flash, OpenAI GPT-4 |
 | **Database** | Redis (caching, rate limiting) |
 | **Monitoring** | Prometheus, Sentry, Structlog |
-| **DevOps** | Docker, Docker Compose, Railway |
-| **Frontend** | Tailwind CSS, Vanilla JavaScript |
+| **DevOps** | Docker, GitHub Actions, Render |
+| **Security** | Bleach, Flask-Limiter, Cryptography |
 | **API Docs** | Swagger UI, OpenAPI 3.0 |
-
----
-python app.py
-```
-
-5. **Access the application**
-- Web UI: http://localhost:5000
-- API Docs: http://localhost:5000/docs/
-- Health: http://localhost:5000/api/v1/health
-- Metrics: http://localhost:5000/metrics
 
 ---
 
@@ -93,10 +92,10 @@ python app.py
 All API endpoints require an API key in the `X-API-Key` header.
 
 ```bash
-curl -X POST https://ai-ticket-classifier-production.up.railway.app/api/v1/classify \
+curl -X POST https://ai-ticket-classifier.onrender.com/api/v1/classify \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
-  -d '{"text": "My internet is down"}'
+  -d '{"ticket": "My internet is down"}'
 ```
 
 ### Core Endpoints
@@ -107,11 +106,7 @@ Classify a single support ticket.
 **Request:**
 ```json
 {
-  "text": "My internet connection keeps dropping",
-  "metadata": {
-    "ticket_id": "TICKET-123",
-    "priority": "high"
-  }
+  "ticket": "My internet connection keeps dropping"
 }
 ```
 
@@ -120,14 +115,26 @@ Classify a single support ticket.
 {
   "category": "Network Issue",
   "confidence": 0.95,
-  "subcategory": "Connectivity",
   "priority": "high",
-  "suggested_team": "Network Operations",
-  "matched_pattern": "internet.*connection"
+  "provider": "gemini",
+  "processing_time": 0.45
 }
 ```
 
-**Full API documentation**: [https://ai-ticket-classifier-production.up.railway.app/docs/](https://ai-ticket-classifier-production.up.railway.app/docs/)
+#### `POST /api/v1/batch`
+Classify multiple tickets in one request.
+
+**Request:**
+```json
+{
+  "tickets": [
+    "Login failed",
+    "Billing question"
+  ]
+}
+```
+
+**Full API documentation**: [https://ai-ticket-classifier.onrender.com/docs/](https://ai-ticket-classifier.onrender.com/docs/)
 
 ---
 
@@ -151,7 +158,7 @@ This project is a **demonstration** of AI capabilities.
 
 - **No Data Storage**: Ticket text submitted to the demo is processed in memory and **not stored** in any database.
 - **Privacy First**: We do not collect personal identifiable information (PII).
-- **AI Transparency**: All AI-generated classifications are clearly labeled with a confidence score and the provider used (Gemini/OpenAI/Rule Engine).
+- **AI Transparency**: All AI-generated classifications are clearly labeled with a confidence score and the provider used.
 
 ---
 
