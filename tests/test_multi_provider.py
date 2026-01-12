@@ -181,14 +181,12 @@ def test_multi_provider_classify_fallback_to_openai(mocker):
     # Actually, if circuit is OPEN, classify should skip Gemini and use OpenAI
     # But we need to ensure Gemini classify raises exception or returns None
     
-    # Mock OpenAI client
-    mock_client = Mock()
-    mock_response = Mock()
-    mock_response.choices = [Mock()]
-    mock_response.choices[0].message = Mock()
-    mock_response.choices[0].message.content = "Account Problem"
-    mock_client.chat.completions.create.return_value = mock_response
-    provider.openai_client = mock_client
+    # Mock classify_with_openai method directly since we don't have the client initialized
+    provider.classify_with_openai = Mock(return_value={
+        'category': 'Account Problem',
+        'confidence': 0.8,
+        'provider': 'openai'
+    })
     
     # When circuit is OPEN, circuit.call() will raise Exception("Circuit breaker is open")
     # So Gemini will fail and fallback to OpenAI
