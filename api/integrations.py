@@ -41,9 +41,10 @@ def zendesk_webhook():
             raise ValueError("JSON body required")
         payload = ZendeskTicketPayload(**request.json)
     except (ValidationError, ValueError) as exc:
+        details = exc.errors() if hasattr(exc, "errors") else str(exc)
         return jsonify({
             "error": "Validation error",
-            "details": getattr(exc, "errors", lambda: str(exc))(),
+            "details": details,
         }), 400
 
     ticket_text = ZendeskAdapter.compose_ticket_text(payload.subject, payload.description)

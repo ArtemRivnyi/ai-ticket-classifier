@@ -116,9 +116,9 @@ class TestAppInitialization:
         from flask import url_for
         try:
             # Try to access auth endpoint
-            with app.test_request_context():
+            with app_module.app.test_request_context():
                 # If blueprint is registered, we can check routes
-                routes = [str(rule) for rule in app.url_map.iter_rules()]
+                routes = [str(rule) for rule in app_module.app.url_map.iter_rules()]
                 # Auth routes should be available
                 assert any('/api/v1/auth' in route for route in routes) or True
         except:
