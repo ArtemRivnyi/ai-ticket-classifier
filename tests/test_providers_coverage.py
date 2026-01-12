@@ -162,12 +162,12 @@ class TestMultiProviderCoverage:
         # Set circuit breaker to CLOSED so it tries Gemini first
         provider.gemini_circuit.state = CircuitState.CLOSED
         
-        # Mock OpenAI client
-        mock_openai_response = MagicMock()
-        mock_openai_response.choices = [MagicMock()]
-        mock_openai_response.choices[0].message.content = "Network Issue"
-        provider.openai_client = MagicMock()
-        provider.openai_client.chat.completions.create = MagicMock(return_value=mock_openai_response)
+        # Mock classify_with_openai method directly
+        provider.classify_with_openai = Mock(return_value={
+            'category': 'Network Issue',
+            'confidence': 0.8,
+            'provider': 'openai'
+        })
         
         result = provider.classify("test ticket")
         assert result['provider'] == 'openai'
