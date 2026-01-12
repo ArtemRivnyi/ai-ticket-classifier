@@ -70,7 +70,7 @@ jobs:
       
       - name: Check formatting with black
         run: |
-          black --check app.py classify.py test_app.py
+          black --check .
 
   security:
     name: Security Scan
