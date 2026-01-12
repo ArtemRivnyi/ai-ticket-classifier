@@ -1,6 +1,7 @@
 """
 Tests for evaluation and CSV batch endpoints
 """
+
 import pytest
 from io import BytesIO
 from unittest.mock import MagicMock

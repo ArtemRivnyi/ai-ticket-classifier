@@ -2,6 +2,7 @@
 Tests for error handling paths in app.py
 Covers all error handlers and exception paths
 """
+
 import pytest
 import os
 from unittest.mock import Mock, patch, MagicMock

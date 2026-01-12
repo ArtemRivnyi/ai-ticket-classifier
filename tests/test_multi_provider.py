@@ -2,6 +2,7 @@
 Comprehensive tests for providers/multi_provider.py
 Tests CircuitBreaker and MultiProvider
 """
+
 import pytest
 from providers.multi_provider import CircuitBreaker, CircuitState, MultiProvider
 from unittest.mock import Mock, patch

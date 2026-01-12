@@ -1,4 +1,5 @@
 """Pydantic-based configuration management for the AI Ticket Classifier."""
+
 from __future__ import annotations
 
 from functools import lru_cache

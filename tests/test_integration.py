@@ -2,6 +2,7 @@
 Integration tests for AI Ticket Classifier
 Real-world scenarios without excessive mocking
 """
+
 import pytest
 
 # Use fixtures from conftest.py:

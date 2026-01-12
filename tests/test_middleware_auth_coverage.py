@@ -2,6 +2,7 @@
 Maximum coverage tests for middleware/auth.py
 Target: 90%+ coverage
 """
+
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 import middleware.auth

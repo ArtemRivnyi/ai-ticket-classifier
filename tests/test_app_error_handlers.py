@@ -1,6 +1,7 @@
 """
 Tests for app.py error handlers
 """
+
 import pytest
 from app import app
 from pydantic import ValidationError
@@ -29,9 +30,9 @@ def test_ratelimit_handler(client, mocker):
     def ratelimit_handler(e):
         return {
             "error": "Rate limit exceeded",
-            "message": str(e.description)
-            if hasattr(e, "description")
-            else "Too many requests",
+            "message": (
+                str(e.description) if hasattr(e, "description") else "Too many requests"
+            ),
         }, 429
 
     with test_app.test_client() as client:

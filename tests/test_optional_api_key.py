@@ -1,6 +1,7 @@
 """
 Tests for optional_api_key decorator edge cases
 """
+
 import pytest
 from flask import Flask
 from middleware.auth import optional_api_key

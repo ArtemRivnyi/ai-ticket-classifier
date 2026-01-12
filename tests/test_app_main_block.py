@@ -1,6 +1,7 @@
 """
 Tests for app.py main block (if __name__ == '__main__')
 """
+
 import pytest
 import os
 from unittest.mock import patch, Mock

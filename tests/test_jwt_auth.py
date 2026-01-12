@@ -2,6 +2,7 @@
 Comprehensive tests for security/jwt_auth.py
 Tests JWT token generation, validation, and decorator
 """
+
 import pytest
 import time
 from datetime import timedelta

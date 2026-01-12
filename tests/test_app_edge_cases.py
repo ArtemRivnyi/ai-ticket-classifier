@@ -1,6 +1,7 @@
 """
 Tests for edge cases and additional coverage
 """
+
 import pytest
 import os
 from app import app, classifier

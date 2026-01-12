@@ -2,6 +2,7 @@
 Tests for app.py initialization code paths
 Covers Redis connection, provider initialization, middleware loading, etc.
 """
+
 import pytest
 
 import os

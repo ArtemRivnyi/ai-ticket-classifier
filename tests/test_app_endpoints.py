@@ -2,6 +2,7 @@
 Comprehensive tests for app.py endpoints and helper functions
 Tests all endpoints, error handlers, and utility functions
 """
+
 import pytest
 from app import app, sanitize_input, get_user_tier, get_rate_limit
 from flask import request

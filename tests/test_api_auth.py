@@ -2,6 +2,7 @@
 Comprehensive tests for api/auth.py
 Tests all endpoints and edge cases
 """
+
 import pytest
 from flask import Flask
 from app import app

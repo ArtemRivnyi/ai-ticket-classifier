@@ -1,6 +1,7 @@
 """
 Tests for app.py helper functions and edge cases
 """
+
 import pytest
 from app import sanitize_input, get_user_tier, get_rate_limit
 from flask import Flask

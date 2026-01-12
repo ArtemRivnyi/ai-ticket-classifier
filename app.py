@@ -787,9 +787,9 @@ def after_request(response):
     response.headers["Content-Security-Policy"] = csp
 
     if os.getenv("FORCE_HTTPS", "false").lower() == "true":
-        response.headers[
-            "Strict-Transport-Security"
-        ] = "max-age=31536000; includeSubDomains"
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
 
     response.headers[REQUEST_ID_HEADER] = getattr(g, "request_id", "unknown")
 
@@ -968,9 +968,11 @@ def classify():
                 return make_response(
                     {
                         "error": "Invalid request",
-                        "message": str(e)
-                        if str(e)
-                        else "Invalid JSON or missing required fields",
+                        "message": (
+                            str(e)
+                            if str(e)
+                            else "Invalid JSON or missing required fields"
+                        ),
                     },
                     400,
                 )
@@ -1068,9 +1070,11 @@ def classify():
         return make_response(
             {
                 "error": "Internal server error",
-                "message": str(e)
-                if os.getenv("FLASK_ENV") == "development"
-                else "An error occurred",
+                "message": (
+                    str(e)
+                    if os.getenv("FLASK_ENV") == "development"
+                    else "An error occurred"
+                ),
             },
             500,
         )
@@ -1316,9 +1320,11 @@ def batch_classify_csv():
         return make_response(
             {
                 "error": "Internal server error",
-                "message": str(e)
-                if os.getenv("FLASK_ENV") == "development"
-                else "An error occurred",
+                "message": (
+                    str(e)
+                    if os.getenv("FLASK_ENV") == "development"
+                    else "An error occurred"
+                ),
             },
             500,
         )
@@ -1336,9 +1342,9 @@ def bad_request(e):
     return make_response(
         {
             "error": "Bad request",
-            "message": str(e.description)
-            if hasattr(e, "description")
-            else "Invalid request",
+            "message": (
+                str(e.description) if hasattr(e, "description") else "Invalid request"
+            ),
         },
         400,
     )

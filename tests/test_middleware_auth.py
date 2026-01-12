@@ -2,6 +2,7 @@
 Comprehensive tests for middleware/auth.py
 Tests APIKeyManager, RateLimiter, and decorators
 """
+
 import pytest
 from unittest.mock import Mock, patch
 from middleware.auth import (

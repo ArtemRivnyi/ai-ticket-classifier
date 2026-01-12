@@ -1,6 +1,7 @@
 """
 Tests for app.py hooks (before_request, after_request) and edge cases
 """
+
 import pytest
 import os
 from app import app

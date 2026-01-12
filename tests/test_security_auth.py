@@ -1,6 +1,7 @@
 """
 Tests for security/auth.py (legacy API key manager)
 """
+
 import pytest
 import os
 from security.auth import APIKeyManager, api_key_manager, require_api_key

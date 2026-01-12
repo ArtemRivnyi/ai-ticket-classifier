@@ -1,6 +1,7 @@
 """
 Additional tests to improve coverage
 """
+
 import pytest
 from unittest.mock import MagicMock, patch
 

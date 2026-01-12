@@ -1,6 +1,7 @@
 """
 Tests for Pydantic models in app.py
 """
+
 import pytest
 from pydantic import ValidationError
 from app import TicketRequest, BatchTicketRequest, WebhookConfig

@@ -1,6 +1,7 @@
 """
 Final coverage boost tests
 """
+
 import pytest
 
 
