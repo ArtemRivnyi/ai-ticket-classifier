@@ -26,7 +26,7 @@ def test_feedback_endpoint(client):
     assert response.json["status"] == "success"
 
     # Verify file was created
-    assert os.path.exists("feedback.json")
+    assert os.path.exists("data/feedback.json")
 
     # Clean up
     # os.remove('feedback.json') # Keep it for inspection if needed, or remove
@@ -44,8 +44,9 @@ def test_feedback_invalid_json(client):
 def test_evaluation_results_endpoint(client):
     """Test fetching evaluation results"""
     # Ensure the file exists (it should from previous steps)
-    if not os.path.exists("evaluation_results.json"):
-        with open("evaluation_results.json", "w") as f:
+    if not os.path.exists("data/evaluation_results.json"):
+        os.makedirs("data", exist_ok=True)
+        with open("data/evaluation_results.json", "w") as f:
             json.dump({"accuracy": 90.0, "total": 10, "correct": 9, "results": []}, f)
 
     response = client.get("/api/v1/evaluation-results")
