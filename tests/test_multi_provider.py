@@ -211,11 +211,9 @@ def test_multi_provider_circuit_breaker_integration(mocker):
     provider.gemini_available = True
     provider.openai_available = False
     
-    # Mock Gemini classifier and model to fail multiple times
-    mock_model = Mock()
-    mock_model.generate_content.side_effect = Exception("API Error")
+    # Mock Gemini classifier to fail multiple times
     mock_gemini_classifier = Mock()
-    mock_gemini_classifier.model = mock_model
+    mock_gemini_classifier.classify.side_effect = Exception("API Error")
     provider.gemini_classifier = mock_gemini_classifier
     
     # Mock rule classifier to return None (force fallback to AI)
