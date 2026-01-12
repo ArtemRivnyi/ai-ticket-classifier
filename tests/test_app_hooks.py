@@ -67,7 +67,9 @@ def test_get_limiter_key_with_api_key(client):
     
     with app.test_request_context(headers={'X-API-Key': 'test_key'}):
         key = get_rate_limit_key()
-        assert 'api_key:' in key
+        # Format is ip:api_key
+        assert 'test_key' in key
+        assert ':' in key
 
 def test_get_limiter_key_without_api_key(client):
     """Test get_rate_limit_key function without API key"""
