@@ -139,15 +139,13 @@ def test_multi_provider_classify_with_gemini(mocker):
     provider.gemini_available = True
     provider.openai_available = False
     
-    # Mock Gemini classifier and model (matching production code structure)
-    mock_response = Mock()
-    mock_response.text = "Network Issue"
-    mock_model = Mock()
-    mock_model.generate_content.return_value = mock_response
-    
-    # Create mock GeminiClassifier with model attribute
+    # Create mock GeminiClassifier
     mock_gemini_classifier = Mock()
-    mock_gemini_classifier.model = mock_model
+    mock_gemini_classifier.classify.return_value = {
+        'category': 'Network Issue',
+        'confidence': 0.9,
+        'provider': 'gemini'
+    }
     provider.gemini_classifier = mock_gemini_classifier
     
     # Mock rule classifier to return None (force fallback to AI)
