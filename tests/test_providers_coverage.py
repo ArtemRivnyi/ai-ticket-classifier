@@ -132,15 +132,13 @@ class TestMultiProviderCoverage:
         provider.gemini_available = True
         provider.openai_available = False
         
-        # Mock Gemini classifier with model attribute (matching production)
-        mock_response = Mock()
-        mock_response.text = "Network Issue"
-        mock_model = Mock()
-        mock_model.generate_content.return_value = mock_response
-        
-        # Create mock GeminiClassifier with model attribute
+        # Mock Gemini classifier classify method
         mock_gemini_classifier = Mock()
-        mock_gemini_classifier.model = mock_model
+        mock_gemini_classifier.classify.return_value = {
+            'category': 'Network Issue',
+            'confidence': 0.9,
+            'provider': 'gemini'
+        }
         provider.gemini_classifier = mock_gemini_classifier
         
         result = provider.classify("VPN connection dropped")
