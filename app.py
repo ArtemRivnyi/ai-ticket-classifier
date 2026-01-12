@@ -41,6 +41,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 import json
 import bleach
+import hashlib
 
 from flask import (
     Flask,
@@ -132,15 +133,13 @@ settings = get_settings()
 allowed_origins = settings.cors_origins_list()
 if not allowed_origins:
     if os.getenv("FLASK_ENV") == "production":
-        # In production, we must have explicit allowed origins
-        # Defaulting to * is unsafe
-        logger.warning(
-            "⚠️ CORS_ORIGINS not set in production. Defaulting to localhost for safety."
+        raise ValueError(
+            "❌ CRITICAL: ALLOWED_ORIGINS must be explicitly set in production! "
+            "Add ALLOWED_ORIGINS=https://yourdomain.com to .env"
         )
-        allowed_origins = ["http://localhost:5000", "http://127.0.0.1:5000"]
-    else:
-        # In development, default to * is acceptable but specific is better
-        allowed_origins = ["*"]
+    # In development, default to localhost
+    allowed_origins = ["http://localhost:5000", "http://127.0.0.1:5000"]
+    logger.info("ℹ️ Using default localhost CORS (development only)")
 
 CORS(
     app,
@@ -721,6 +720,16 @@ def get_trace_logger():
     return getattr(g, "trace_logger", logger)
 
 
+def make_cache_key(*args, **kwargs):
+    """Generate a secure cache key using MD5 hash of the ticket text"""
+    if request.is_json and request.json and "ticket" in request.json:
+        ticket_text = request.json['ticket']
+        # Use hash for fixed length key
+        text_hash = hashlib.md5(ticket_text.encode()).hexdigest()
+        return f"classify:v1:{text_hash}"
+    return None
+
+
 # ===== MIDDLEWARE =====
 
 
@@ -775,16 +784,7 @@ def after_request(response):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
 
-    # Content Security Policy - Allow Tailwind CDN (unsafe-eval) and other resources
-    csp = (
-        "default-src 'self' https:; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; "
-        "style-src 'self' 'unsafe-inline' https:; "
-        "img-src 'self' data: https:; "
-        "font-src 'self' https: data:; "
-        "connect-src 'self' https:;"
-    )
-    response.headers["Content-Security-Policy"] = csp
+
 
     if os.getenv("FORCE_HTTPS", "false").lower() == "true":
         response.headers["Strict-Transport-Security"] = (
@@ -1022,8 +1022,9 @@ def classify():
 
         # Cache the result
         if request.is_json and request.json and "ticket" in request.json:
-            cache_key = f"classify:{request.json['ticket']}"
-            cache.set(cache_key, result, timeout=3600)  # Cache for 1 hour
+            cache_key = make_cache_key()
+            if cache_key:
+                cache.set(cache_key, result, timeout=3600)  # Cache for 1 hour
 
         # Record existing metrics
         if classification_count:
