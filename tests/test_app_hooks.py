@@ -62,19 +62,19 @@ def test_after_request_without_start_time(client):
     assert response.status_code == 200
 
 def test_get_limiter_key_with_api_key(client):
-    """Test get_limiter_key function with API key"""
-    from app import get_limiter_key
+    """Test get_rate_limit_key function with API key"""
+    from middleware.rate_limit import get_rate_limit_key
     
     with app.test_request_context(headers={'X-API-Key': 'test_key'}):
-        key = get_limiter_key()
+        key = get_rate_limit_key()
         assert 'api_key:' in key
 
 def test_get_limiter_key_without_api_key(client):
-    """Test get_limiter_key function without API key"""
-    from app import get_limiter_key
+    """Test get_rate_limit_key function without API key"""
+    from middleware.rate_limit import get_rate_limit_key
     
     with app.test_request_context():
-        key = get_limiter_key()
+        key = get_rate_limit_key()
         # Should use IP or default
         assert key is not None
 
