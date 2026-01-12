@@ -72,7 +72,7 @@ Thumbs.db
 
 # Project specific
 backups/
-assets/
+
 accuracy_test_results.json
 
 # Test results
