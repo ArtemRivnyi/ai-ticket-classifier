@@ -9,6 +9,7 @@ import os
 os.environ.setdefault("MASTER_API_KEY", "test_master_key")
 os.environ.setdefault("SECRET_KEY", "test_secret_key")
 os.environ.setdefault("JWT_SECRET", "test_jwt_secret")
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 import sys
 from pathlib import Path
 from unittest.mock import patch

@@ -284,6 +284,8 @@ class TestRetryCoverage:
         assert mock_func.call_count == 2
 
 
+class TestModelsCoverage:
+    def test_apikey_model(self):
         """Test APIKey model"""
         from database.models import APIKey
 
