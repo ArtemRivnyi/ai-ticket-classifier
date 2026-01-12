@@ -34,7 +34,7 @@ def evaluate():
     correct_count = 0
     total_count = 0
 
-    with open("test_dataset.csv", "r") as f:
+    with open("data/test_dataset.csv", "r") as f:
         reader = csv.DictReader(f)
         tickets = list(reader)
         total_count = len(tickets)
@@ -115,10 +115,10 @@ def evaluate():
         "results": results,
     }
 
-    with open("evaluation_results.json", "w") as f:
+    with open("data/evaluation_results.json", "w") as f:
         json.dump(output, f, indent=2)
 
-    print("💾 Results saved to evaluation_results.json")
+    print("💾 Results saved to data/evaluation_results.json")
 
 
 if __name__ == "__main__":

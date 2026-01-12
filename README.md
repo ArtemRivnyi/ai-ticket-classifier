@@ -8,6 +8,8 @@
 ## 🎯 Demo & Screenshots
 - **Consistency**: Eliminates human error and fatigue, ensuring 24/7 consistent tagging.
 
+![Demo Screenshot](assets/demo_screenshot.png)
+
 ---
 
 ## 📖 Project Overview

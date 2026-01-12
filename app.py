@@ -418,7 +418,7 @@ def evaluation():
 def evaluation_results():
     """Serve the evaluation results JSON."""
     try:
-        with open("evaluation_results.json", "r") as f:
+        with open("data/evaluation_results.json", "r") as f:
             data = json.load(f)
         return jsonify(data)
     except FileNotFoundError:
@@ -443,7 +443,7 @@ def run_evaluation():
         correct_count = 0
         total_count = 0
 
-        with open("test_dataset.csv", "r") as f:
+        with open("data/test_dataset.csv", "r") as f:
             reader = csv.DictReader(f)
             tickets = list(reader)
             total_count = len(tickets)
@@ -513,7 +513,7 @@ def run_evaluation():
         }
 
         # Save results
-        with open("evaluation_results.json", "w") as f:
+        with open("data/evaluation_results.json", "w") as f:
             json.dump(output, f, indent=2)
 
         return jsonify(output), 200
@@ -522,7 +522,7 @@ def run_evaluation():
         return (
             jsonify(
                 {
-                    "error": "Test dataset not found. Please ensure test_dataset.csv exists."
+                    "error": "Test dataset not found. Please ensure data/test_dataset.csv exists."
                 }
             ),
             404,
@@ -554,7 +554,7 @@ def submit_feedback():
         }
 
         # Append to local file (simple storage for MVP)
-        feedback_file = "feedback.json"
+        feedback_file = "data/feedback.json"
         existing_feedback = []
 
         if os.path.exists(feedback_file):
