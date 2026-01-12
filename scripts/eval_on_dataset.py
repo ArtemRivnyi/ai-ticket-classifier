@@ -22,8 +22,12 @@ DEFAULT_OUTPUT_DIR = Path("reports")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Evaluate AI Ticket Classifier on a dataset.")
-    parser.add_argument("--input", required=True, help="Path to input JSONL file with tickets.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate AI Ticket Classifier on a dataset."
+    )
+    parser.add_argument(
+        "--input", required=True, help="Path to input JSONL file with tickets."
+    )
     parser.add_argument(
         "--output",
         default=None,
@@ -34,11 +38,27 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Path to metrics summary JSON. Defaults to reports/eval_<timestamp>.json",
     )
-    parser.add_argument("--api-url", default=DEFAULT_API_URL, help="Base API URL (default: http://localhost:5000)")
-    parser.add_argument("--api-key", default=os.getenv("EVAL_API_KEY"), help="API key or MASTER key for authentication")
-    parser.add_argument("--max-samples", type=int, default=None, help="Limit number of samples processed")
     parser.add_argument(
-        "--timeout", type=int, default=30, help="HTTP timeout per request in seconds (default: 30)"
+        "--api-url",
+        default=DEFAULT_API_URL,
+        help="Base API URL (default: http://localhost:5000)",
+    )
+    parser.add_argument(
+        "--api-key",
+        default=os.getenv("EVAL_API_KEY"),
+        help="API key or MASTER key for authentication",
+    )
+    parser.add_argument(
+        "--max-samples",
+        type=int,
+        default=None,
+        help="Limit number of samples processed",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=30,
+        help="HTTP timeout per request in seconds (default: 30)",
     )
     return parser.parse_args()
 
@@ -73,7 +93,9 @@ def call_api(
         headers["X-API-Key"] = api_key
 
     start = time.perf_counter()
-    response = session.post(url, json={"ticket": text}, headers=headers, timeout=timeout)
+    response = session.post(
+        url, json={"ticket": text}, headers=headers, timeout=timeout
+    )
     latency_ms = round((time.perf_counter() - start) * 1000, 2)
     data = response.json()
     data["latency_ms"] = latency_ms
@@ -116,7 +138,11 @@ def compute_metrics(records: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
         fn = sum(confusion[label][other] for other in labels if other != label)
         precision = tp / (tp + fp) if (tp + fp) else 0.0
         recall = tp / (tp + fn) if (tp + fn) else 0.0
-        f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) else 0.0
+        f1 = (
+            (2 * precision * recall / (precision + recall))
+            if (precision + recall)
+            else 0.0
+        )
         support = sum(confusion[label].values())
 
         per_label[label] = {
@@ -172,14 +198,18 @@ def write_report(path: Path, metrics: Dict[str, Any], predictions_file: Path) ->
         handle.write(f"- Predictions file: `{predictions_file}`\n\n")
         handle.write("## Per-label metrics\n\n")
         for label, values in metrics["per_label"].items():
-            handle.write(f"- **{label}** — P: {values['precision']}, R: {values['recall']}, F1: {values['f1']} (support {values['support']})\n")
+            handle.write(
+                f"- **{label}** — P: {values['precision']}, R: {values['recall']}, F1: {values['f1']} (support {values['support']})\n"
+            )
 
 
 def main():
     args = parse_args()
 
     if not args.api_key:
-        raise SystemExit("API key is required. Provide via --api-key or EVAL_API_KEY env var.")
+        raise SystemExit(
+            "API key is required. Provide via --api-key or EVAL_API_KEY env var."
+        )
 
     dataset_path = Path(args.input)
     records = load_jsonl(dataset_path, max_samples=args.max_samples)
@@ -187,8 +217,16 @@ def main():
         raise SystemExit("Input dataset is empty.")
 
     timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    output_path = Path(args.output) if args.output else DEFAULT_OUTPUT_DIR / f"predictions_{timestamp}.jsonl"
-    report_path = Path(args.report) if args.report else DEFAULT_OUTPUT_DIR / f"eval_{timestamp}.json"
+    output_path = (
+        Path(args.output)
+        if args.output
+        else DEFAULT_OUTPUT_DIR / f"predictions_{timestamp}.jsonl"
+    )
+    report_path = (
+        Path(args.report)
+        if args.report
+        else DEFAULT_OUTPUT_DIR / f"eval_{timestamp}.json"
+    )
 
     session = requests.Session()
 
@@ -206,7 +244,9 @@ def main():
             continue
 
         try:
-            api_result = call_api(session, args.api_url, args.api_key, text, args.timeout)
+            api_result = call_api(
+                session, args.api_url, args.api_key, text, args.timeout
+            )
             status = "ok" if api_result.get("status_code", 500) == 200 else "error"
             predictions.append(
                 {
@@ -246,4 +286,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

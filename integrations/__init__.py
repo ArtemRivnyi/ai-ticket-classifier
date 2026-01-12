@@ -1,2 +1,1 @@
 """Integration adapters (Zendesk, etc.)."""
-

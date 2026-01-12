@@ -1,5 +1,6 @@
 from typing import Optional
 
+
 def format_classification_prompt(ticket_text: str, provider: str = None) -> str:
     """
     Format the classification prompt for AI providers.

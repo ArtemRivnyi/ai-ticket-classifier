@@ -75,4 +75,3 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
         missing = []
 
     return EnvironmentStatus(missing=missing, warnings=warnings)
-

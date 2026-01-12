@@ -13,13 +13,9 @@ class Settings(BaseSettings):
 
     # Core secrets
     MASTER_API_KEY: str = Field(
-        ...,
-        description="Master API key for privileged automation"
+        ..., description="Master API key for privileged automation"
     )
-    SECRET_KEY: str = Field(
-        ...,
-        description="Flask secret / JWT signing seed"
-    )
+    SECRET_KEY: str = Field(..., description="Flask secret / JWT signing seed")
 
     # Providers
     GEMINI_API_KEY: Optional[str] = Field(None, description="Google Gemini API key")
@@ -37,10 +33,14 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = Field(None, description="Sentry DSN for error tracking")
 
     # Runtime behavior
-    ALLOWED_ORIGINS: str = Field("*", description="Comma-separated list of allowed origins")
+    ALLOWED_ORIGINS: str = Field(
+        "*", description="Comma-separated list of allowed origins"
+    )
     ENV: str = Field("production", description="Runtime environment name")
     LOG_LEVEL: str = Field("INFO", description="Structlog log level")
-    FORCE_HTTPS: bool = Field(False, description="Force HTTPS-only traffic when enabled")
+    FORCE_HTTPS: bool = Field(
+        False, description="Force HTTPS-only traffic when enabled"
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -51,7 +51,11 @@ class Settings(BaseSettings):
 
     def cors_origins_list(self) -> List[str]:
         """Return sanitized list of configured CORS origins."""
-        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
+        return [
+            origin.strip()
+            for origin in self.ALLOWED_ORIGINS.split(",")
+            if origin.strip()
+        ]
 
 
 @lru_cache()

@@ -31,10 +31,15 @@ def zendesk_webhook():
     """Zendesk webhook entrypoint -> classify ticket -> return update instructions."""
     classifier = current_app.config.get("CLASSIFIER")
     if not classifier:
-        return jsonify({
-            "error": "Classification service unavailable",
-            "message": "No AI providers configured",
-        }), 503
+        return (
+            jsonify(
+                {
+                    "error": "Classification service unavailable",
+                    "message": "No AI providers configured",
+                }
+            ),
+            503,
+        )
 
     try:
         if request.json is None:
@@ -42,25 +47,41 @@ def zendesk_webhook():
         payload = ZendeskTicketPayload(**request.json)
     except (ValidationError, ValueError) as exc:
         details = exc.errors() if hasattr(exc, "errors") else str(exc)
-        return jsonify({
-            "error": "Validation error",
-            "details": details,
-        }), 400
+        return (
+            jsonify(
+                {
+                    "error": "Validation error",
+                    "details": details,
+                }
+            ),
+            400,
+        )
 
-    ticket_text = ZendeskAdapter.compose_ticket_text(payload.subject, payload.description)
+    ticket_text = ZendeskAdapter.compose_ticket_text(
+        payload.subject, payload.description
+    )
     try:
         classification = classifier.classify(ticket_text)
     except Exception as exc:  # pragma: no cover (propagated from providers)
-        return jsonify({
-            "error": "Classification failed",
-            "message": str(exc),
-        }), 502
+        return (
+            jsonify(
+                {
+                    "error": "Classification failed",
+                    "message": str(exc),
+                }
+            ),
+            502,
+        )
 
     update_payload = ZendeskAdapter.build_update(payload.model_dump(), classification)
 
-    return jsonify({
-        "status": "processed",
-        "ticket_id": payload.ticket_id,
-        "zendesk": update_payload,
-    }), 200
-
+    return (
+        jsonify(
+            {
+                "status": "processed",
+                "ticket_id": payload.ticket_id,
+                "zendesk": update_payload,
+            }
+        ),
+        200,
+    )
