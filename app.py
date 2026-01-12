@@ -151,6 +151,49 @@ CORS(
     supports_credentials=True,
 )
 
+
+@app.after_request
+def add_security_headers(response):
+    """Add security headers to response"""
+    # Strict CSP
+    csp_directives = {
+        "default-src": ["'self'"],
+        "script-src": [
+            "'self'",
+            "'unsafe-inline'",  # Needed for some UI frameworks/inline scripts
+            "https://cdn.tailwindcss.com",
+            "https://cdnjs.cloudflare.com",
+        ],
+        "style-src": [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com",
+            "https://cdnjs.cloudflare.com",
+        ],
+        "font-src": [
+            "'self'",
+            "https://fonts.gstatic.com",
+            "data:",
+            "https://cdnjs.cloudflare.com",
+        ],
+        "img-src": ["'self'", "data:", "https:"],
+        "connect-src": ["'self'", "https:"],
+        "object-src": ["'none'"],
+        "base-uri": ["'self'"],
+        "form-action": ["'self'"],
+        "frame-ancestors": ["'none'"],
+    }
+
+    csp = "; ".join(
+        [f"{key} {' '.join(values)}" for key, values in csp_directives.items()]
+    )
+    response.headers["Content-Security-Policy"] = csp
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
+
+
 # Initialize rate limiter with fallback to memory storage
 # Initialize rate limiter with fallback to memory storage
 try:

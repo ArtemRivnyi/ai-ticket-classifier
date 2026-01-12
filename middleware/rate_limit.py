@@ -22,7 +22,11 @@ def get_rate_limit_key():
         # combining with IP adds a layer of defense against key theft usage from multiple locations
         # OR we can just use the API key.
         # The prompt suggested: return f"{ip}:{api_key}"
-        return f"{ip}:{api_key}"
+        # Use hash of API key to prevent leakage in Redis
+        import hashlib
+
+        key_hash = hashlib.md5(api_key.encode()).hexdigest()
+        return f"{ip}:{key_hash}"
 
     # Fallback to IP only for anonymous requests
     return ip

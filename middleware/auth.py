@@ -24,7 +24,9 @@ _in_memory_keys = {}
 _in_memory_user_keys = {}
 
 try:
-    redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+    from config.redis_config import get_redis_client
+
+    redis_client = get_redis_client()
     redis_client.ping()
     logger.info("✓ Redis connection established")
 except Exception as e:

@@ -184,47 +184,51 @@ class MultiProvider:
         if not self.openai_api_key:
             raise Exception("OpenAI API key not configured")
 
-        # Basic OpenAI implementation (using requests to avoid extra deps if not installed)
-        # Or just fail for now as it seems it wasn't fully implemented before.
-        # However, to avoid 'NameError', I must define it.
+        try:
+            import openai
 
-        # Let's assume we want to use the prompt formatter
-        prompt = format_classification_prompt(ticket_text, provider="openai")
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            prompt = format_classification_prompt(ticket_text, provider="openai")
 
-        # Mocking response for now as we don't have 'openai' package imported/setup
-        # In a real scenario, we'd import openai and call chat completion.
-        # Since I cannot see openai import, I will raise NotImplementedError or similar
-        # BUT, the task is to fix the code.
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a support ticket classifier. Return ONLY valid JSON.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.1,
+                max_tokens=150,
+            )
 
-        # Let's try to import openai here
-        import openai
+            content = response.choices[0].message.content
 
-        client = openai.OpenAI(api_key=self.openai_api_key)
+            # Parse JSON response
+            import json
 
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful support ticket classifier.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.1,
-            max_tokens=100,
-        )
+            # Handle potential markdown code blocks
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0].strip()
 
-        content = response.choices[0].message.content
-        # Parse JSON from content (similar to Gemini)
-        import json
+            result = json.loads(content)
 
-        # ... parsing logic ...
-        # For safety/simplicity in this fix, let's just return a dummy if it works,
-        # or better, rely on the fact that we might not reach here if key is missing.
+            # Ensure required fields
+            result.setdefault("provider", "openai")
+            if "confidence" not in result:
+                result["confidence"] = 0.8
 
-        # To be safe and avoid introducing new bugs with unverified OpenAI code,
-        # I will raise an exception so it falls back to Rule Engine.
-        raise Exception("OpenAI implementation pending")
+            return result
+
+        except ImportError:
+            logger.error("OpenAI library not installed")
+            raise
+        except Exception as e:
+            logger.error(f"OpenAI classification failed: {e}")
+            raise
 
     def _post_process_result(self, result: Dict, ticket_text: str) -> Dict:
         """Normalize category names and apply blacklist corrections"""

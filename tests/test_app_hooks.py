@@ -73,9 +73,12 @@ def test_get_limiter_key_with_api_key(client):
 
     with app.test_request_context(headers={"X-API-Key": "test_key"}):
         key = get_rate_limit_key()
-        # Format is ip:api_key
-        assert "test_key" in key
-        assert ":" in key
+        # The key should contain the IP and the HASH of the API key
+        import hashlib
+
+        key_hash = hashlib.md5("test_key".encode()).hexdigest()
+        assert key_hash in key
+        assert "127.0.0.1" in key
 
 
 def test_get_limiter_key_without_api_key(client):
