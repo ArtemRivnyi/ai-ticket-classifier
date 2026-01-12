@@ -125,13 +125,14 @@ def test_classify_with_special_characters(client, mocker, headers):
 
 def test_batch_with_single_ticket(client, mocker, headers):
     """Test batch classification with single ticket"""
+    mock_result = {
+        'category': 'Network Issue',
+        'confidence': 0.9,
+        'priority': 'high',
+        'provider': 'gemini'
+    }
+    
     if classifier:
-        mock_result = {
-            'category': 'Network Issue',
-            'confidence': 0.9,
-            'priority': 'high',
-            'provider': 'gemini'
-        }
         mocker.patch.object(classifier, 'classify', return_value=mock_result)
         mocker.patch.object(classifier, 'gemini_available', True)
     else:
