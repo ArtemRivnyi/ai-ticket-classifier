@@ -23,3 +23,6 @@ loglevel = 'info'
 
 # Process naming
 proc_name = 'ai-ticket-classifier'
+
+# Preload application for memory efficiency
+preload_app = True

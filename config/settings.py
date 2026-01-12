@@ -13,11 +13,11 @@ class Settings(BaseSettings):
 
     # Core secrets
     MASTER_API_KEY: str = Field(
-        default="test_master_key",
+        ...,
         description="Master API key for privileged automation"
     )
     SECRET_KEY: str = Field(
-        default="test_secret_key_change_in_production",
+        ...,
         description="Flask secret / JWT signing seed"
     )
 
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = Field(None, description="Sentry DSN for error tracking")
 
     # Runtime behavior
-    CORS_ORIGINS: str = Field("*", description="Comma-separated list of allowed origins")
+    ALLOWED_ORIGINS: str = Field("*", description="Comma-separated list of allowed origins")
     ENV: str = Field("production", description="Runtime environment name")
     LOG_LEVEL: str = Field("INFO", description="Structlog log level")
     FORCE_HTTPS: bool = Field(False, description="Force HTTPS-only traffic when enabled")
@@ -51,7 +51,7 @@ class Settings(BaseSettings):
 
     def cors_origins_list(self) -> List[str]:
         """Return sanitized list of configured CORS origins."""
-        return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
 
 
 @lru_cache()

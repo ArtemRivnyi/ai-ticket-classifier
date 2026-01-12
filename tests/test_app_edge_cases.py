@@ -101,13 +101,14 @@ def test_health_with_classifier_unavailable(client, mocker):
 
 def test_classify_with_special_characters(client, mocker, headers):
     """Test classification with special characters in ticket"""
+    mock_result = {
+        'category': 'Other',
+        'confidence': 0.8,
+        'priority': 'medium',
+        'provider': 'gemini'
+    }
+    
     if classifier:
-        mock_result = {
-            'category': 'Other',
-            'confidence': 0.8,
-            'priority': 'medium',
-            'provider': 'gemini'
-        }
         mocker.patch.object(classifier, 'classify', return_value=mock_result)
         mocker.patch.object(classifier, 'gemini_available', True)
     else:

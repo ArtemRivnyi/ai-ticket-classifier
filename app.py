@@ -40,9 +40,11 @@ from uuid import uuid4
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 import json
+import bleach
 
 from flask import Flask, request, jsonify, Response, g, current_app, send_from_directory, render_template
 from flask_cors import CORS
+from utils.errors import APIError
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_limiter import Limiter
@@ -112,20 +114,28 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'change-this-in-production')
 
 
 # CORS configuration for production
-cors_origins = os.getenv('CORS_ORIGINS', '*').split(',')
+settings = get_settings()
+allowed_origins = settings.cors_origins_list()
+if not allowed_origins:
+    allowed_origins = ["*"]
+
 CORS(app, 
-     origins=cors_origins,
+     origins=allowed_origins,
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      allow_headers=['Content-Type', 'Authorization', 'X-API-Key'],
-     expose_headers=['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'])
+     expose_headers=['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+     supports_credentials=True)
 
 # Initialize rate limiter with fallback to memory storage
-def get_limiter_key():
-    """Get key for rate limiting (API key or IP)"""
-    api_key = request.headers.get('X-API-Key')
-    if api_key:
-        return f"api_key:{api_key}"
-    return get_remote_address()
+# Initialize rate limiter with fallback to memory storage
+try:
+    from middleware.rate_limit import get_rate_limit_key
+except ImportError:
+    # Fallback if file not found (though it should be there)
+    def get_rate_limit_key():
+        return get_remote_address()
+
+from config.redis_config import get_redis_pool
 
 # Configure rate limiter with Redis storage
 settings = get_settings()
@@ -137,8 +147,10 @@ warnings.filterwarnings('ignore', message='.*in-memory storage.*', module='flask
 
 redis_available = False
 try:
+    # Use connection pool for check
+    pool = get_redis_pool()
     import redis
-    redis_client_test = redis.from_url(redis_url, decode_responses=True, socket_connect_timeout=1)
+    redis_client_test = redis.Redis(connection_pool=pool)
     redis_client_test.ping()
     redis_available = True
     logger.info(f"✅ Redis available at {redis_url.split('@')[-1] if '@' in redis_url else redis_url}")
@@ -146,7 +158,7 @@ try:
     # Use Redis storage with error handling
     limiter = Limiter(
         app=app,
-        key_func=get_limiter_key,
+        key_func=get_rate_limit_key,
         storage_uri=redis_url,
         default_limits=["1000 per day", "100 per hour"],
         strategy="fixed-window",
@@ -156,7 +168,7 @@ try:
             "socket_timeout": 1,
             "retry_on_timeout": False,
             "health_check_interval": 30
-        },
+        }
     )
     logger.info("✅ Rate limiter configured with Redis storage")
 except Exception as e:
@@ -164,17 +176,11 @@ except Exception as e:
     redis_available = False
     limiter = Limiter(
         app=app,
-        key_func=get_limiter_key,
+        key_func=get_rate_limit_key,
         default_limits=["1000 per day", "100 per hour"],
         strategy="fixed-window",
         headers_enabled=True
     )
-
-# Initialize Caching
-cache_config = {
-    'CACHE_TYPE': 'SimpleCache',
-    'CACHE_DEFAULT_TIMEOUT': 300
-}
 
 if redis_available:
     cache_config = {
@@ -184,6 +190,10 @@ if redis_available:
     }
     logger.info("✅ Cache configured with Redis")
 else:
+    cache_config = {
+        'CACHE_TYPE': 'SimpleCache',
+        'CACHE_DEFAULT_TIMEOUT': 300
+    }
     logger.info("ℹ️ Cache configured with SimpleCache (fallback)")
 
 cache = Cache(app, config=cache_config)
@@ -280,7 +290,7 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 # ===== PYDANTIC MODELS =====
 
 class TicketRequest(BaseModel):
-    ticket: str = Field(..., min_length=10, max_length=1000)
+    ticket: str = Field(..., min_length=10, max_length=5000)
 
 class FeedbackRequest(BaseModel):
     request_id: str
@@ -462,6 +472,8 @@ class TicketRequest(BaseModel):
         """Sanitize ticket text - remove potentially harmful content"""
         # Remove null bytes
         v = v.replace('\x00', '')
+        # Use bleach to clean HTML
+        v = bleach.clean(v, strip=True)
         # Remove excessive whitespace
         v = re.sub(r'\s+', ' ', v)
         # Limit to 5000 characters
@@ -517,8 +529,8 @@ def sanitize_input(text: str) -> str:
     
     # Remove null bytes
     text = text.replace('\x00', '')
-    # Remove script tags
-    text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    # Use bleach to clean HTML
+    text = bleach.clean(text, strip=True)
     # Remove excessive whitespace
     text = re.sub(r'\s+', ' ', text)
     # Limit length

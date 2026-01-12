@@ -23,10 +23,14 @@ def setup_logging():
         cache_logger_on_first_use=True,
     )
     
+    import os
+    env = os.getenv("ENV", "development")
+    log_level = logging.DEBUG if env == "development" else logging.INFO
+
     logging.basicConfig(
         format="%(message)s",
         stream=sys.stdout,
-        level=logging.INFO,
+        level=log_level,
     )
 
 logger = structlog.get_logger()
