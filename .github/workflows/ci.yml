@@ -134,7 +134,7 @@ jobs:
           sleep 10
           
           # Test health endpoint
-          curl -f http://localhost:5000/api/v1/health || exit 1
+          curl -f http://localhost:5000/api/v1/health || (docker logs test-container && exit 1)
           
           # Stop container
           docker stop test-container
