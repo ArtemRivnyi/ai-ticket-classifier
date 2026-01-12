@@ -49,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:5000/api/v1/health || exit 1
 
 # Run with Gunicorn
-CMD ["gunicorn", "--config", "gunicorn_config.py", "app:app"]
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "app:app"]
