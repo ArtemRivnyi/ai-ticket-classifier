@@ -155,8 +155,7 @@ class TestMultiProviderCoverage:
         
         # Mock gemini_classifier to raise exception  
         mock_gemini_classifier = Mock()
-        mock_gemini_classifier.model = Mock()
-        mock_gemini_classifier.model.generate_content = Mock(side_effect=Exception("Gemini error"))
+        mock_gemini_classifier.classify.side_effect = Exception("Gemini error")
         provider.gemini_classifier = mock_gemini_classifier
         
         # Set circuit breaker to CLOSED so it tries Gemini first
