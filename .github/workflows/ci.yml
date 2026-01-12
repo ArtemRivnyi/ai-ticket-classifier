@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ GEMINI_API_PROD_READY ]
   pull_request:
-    branches: [ main ]
+    branches: [ GEMINI_API_PROD_READY ]
 
 jobs:
   test:
@@ -66,7 +66,7 @@ jobs:
       
       - name: Run pylint
         run: |
-          pylint app.py classify.py --exit-zero
+          pylint app.py --exit-zero
       
       - name: Check formatting with black
         run: |
@@ -139,14 +139,14 @@ jobs:
           docker rm test-container
       
       - name: Login to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/GEMINI_API_PROD_READY'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
       - name: Push to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/GEMINI_API_PROD_READY'
         run: |
           docker tag ai-ticket-classifier:test ${{ secrets.DOCKER_USERNAME }}/ai-ticket-classifier:latest
           docker tag ai-ticket-classifier:test ${{ secrets.DOCKER_USERNAME }}/ai-ticket-classifier:${{ github.sha }}
@@ -154,19 +154,19 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/ai-ticket-classifier:${{ github.sha }}
 
   deploy:
-    name: Deploy to Production
+    name: Deploy to Render
     runs-on: ubuntu-latest
     needs: [docker]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/GEMINI_API_PROD_READY'
     
     steps:
-      - name: Deploy to Railway
-        # Customize this based on your deployment platform
+      - name: Deploy to Render
+        # Render auto-deploys on push to GEMINI_API_PROD_READY
         run: |
           echo "Deployment triggered for commit ${{ github.sha }}"
-          # Add your deployment commands here
-          # Example for Railway:
-          # curl -X POST ${{ secrets.RAILWAY_WEBHOOK_URL }}
+          echo "Render should auto-deploy this commit."
+          # Optional: Trigger Render Deploy Hook if auto-deploy is disabled
+          # curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
       
       - name: Notify deployment
         uses: 8398a7/action-slack@v3
@@ -174,6 +174,5 @@ jobs:
         with:
           status: ${{ job.status }}
           text: 'Deployment ${{ job.status }}'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
