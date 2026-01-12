@@ -20,7 +20,7 @@
 
 ## ✨ Key Features
 
-- **Multi-Provider AI**: Primary processing via Google Gemini 2.0 Flash, with automatic fallback to OpenAI GPT-4 for 99.9% reliability.
+- **Multi-Provider AI**: Primary processing via Google Gemini 2.0 Flash, with automatic fallback to OpenAI GPT-4 for enhanced resilience.
 - **Batch Processing**: Classify up to 100 tickets in a single API call or upload a CSV file.
 - **Enterprise Security**:
     - **Rate Limiting**: Redis-backed rate limiting (IP + API Key).
