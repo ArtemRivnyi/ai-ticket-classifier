@@ -191,7 +191,7 @@ def add_security_headers(response):
 
 
 # Initialize rate limiter with fallback to memory storage
-# Initialize rate limiter with fallback to memory storage
+
 try:
     from middleware.rate_limit import get_rate_limit_key
 except ImportError:
@@ -388,8 +388,7 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 # ===== PYDANTIC MODELS =====
 
 
-class TicketRequest(BaseModel):
-    ticket: str = Field(..., min_length=10, max_length=5000)
+
 
 
 class FeedbackRequest(BaseModel):
