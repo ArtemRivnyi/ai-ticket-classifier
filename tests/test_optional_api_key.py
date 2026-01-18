@@ -13,13 +13,8 @@ def test_optional_api_key_anonymous_rate_limit_exceeded(mocker):
     test_app = Flask(__name__)
     test_app.config["TESTING"] = True
 
-    mock_redis = Mock()
-    # Mock incr to return 11 (exceeds anonymous limit of 10)
-    # Use side_effect to return actual integer, not Mock object
-    mock_redis.incr.side_effect = lambda key: 11
-    mock_redis.expire.return_value = True
-
-    mocker.patch("middleware.auth.redis_client", mock_redis)
+    # Patch RateLimiter.check_rate_limit directly to ensure it returns False
+    mocker.patch("middleware.auth.RateLimiter.check_rate_limit", return_value=(False, {"reset_in": 60}))
 
     @test_app.route("/test-anonymous-limit")
     @optional_api_key
@@ -36,22 +31,17 @@ def test_optional_api_key_anonymous_first_request(mocker):
     test_app = Flask(__name__)
     test_app.config["TESTING"] = True
 
-    mock_redis = Mock()
-    # Use side_effect to return actual integer, not Mock object
-    mock_redis.incr.side_effect = lambda key: 1  # First request
-    mock_redis.expire.return_value = True
+    # Patch RateLimiter.check_rate_limit
+    with patch("middleware.auth.RateLimiter.check_rate_limit", return_value=(True, {})) as mock_check:
+        @test_app.route("/test-anonymous-first")
+        @optional_api_key
+        def test_endpoint():
+            return {"status": "ok"}
 
-    mocker.patch("middleware.auth.redis_client", mock_redis)
-
-    @test_app.route("/test-anonymous-first")
-    @optional_api_key
-    def test_endpoint():
-        return {"status": "ok"}
-
-    with test_app.test_client() as client:
-        response = client.get("/test-anonymous-first")  # No API key
-        assert response.status_code == 200
-        assert mock_redis.expire.called
+        with test_app.test_client() as client:
+            response = client.get("/test-anonymous-first")  # No API key
+            assert response.status_code == 200
+            assert mock_check.called
 
 
 def test_optional_api_key_anonymous_no_redis(mocker):

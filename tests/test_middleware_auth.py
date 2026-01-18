@@ -16,6 +16,16 @@ from flask import Flask, request
 import hashlib
 
 
+
+@pytest.fixture
+def mock_db_session(mocker):
+    """Mock database session"""
+    mock_session = Mock()
+    mock_db = Mock()
+    mock_session.return_value = mock_db
+    mocker.patch("middleware.auth.SessionLocal", mock_session)
+    return mock_db
+
 @pytest.fixture
 def mock_redis_client(mocker):
     """Mock Redis client"""
@@ -51,11 +61,20 @@ def test_api_key_manager_hash_key():
     assert hashed == hashlib.sha256(key.encode()).hexdigest()
 
 
-def test_api_key_manager_create_key(mock_redis_client):
+def test_api_key_manager_create_key(mock_redis_client, mock_db_session):
     """Test creating an API key"""
     mock_redis_client.hgetall.return_value = {}
-
-    key_data = APIKeyManager.create_key("user123", "Test Key", "free")
+    
+    # Patch APIKey to return a mock with created_at
+    with patch("middleware.auth.APIKey") as MockAPIKey:
+        mock_instance = MockAPIKey.return_value
+        mock_instance.id = 1
+        # Need a real datetime object for isoformat()
+        from datetime import datetime
+        mock_instance.created_at = datetime(2025, 1, 1)
+        
+        key_data = APIKeyManager.create_key("123", "Test Key", "free")
+        
     assert "key" in key_data
     assert "key_id" in key_data
     assert "tier" in key_data
@@ -64,19 +83,27 @@ def test_api_key_manager_create_key(mock_redis_client):
     assert mock_redis_client.sadd.called
 
 
-def test_api_key_manager_create_key_no_redis():
+def test_api_key_manager_create_key_no_redis(mock_db_session):
     """Test creating key when Redis is unavailable"""
     with patch("middleware.auth.redis_client", None):
         with patch("middleware.auth.ALLOW_PROVIDERLESS", False):
-            with pytest.raises(Exception, match="Redis not available"):
-                APIKeyManager.create_key("user123", "Test Key", "free")
+            with patch("middleware.auth.APIKey") as MockAPIKey:
+                mock_instance = MockAPIKey.return_value
+                mock_instance.id = 1
+                from datetime import datetime
+                mock_instance.created_at = datetime(2025, 1, 1)
+                
+                # Should succeed using DB only
+                key_data = APIKeyManager.create_key("123", "Test Key", "free")
+                assert "key" in key_data
+                assert "key_id" in key_data
 
 
 def test_api_key_manager_get_key_data(mock_redis_client):
     """Test getting key data"""
     mock_data = {
         "id": "key_id",
-        "user_id": "user123",
+        "user_id": "123",
         "tier": "free",
         "is_active": "true",
     }
@@ -109,57 +136,66 @@ def test_api_key_manager_get_key_data_not_found(mock_redis_client):
     assert key_data is None
 
 
-def test_api_key_manager_revoke_key(mock_redis_client):
+def test_api_key_manager_revoke_key(mock_redis_client, mock_db_session):
     """Test revoking an API key"""
     mock_redis_client.smembers.return_value = {"key_hash_1", "key_hash_2"}
     mock_redis_client.hgetall.side_effect = [
         {"id": "key_id_1", "is_active": "true"},
         {"id": "key_id_2", "is_active": "true"},
     ]
+    
+    # Mock DB finding the key
+    mock_key = Mock()
+    mock_key.key_hash = "key_hash_1"
+    mock_db_session.query.return_value.filter.return_value.first.return_value = mock_key
 
-    result = APIKeyManager.revoke_key("key_id_1", "user123")
+    result = APIKeyManager.revoke_key("1", "123") # key_id must be int-able
     assert result is True
     assert mock_redis_client.hset.called
 
 
-def test_api_key_manager_revoke_key_not_found(mock_redis_client):
+def test_api_key_manager_revoke_key_not_found(mock_redis_client, mock_db_session):
     """Test revoking non-existent key"""
     mock_redis_client.smembers.return_value = {"key_hash_1"}
     mock_redis_client.hgetall.return_value = {"id": "other_key_id"}
+    
+    # Mock DB not finding the key
+    mock_db_session.query.return_value.filter.return_value.first.return_value = None
 
-    result = APIKeyManager.revoke_key("key_id_1", "user123")
+    result = APIKeyManager.revoke_key("1", "123")
     assert result is False
 
 
-def test_api_key_manager_list_user_keys(mock_redis_client):
+def test_api_key_manager_list_user_keys(mock_redis_client, mock_db_session):
     """Test listing user keys"""
-    mock_redis_client.smembers.return_value = {"key_hash_1"}
-    mock_redis_client.hgetall.return_value = {
-        "id": "key_id_1",
-        "name": "Key 1",
-        "tier": "free",
-        "is_active": "true",
-        "created_at": "2025-01-01T00:00:00Z",
-        "last_used": "",
-        "requests_count": "10",
-    }
+    # Mock DB returning keys
+    mock_key = Mock()
+    mock_key.id = 1
+    mock_key.name = "Key 1"
+    mock_key.tier = "free"
+    mock_key.is_active = True
+    mock_key.created_at.isoformat.return_value = "2025-01-01T00:00:00Z"
+    mock_key.last_used = None
+    mock_key.total_requests = 10
+    
+    mock_db_session.query.return_value.filter.return_value.all.return_value = [mock_key]
 
-    keys = APIKeyManager.list_user_keys("user123")
+    keys = APIKeyManager.list_user_keys("123")
     assert len(keys) == 1
-    assert keys[0]["id"] == "key_id_1"
+    assert keys[0]["id"] == "1"
     assert keys[0]["is_active"] is True
 
 
 def test_rate_limiter_check_rate_limit_no_redis(mock_redis_client):
     """Test rate limiter when Redis is unavailable"""
     with patch("middleware.auth.redis_client", None):
-        allowed, info = RateLimiter.check_rate_limit("user123", "free")
+        allowed, info = RateLimiter.check_rate_limit("123", "free")
         assert allowed is True  # Should allow when Redis unavailable
 
 
 def test_rate_limiter_check_rate_limit_enterprise(mock_redis_client):
     """Test rate limiter for enterprise tier (unlimited)"""
-    allowed, info = RateLimiter.check_rate_limit("user123", "enterprise")
+    allowed, info = RateLimiter.check_rate_limit("123", "enterprise")
     assert allowed is True
     # Enterprise tier may return 'remaining': 'unlimited' or actual limits
     assert "remaining" in info or "hourly_limit" in info
@@ -170,7 +206,7 @@ def test_rate_limiter_check_rate_limit_free(mock_redis_client):
     mock_redis_client.incr.return_value = 50  # 50 requests in current hour
     mock_redis_client.ttl.return_value = 3600
 
-    allowed, info = RateLimiter.check_rate_limit("user123", "free")
+    allowed, info = RateLimiter.check_rate_limit("123", "free")
     assert allowed is True
     assert info["hourly_limit"] == 100
     assert info["hourly_remaining"] >= 0  # May be calculated differently
@@ -197,7 +233,7 @@ def test_rate_limiter_exceeded_limit(mock_redis_client):
     # Ensure redis_client is set
     middleware.auth.redis_client = mock_redis_client
 
-    allowed, info = RateLimiter.check_rate_limit("user123", "free")
+    allowed, info = RateLimiter.check_rate_limit("123", "free")
     # Should be False because 101 > 100 (free tier limit)
     # The logic checks hourly limit first
     if not allowed:
@@ -254,7 +290,7 @@ def test_require_api_key_decorator_inactive_key(mocker):
     test_app = Flask(__name__)
     test_app.config["TESTING"] = True
 
-    mock_key_data = {"user_id": "user123", "tier": "free", "is_active": "false"}
+    mock_key_data = {"user_id": "123", "tier": "free", "is_active": False}
     mocker.patch.object(APIKeyManager, "get_key_data", return_value=mock_key_data)
 
     @test_app.route("/test")
@@ -275,7 +311,7 @@ def test_require_api_key_decorator_success(mocker):
     test_app = Flask(__name__)
     test_app.config["TESTING"] = True
 
-    mock_key_data = {"user_id": "user123", "tier": "free", "is_active": "true"}
+    mock_key_data = {"user_id": "123", "tier": "free", "is_active": True}
     mocker.patch.object(APIKeyManager, "get_key_data", return_value=mock_key_data)
     mocker.patch.object(
         RateLimiter,
@@ -301,7 +337,7 @@ def test_optional_api_key_with_key(mocker):
     test_app = Flask(__name__)
     test_app.config["TESTING"] = True
 
-    mock_key_data = {"user_id": "user123", "tier": "free", "is_active": "true"}
+    mock_key_data = {"user_id": "123", "tier": "free", "is_active": True}
     mocker.patch.object(APIKeyManager, "get_key_data", return_value=mock_key_data)
     mocker.patch.object(RateLimiter, "check_rate_limit", return_value=(True, {}))
 

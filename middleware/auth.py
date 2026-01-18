@@ -239,10 +239,27 @@ class RateLimiter:
                 "remaining": 0,
                 "reset_in": redis_client.ttl(hour_key),
             }
+            
+        # Check daily limit
+        if limits["requests_per_day"] != -1:
+            day_key = f"rate_limit:day:{user_id}"
+            day_count = redis_client.incr(day_key)
+            
+            if day_count == 1:
+                redis_client.expire(day_key, 86400)
+                
+            if day_count > limits["requests_per_day"]:
+                return False, {
+                    "limit": limits["requests_per_day"],
+                    "remaining": 0,
+                    "reset_in": redis_client.ttl(day_key),
+                }
         
         return True, {
             "hourly_limit": limits["requests_per_hour"],
             "hourly_remaining": limits["requests_per_hour"] - hour_count,
+            "daily_limit": limits["requests_per_day"],
+            "daily_remaining": max(0, limits["requests_per_day"] - (redis_client.get(f"rate_limit:day:{user_id}") or 0) if limits["requests_per_day"] != -1 else -1)
         }
 
 
@@ -304,5 +321,13 @@ def optional_api_key(f):
         # Anonymous fallback
         g.user_id = f"anon:{request.remote_addr}"
         g.tier = "free"
+        
+        allowed, rate_info = RateLimiter.check_rate_limit(g.user_id, g.tier)
+        if not allowed:
+            return jsonify({
+                "error": "Rate limit exceeded",
+                "retry_after": rate_info.get("reset_in")
+            }), 429
+            
         return f(*args, **kwargs)
     return decorated_function

@@ -20,10 +20,18 @@ class TestMiddlewareAuthCoverage:
                 # Reload module to pick up the environment variable change
                 importlib.reload(middleware.auth)
                 try:
-                    with pytest.raises(Exception, match="Redis not available"):
-                        middleware.auth.APIKeyManager.create_key(
-                            "user1", "test_key", "free"
-                        )
+                    # Patch DB and APIKey
+                    with patch("middleware.auth.SessionLocal") as mock_session:
+                        with patch("middleware.auth.APIKey") as MockAPIKey:
+                            mock_instance = MockAPIKey.return_value
+                            mock_instance.id = 1
+                            from datetime import datetime
+                            mock_instance.created_at = datetime(2025, 1, 1)
+                            
+                            key_data = middleware.auth.APIKeyManager.create_key(
+                                "123", "test_key", "free"
+                            )
+                            assert "key" in key_data
                 finally:
                     # Reload again to restore original state
                     importlib.reload(middleware.auth)
@@ -47,13 +55,13 @@ class TestMiddlewareAuthCoverage:
     def test_api_key_manager_revoke_key_no_redis(self, mocker):
         """Test APIKeyManager.revoke_key when Redis is not available"""
         with patch("middleware.auth.redis_client", None):
-            result = middleware.auth.APIKeyManager.revoke_key("key_id", "user1")
+            result = middleware.auth.APIKeyManager.revoke_key("key_id", "1")
             assert result is False
 
     def test_api_key_manager_list_user_keys_no_redis(self, mocker):
         """Test APIKeyManager.list_user_keys when Redis is not available"""
         with patch("middleware.auth.redis_client", None):
-            result = middleware.auth.APIKeyManager.list_user_keys("user1")
+            result = middleware.auth.APIKeyManager.list_user_keys("1")
             assert result == []
 
     def test_api_key_manager_revoke_key_not_found(self, mocker):
@@ -63,7 +71,7 @@ class TestMiddlewareAuthCoverage:
         mock_redis.hgetall.side_effect = [{"id": "other_id"}, {"id": "other_id2"}]
 
         with patch("middleware.auth.redis_client", mock_redis):
-            result = middleware.auth.APIKeyManager.revoke_key("key_id", "user1")
+            result = middleware.auth.APIKeyManager.revoke_key("key_id", "1")
             assert result is False
 
     def test_rate_limiter_check_rate_limit_no_redis(self, mocker):
@@ -78,7 +86,7 @@ class TestMiddlewareAuthCoverage:
             middleware.auth.redis_client = None
             # When Redis is None, check_rate_limit should return (True, {})
             allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "user1", "free"
+                "1", "free"
             )
             assert allowed is True
             # When Redis is None, info should be empty dict
@@ -96,7 +104,7 @@ class TestMiddlewareAuthCoverage:
         mock_redis = MagicMock()
         with patch("middleware.auth.redis_client", mock_redis):
             allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "user1", "enterprise"
+                "1", "enterprise"
             )
             assert allowed is True
             assert "remaining" in info
@@ -116,7 +124,7 @@ class TestMiddlewareAuthCoverage:
 
         with patch("middleware.auth.redis_client", mock_redis):
             allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "user1", "free"
+                "1", "free"
             )
             assert allowed is False
             assert "limit" in info or "remaining" in info or "hourly_limit" in info
@@ -144,7 +152,7 @@ class TestMiddlewareAuthCoverage:
 
         with patch("middleware.auth.redis_client", mock_redis):
             allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "user1", "free"
+                "1", "free"
             )
             assert allowed is False
             assert "limit" in info
@@ -160,10 +168,11 @@ class TestMiddlewareAuthCoverage:
         mock_redis.incr.return_value = 1  # First request
         mock_redis.expire.return_value = True
         mock_redis.ttl.return_value = 3600
+        mock_redis.get.return_value = 1
 
         with patch("middleware.auth.redis_client", mock_redis):
             allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "user1", "free"
+                "1", "free"
             )
             assert allowed is True
             # expire should be called for both hour and day keys
@@ -186,9 +195,9 @@ class TestMiddlewareAuthCoverage:
     def test_require_api_key_inactive_key(self, client, mocker):
         """Test require_api_key decorator with inactive API key"""
         mock_key_data = {
-            "user_id": "user1",
+            "user_id": "1",
             "tier": "free",
-            "is_active": "false",  # Inactive
+            "is_active": False,  # Inactive
         }
         with patch(
             "middleware.auth.APIKeyManager.get_key_data", return_value=mock_key_data

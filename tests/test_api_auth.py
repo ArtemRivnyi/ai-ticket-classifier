@@ -39,6 +39,7 @@ def test_register_success(client, mocker):
         "email": "test@example.com",
         "name": "Test User",
         "organization": "Test Org",
+        "password": "securepassword123"
     }
 
     response = client.post("/api/v1/auth/register", json=payload)
@@ -62,7 +63,7 @@ def test_register_validation_error(client):
 
 def test_register_missing_fields(client):
     """Test registration with missing required fields"""
-    payload = {"email": "test@example.com"}
+    payload = {"email": "test@example.com", "password": "password123"}
 
     response = client.post("/api/v1/auth/register", json=payload)
     assert response.status_code == 400
@@ -145,7 +146,7 @@ def test_usage(client, headers):
 
 def test_jwt_login_success(client, mocker):
     """Test JWT login with valid API key"""
-    mock_key_data = {"user_id": "test_user", "tier": "free", "is_active": "true"}
+    mock_key_data = {"user_id": "test_user", "tier": "free", "is_active": True}
     mocker.patch("api.auth.APIKeyManager.get_key_data", return_value=mock_key_data)
     mocker.patch("security.jwt_auth.generate_jwt_token", return_value="test_jwt_token")
 
@@ -174,7 +175,7 @@ def test_jwt_login_no_key(client):
 
 def test_jwt_login_inactive_key(client, mocker):
     """Test JWT login with inactive API key"""
-    mock_key_data = {"user_id": "test_user", "tier": "free", "is_active": "false"}
+    mock_key_data = {"user_id": "test_user", "tier": "free", "is_active": False}
     mocker.patch("api.auth.APIKeyManager.get_key_data", return_value=mock_key_data)
 
     headers = {"X-API-Key": "inactive_key"}
