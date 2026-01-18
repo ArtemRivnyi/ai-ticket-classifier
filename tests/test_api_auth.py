@@ -4,15 +4,24 @@ Tests all endpoints and edge cases
 """
 
 import pytest
+from unittest.mock import Mock
 from flask import Flask
-from app import app
 from api.auth import auth_bp, UserRegistration, CreateAPIKey
 
 
 @pytest.fixture
-def client():
-    """Create test client"""
+def app():
+    """Create test app"""
+    app = Flask(__name__)
     app.config["TESTING"] = True
+    app.config["SECRET_KEY"] = "test-secret"
+    app.register_blueprint(auth_bp)
+    return app
+
+
+@pytest.fixture
+def client(app):
+    """Create test client"""
     with app.test_client() as client:
         yield client
 
@@ -23,7 +32,14 @@ def headers(api_key):
     return {"X-API-Key": api_key, "Content-Type": "application/json"}
 
 
-def test_register_success(client, mocker):
+@pytest.fixture
+def mock_db_session(mocker):
+    mock_session = Mock()
+    mocker.patch("api.auth.SessionLocal", return_value=mock_session)
+    return mock_session
+
+
+def test_register_success(client, mocker, mock_db_session):
     """Test successful user registration"""
     # Mock APIKeyManager
     mock_key_data = {
@@ -34,6 +50,9 @@ def test_register_success(client, mocker):
     }
     mocker.patch("api.auth.APIKeyManager.create_key", return_value=mock_key_data)
     mocker.patch("security.jwt_auth.generate_jwt_token", return_value="test_jwt_token")
+
+    # Mock DB query to return None (user doesn't exist)
+    mock_db_session.query.return_value.filter.return_value.first.return_value = None
 
     payload = {
         "email": "test@example.com",

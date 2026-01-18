@@ -32,6 +32,14 @@ services:
         value: "*"
       - key: FORCE_HTTPS
         value: "true"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_STARTER
+        sync: false
+      - key: STRIPE_PRICE_PRO
+        sync: false
 
   - type: redis
     name: ticket-classifier-redis

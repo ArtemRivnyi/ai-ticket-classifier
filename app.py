@@ -103,6 +103,9 @@ elif settings.SENTRY_DSN and not sentry_available:
     logger.warning("⚠️ SENTRY_DSN set but sentry_sdk module not found")
 
 
+# Initialize Flask App
+app = Flask(__name__, static_folder="static", template_folder="templates")
+
 # Validate environment configuration
 env_status = validate_environment(skip_failure=_is_testing)
 ALLOW_PROVIDERLESS = os.getenv("ALLOW_PROVIDERLESS", "false").lower() == "true"
@@ -123,21 +126,6 @@ if not env_status.is_valid:
 
 REQUEST_ID_HEADER = "X-Request-ID"
 
-# Initialize Flask app
-app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-this-in-production")
-
-# Initialize Database
-try:
-    from database.models import init_db
-    with app.app_context():
-        init_db()
-        logger.info("✅ Database initialized")
-except Exception as e:
-    logger.error(f"❌ Database initialization failed: {e}")
-
-
-# CORS configuration for production
 settings = get_settings()
 allowed_origins = settings.cors_origins_list()
 if not allowed_origins:
@@ -328,11 +316,13 @@ except Exception as e:
 
 try:
     from api.auth import auth_bp
+    from api.billing import billing_bp
 
     app.register_blueprint(auth_bp)
-    logger.info("✅ Auth blueprint registered")
+    app.register_blueprint(billing_bp)
+    logger.info("✅ Auth and Billing blueprints registered")
 except Exception as e:
-    logger.warning(f"⚠️ Auth blueprint not available: {e}")
+    logger.warning(f"⚠️ Blueprints not available: {e}")
 
 try:
     from monitoring.metrics import (
@@ -379,6 +369,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Feedback blueprint not available: {e}")
 
+try:
+    from api.webhooks import webhooks_bp
+
+    app.register_blueprint(webhooks_bp)
+    logger.info("✅ Webhooks blueprint registered")
+except Exception as e:
+    logger.warning(f"⚠️ Webhooks blueprint not available: {e}")
+
 # Swagger UI Configuration
 SWAGGER_URL = "/docs"
 API_URL = "/static/swagger.json"
@@ -421,6 +419,18 @@ def about():
 def evaluation():
     """Render the evaluation page."""
     return render_template("evaluation.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    """Dashboard page"""
+    return render_template("dashboard.html")
+
+
+@app.route("/billing")
+def billing():
+    """Billing page"""
+    return render_template("billing.html")
 
 
 @app.route("/api/v1/evaluation-results")

@@ -61,8 +61,11 @@ class TestMiddlewareAuthCoverage:
     def test_api_key_manager_list_user_keys_no_redis(self, mocker):
         """Test APIKeyManager.list_user_keys when Redis is not available"""
         with patch("middleware.auth.redis_client", None):
-            result = middleware.auth.APIKeyManager.list_user_keys("1")
-            assert result == []
+            with patch("middleware.auth.SessionLocal") as mock_session:
+                # Mock empty list return
+                mock_session.return_value.query.return_value.filter.return_value.all.return_value = []
+                result = middleware.auth.APIKeyManager.list_user_keys("1")
+                assert result == []
 
     def test_api_key_manager_revoke_key_not_found(self, mocker):
         """Test APIKeyManager.revoke_key when key not found"""

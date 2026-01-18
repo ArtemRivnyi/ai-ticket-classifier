@@ -239,3 +239,56 @@ def jwt_login():
     except Exception as e:
         logger.error(f"JWT login error: {e}")
         return jsonify({"error": "Login failed"}), 500
+
+
+class UserLogin(BaseModel):
+    email: EmailStr = Field(..., description="User email")
+    password: str = Field(..., description="Password")
+
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    """Login with email and password to get JWT token"""
+    try:
+        data = UserLogin(**request.json)
+        
+        db: Session = SessionLocal()
+        try:
+            user = db.query(User).filter(User.email == data.email).first()
+            
+            if not user or not check_password_hash(user.password_hash, data.password):
+                return jsonify({"error": "Invalid email or password"}), 401
+                
+            # Generate JWT token
+            from security.jwt_auth import generate_jwt_token
+            
+            # Get user's tier (assuming stored on user or default to free)
+            # For now, we'll use a default or fetch if we add tier to User model
+            tier = "free" 
+            if hasattr(user, "tier") and user.tier:
+                tier = user.tier
+
+            jwt_token = generate_jwt_token(
+                user_id=str(user.id), 
+                tier=tier,
+                email=user.email
+            )
+            
+            return jsonify({
+                "jwt_token": jwt_token,
+                "expires_in": int(os.getenv("JWT_EXPIRATION_HOURS", "24")),
+                "user": {
+                    "id": str(user.id),
+                    "email": user.email,
+                    "tier": tier
+                }
+            }), 200
+            
+        finally:
+            db.close()
+
+    except ValidationError as e:
+        return jsonify({"error": "Validation error", "details": e.errors()}), 400
+    except Exception as e:
+        logger.error(f"Login error: {e}")
+        return jsonify({"error": "Login failed"}), 500
