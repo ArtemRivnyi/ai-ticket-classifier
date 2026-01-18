@@ -7,6 +7,8 @@ from pydantic import BaseModel, EmailStr, Field, ValidationError
 import secrets
 import logging
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.orm import Session
 
 # Import after middleware is created
 try:
@@ -14,6 +16,8 @@ try:
 except ImportError:
     APIKeyManager = None
     require_api_key = lambda f: f
+
+from database.models import SessionLocal, User
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +28,7 @@ class UserRegistration(BaseModel):
     email: EmailStr = Field(..., description="User email")
     organization: str = Field(..., min_length=2, max_length=100)
     name: str = Field(..., min_length=2, max_length=100)
+    password: str = Field(..., min_length=8, description="Password")
 
 
 class CreateAPIKey(BaseModel):
@@ -35,51 +40,71 @@ def register():
     """Register a new user and get their first API key and JWT token"""
     try:
         data = UserRegistration(**request.json)
-        user_id = f"usr_{secrets.token_urlsafe(16)}"
-
-        # Generate API key
-        api_key_data = None
-        if APIKeyManager:
-            api_key_data = APIKeyManager.create_key(
-                user_id=user_id, name="Default Key", tier="free"
-            )
-
-        # Generate JWT token
-        jwt_token = None
+        
+        db: Session = SessionLocal()
         try:
-            from security.jwt_auth import generate_jwt_token
-
-            jwt_token = generate_jwt_token(
-                user_id=user_id, tier="free", email=data.email
+            # Check if user exists
+            existing_user = db.query(User).filter(User.email == data.email).first()
+            if existing_user:
+                return jsonify({"error": "Email already registered"}), 409
+            
+            # Create user
+            new_user = User(
+                email=data.email,
+                password_hash=generate_password_hash(data.password),
+                role="user"
             )
-        except Exception as e:
-            logger.warning(f"JWT generation failed: {e}")
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
+            
+            user_id = str(new_user.id)
+            
+            # Generate API key
+            api_key_data = None
+            if APIKeyManager:
+                api_key_data = APIKeyManager.create_key(
+                    user_id=user_id, name="Default Key", tier="free"
+                )
 
-        logger.info(f"New user registered: {user_id} ({data.email})")
+            # Generate JWT token
+            jwt_token = None
+            try:
+                from security.jwt_auth import generate_jwt_token
 
-        response = {
-            "user_id": user_id,
-            "email": data.email,
-            "organization": data.organization,
-            "name": data.name,
-            "tier": "free",
-            "limits": {
-                "requests_per_hour": 100,
-                "requests_per_day": 1000,
-                "batch_size": 10,
-            },
-            "message": "Registration successful! Save your credentials - they will only be shown once.",
-        }
+                jwt_token = generate_jwt_token(
+                    user_id=user_id, tier="free", email=data.email
+                )
+            except Exception as e:
+                logger.warning(f"JWT generation failed: {e}")
 
-        if api_key_data:
-            response["api_key"] = api_key_data.get("key")
-            response["api_key_id"] = api_key_data.get("key_id")
+            logger.info(f"New user registered: {user_id} ({data.email})")
 
-        if jwt_token:
-            response["jwt_token"] = jwt_token
-            response["jwt_expires_in"] = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
+            response = {
+                "user_id": user_id,
+                "email": data.email,
+                "organization": data.organization,
+                "name": data.name,
+                "tier": "free",
+                "limits": {
+                    "requests_per_hour": 100,
+                    "requests_per_day": 1000,
+                },
+                "message": "Registration successful! Save your credentials - they will only be shown once.",
+            }
 
-        return jsonify(response), 201
+            if api_key_data:
+                response["api_key"] = api_key_data.get("key")
+                response["api_key_id"] = api_key_data.get("key_id")
+
+            if jwt_token:
+                response["jwt_token"] = jwt_token
+                response["jwt_expires_in"] = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
+
+            return jsonify(response), 201
+            
+        finally:
+            db.close()
 
     except ValidationError as e:
         return jsonify({"error": "Validation error", "details": e.errors()}), 400
@@ -93,7 +118,11 @@ def register():
 def list_keys():
     """List all API keys for current user"""
     try:
-        user_id = request.user_id
+        user_id = request.user_id # This comes from middleware, which gets it from API Key
+        # If user_id is None (e.g. master key), handle it
+        if not user_id:
+             return jsonify({"error": "User context required"}), 400
+             
         keys = APIKeyManager.list_user_keys(user_id)
 
         return jsonify({"keys": keys, "total": len(keys)}), 200
@@ -187,7 +216,7 @@ def jwt_login():
             return jsonify({"error": "JWT service unavailable"}), 503
 
         key_data = APIKeyManager.get_key_data(api_key)
-        if not key_data or key_data.get("is_active") != "true":
+        if not key_data or not key_data.get("is_active"):
             return jsonify({"error": "Invalid API key"}), 401
 
         from security.jwt_auth import generate_jwt_token

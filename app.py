@@ -127,6 +127,15 @@ REQUEST_ID_HEADER = "X-Request-ID"
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-this-in-production")
 
+# Initialize Database
+try:
+    from database.models import init_db
+    with app.app_context():
+        init_db()
+        logger.info("✅ Database initialized")
+except Exception as e:
+    logger.error(f"❌ Database initialization failed: {e}")
+
 
 # CORS configuration for production
 settings = get_settings()

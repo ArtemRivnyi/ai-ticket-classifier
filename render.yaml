@@ -24,6 +24,10 @@ services:
           type: redis
           name: ticket-classifier-redis
           property: connectionString
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ticket-classifier-db
+          property: connectionString
       - key: CORS_ORIGINS
         value: "*"
       - key: FORCE_HTTPS
@@ -33,3 +37,16 @@ services:
     name: ticket-classifier-redis
     ipAllowList: [] # Only allow internal connections
     plan: free # Use free tier if available, otherwise starter
+
+  - type: psql
+    name: ticket-classifier-db
+    env: docker
+    plan: free # Free tier for 90 days
+    databaseName: ai_ticket_classifier
+    user: classifier
+
+databases:
+  - name: ticket-classifier-db
+    plan: free
+    databaseName: ai_ticket_classifier
+    user: classifier

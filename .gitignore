@@ -92,3 +92,13 @@ test_output.txt
 
 # Duplicate venvs
 venv312/
+
+# Database
+*.db
+*.sqlite
+postgres_data/
+local.db
+
+# Garbage / Mistake files
+[auth]
+[internal]
