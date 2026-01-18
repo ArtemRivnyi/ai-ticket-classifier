@@ -35,7 +35,7 @@ cryptography==44.0.1
 # Database
 SQLAlchemy==2.0.31
 psycopg2-binary
-stripe==2.9.9
+stripe>=10.0.0
 
 # Utilities
 requests==2.32.3
