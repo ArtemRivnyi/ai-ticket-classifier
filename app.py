@@ -432,6 +432,18 @@ def billing():
     return render_template("billing.html")
 
 
+@app.route("/login")
+def login():
+    """Login page"""
+    return render_template("login.html")
+
+
+@app.route("/register")
+def register():
+    """Register page"""
+    return render_template("register.html")
+
+
 @app.route("/api/v1/evaluation-results")
 def evaluation_results():
     """Serve the evaluation results JSON."""

@@ -166,7 +166,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const randomBtn = document.createElement('button');
         randomBtn.className = 'example-btn text-xs px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition font-medium';
         randomBtn.innerHTML = '🎲 Random Example';
-        randomBtn.onclick = () => loadRandomExample();
+
+        // Define function before usage or ensure it's available
+        const loadRandomExample = () => {
+            const randomSample = samples[Math.floor(Math.random() * samples.length)];
+            if (ticketInput) {
+                ticketInput.value = randomSample;
+                ticketInput.focus();
+            }
+        };
+
+        randomBtn.onclick = loadRandomExample;
         exampleButtonsContainer.appendChild(randomBtn);
     }
 
@@ -338,6 +348,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderHistory(history) {
         const historyList = document.getElementById('historyList');
+        if (!historyList) return; // Safety check
+
         historyList.innerHTML = '';
 
         if (history.length === 0) {
@@ -416,12 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Alias for backward compatibility
     window.loadExample = window.tryExample;
 
-    // Random example function
-    window.loadRandomExample = function () {
-        const randomSample = samples[Math.floor(Math.random() * samples.length)];
-        ticketInput.value = randomSample;
-        ticketInput.focus();
-    };
+
 
     // CSV Upload Handler
     const csvForm = document.getElementById('csvUploadForm');
