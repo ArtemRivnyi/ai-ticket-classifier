@@ -165,6 +165,7 @@ def add_security_headers(response):
         "style-src": [
             "'self'",
             "'unsafe-inline'",
+            "https://cdn.tailwindcss.com",
             "https://fonts.googleapis.com",
             "https://cdnjs.cloudflare.com",
         ],
