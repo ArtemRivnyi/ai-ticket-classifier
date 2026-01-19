@@ -608,32 +608,32 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 0 00-1 1v3M4 7h16">
                         </path>
-                    </svg>
-                    Clear History
-                </button>
+                        <p class="text-slate-500 mb-1">Provider</p>
+                        <p id="resProvider" class="font-medium text-slate-900">Gemini</p>
             </div>
-            <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- History items will be injected here -->
+            <div class="p-3 bg-white rounded-lg border border-slate-100">
+                <p class="text-slate-500 mb-1">Request ID</p>
+                <p id="resReqId" class="font-medium text-slate-900 truncate" title="">-</p>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="bg-slate-900 text-slate-300 py-12">
-            <div class="container mx-auto px-4 max-w-5xl">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                    <div class="col-span-1 md:col-span-2">
-                        <div class="flex items-center gap-2 mb-4">
-                            <span class="text-xl font-bold text-white tracking-tight">Ticket<span
-                                    class="text-indigo-500">AI</span></span>
-                        </div>
-                        <p class="text-sm text-slate-400 max-w-xs">
-                            Automating customer support with advanced AI classification. Built for speed and accuracy.
-                            </button>
-                    </div>
-                    <p id="feedbackConfirmation" class="hidden text-sm text-green-600 font-medium mt-2">Thanks for
-                        your feedback!</p>
-                </div>
+        <!-- Feedback Section -->
+        <div id="feedbackSection" class="hidden mt-6 pt-6 border-t border-slate-100 text-center">
+            <p class="text-sm text-slate-600 mb-3">Was this classification correct?</p>
+            <div class="flex justify-center gap-2">
+                <button onclick="sendFeedback(true)"
+                    class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition">
+                    👍 Yes
+                </button>
+                <button onclick="sendFeedback(false)"
+                    class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition">
+                    👎 No
+                </button>
             </div>
+            <p id="feedbackConfirmation" class="hidden text-sm text-green-600 font-medium mt-2">Thanks for
+                your feedback!</p>
+        </div>
+    </div>
     </div>
     </div>
 
