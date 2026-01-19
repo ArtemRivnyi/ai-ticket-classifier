@@ -156,7 +156,9 @@ def add_security_headers(response):
         "default-src": ["'self'"],
         "script-src": [
             "'self'",
-            "'unsafe-inline'",  # Needed for some UI frameworks/inline scripts
+            "'unsafe-inline'",
+            "'unsafe-eval'",  # Required for Tailwind CDN JIT
+            "blob:",          # Required for Tailwind CDN worker
             "https://cdn.tailwindcss.com",
             "https://cdnjs.cloudflare.com",
         ],
