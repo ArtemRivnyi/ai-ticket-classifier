@@ -444,6 +444,30 @@ def register():
     return render_template("register.html")
 
 
+@app.route("/contact")
+def contact():
+    """Contact page"""
+    return render_template("contact.html")
+
+
+@app.route("/privacy")
+def privacy():
+    """Privacy Policy page"""
+    return render_template("privacy.html")
+
+
+@app.route("/terms")
+def terms():
+    """Terms of Service page"""
+    return render_template("terms.html")
+
+
+@app.route("/cookies")
+def cookies():
+    """Cookie Policy page"""
+    return render_template("cookies.html")
+
+
 @app.route("/api/v1/evaluation-results")
 def evaluation_results():
     """Serve the evaluation results JSON."""

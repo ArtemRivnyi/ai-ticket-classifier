@@ -380,85 +380,45 @@
                     <ul class="space-y-3 mb-8 text-sm text-slate-600">
                         <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Unlimited requests</li>
                         <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Custom Model Training
-                        </li>
-                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Dedicated Account
-                            Manager</li>
-                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> SLA Guarantee</li>
-                    </ul>
-                    <a href="mailto:sales@example.com"
-                        class="block w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium rounded-lg text-center transition">Contact
-                        Sales</a>
-                </div>
-            </div>
-        </div>
-    </div>
+                            <!-- History Section -->
+                            <div class="mt-16 border-t border-slate-200 pt-12 mb-16">
+                                <div class="flex items-center justify-between mb-8">
+                                    <h2 class="text-2xl font-bold text-slate-800">Classification History</h2>
+                                    <button id="clearHistoryBtn"
+                                        class="text-sm text-slate-500 hover:text-red-600 font-medium transition flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                        Clear History
+                                    </button>
+                                </div>
+                                <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <!-- History items will be injected here -->
+                                </div>
+                            </div>
 
-    <!-- History Section -->
-    <div class="mt-16 border-t border-slate-200 pt-12 mb-16">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-bold text-slate-800">Classification History</h2>
-            <button id="clearHistoryBtn"
-                class="text-sm text-slate-500 hover:text-red-600 font-medium transition flex items-center">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                    </path>
-                </svg>
-                Clear History
-            </button>
-        </div>
-        <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- History items will be injected here -->
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-300 py-12">
-        <div class="container mx-auto px-4 max-w-5xl">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-xl font-bold text-white tracking-tight">Ticket<span
-                                class="text-indigo-500">AI</span></span>
-                    </div>
-                    <p class="text-sm text-slate-400 max-w-xs">
-                        Automating customer support with advanced AI classification. Built for speed and accuracy.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="text-white font-semibold mb-4">Product</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
-                        <li><a href="/docs" class="hover:text-white transition">API Docs</a></li>
-                        <li><a href="/evaluation" class="hover:text-white transition">Evaluation</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-semibold mb-4">Company</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="/about" class="hover:text-white transition">About</a></li>
-                        <li><a href="mailto:support@ticketai.com" class="hover:text-white transition">Contact</a></li>
-                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div
-                class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-                <p>&copy; 2025 TicketAI. All rights reserved.</p>
-                <div class="flex gap-4 mt-4 md:mt-0">
-                    <a href="#" class="hover:text-white transition">Terms</a>
-                    <a href="#" class="hover:text-white transition">Privacy</a>
-                    <a href="#" class="hover:text-white transition">Cookies</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        window.DEMO_API_KEY = "{{ demo_api_key }}";
-    </script>
-    <script src="/static/js/app.js"></script>
-
-</body>
+                            <!-- Footer -->
+                            <footer class="bg-slate-900 text-slate-300 py-12">
+                                <div class="container mx-auto px-4 max-w-5xl">
+                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                                        <div class="col-span-1 md:col-span-2">
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <span class="text-xl font-bold text-white tracking-tight">Ticket<span
+                                                        class="text-indigo-500">AI</span></span>
+                                            </div>
+                                            <p class="text-sm text-slate-400 max-w-xs">
+                                                Automating customer support with advanced AI classification. Built for
+                                                speed and accuracy.
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-white font-semibold mb-4">Product</h4>
+                                            <ul class="space-y-2 text-sm">
+                                                <li><a href="#pricing" class="hover:text-white transition">Pricing</a>
+                                                </li>
+                                                <li><a href="/docs" class="hover:text-white transition">API Docs</a>
+                                                </li>
 
 </html>
