@@ -8,6 +8,18 @@
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -15,41 +27,74 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900">
-    <div class="container mx-auto px-4 py-12 max-w-4xl">
-        <div class="mb-8">
-            <a href="/" class="text-indigo-600 hover:text-indigo-800 font-medium transition">&larr; Back to Home</a>
-        </div>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-white transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Navbar -->
+        <nav class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-2">
+                <a href="/" class="flex items-center gap-2 group">
+                    <div class="bg-indigo-600 text-white p-2 rounded-lg group-hover:bg-indigo-700 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Ticket<span
+                            class="text-indigo-600">AI</span></span>
+                </a>
+            </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-12">
+            <div class="flex items-center gap-4">
+                <a href="/"
+                    class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition">Home</a>
+                <button id="themeToggle"
+                    class="p-2 text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 transition"
+                    title="Toggle Dark Mode">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+        </nav>
+
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12 transition-colors duration-200">
             <h1 class="text-3xl font-bold mb-8">Cookie Policy</h1>
-            <p class="text-slate-500 mb-8">Last updated: January 2026</p>
+            <p class="text-slate-500 dark:text-slate-400 mb-8">Last updated: January 2026</p>
 
-            <div class="prose prose-slate max-w-none">
-                <h2 class="text-xl font-semibold mb-4">1. What Are Cookies</h2>
-                <p class="mb-6 text-slate-600">As is common practice with almost all professional websites this site
-                    uses cookies, which are tiny files that are downloaded to your computer, to improve your experience.
-                </p>
+            <div class="prose prose-slate dark:prose-invert max-w-none">
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">1. What Are Cookies</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">As is common practice with almost all professional
+                    websites this site uses
+                    cookies, which are tiny files that are downloaded to your computer, to improve your
+                    experience.</p>
 
-                <h2 class="text-xl font-semibold mb-4">2. How We Use Cookies</h2>
-                <p class="mb-6 text-slate-600">We use cookies for a variety of reasons detailed below. Unfortunately in
-                    most cases there are no industry standard options for disabling cookies without completely disabling
-                    the functionality and features they add to this site.</p>
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">2. How We Use Cookies</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">We use cookies for a variety of reasons detailed
+                    below. Unfortunately in
+                    most cases there are no industry standard options for disabling cookies without
+                    completely disabling the functionality and features they add to this site.</p>
 
-                <h2 class="text-xl font-semibold mb-4">3. Disabling Cookies</h2>
-                <p class="mb-6 text-slate-600">You can prevent the setting of cookies by adjusting the settings on your
-                    browser (see your browser Help for how to do this). Be aware that disabling cookies will affect the
-                    functionality of this and many other websites that you visit.</p>
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">3. Disabling Cookies</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">You can prevent the setting of cookies by adjusting
+                    the settings on your
+                    browser (see your browser Help for how to do this). Be aware that disabling cookies
+                    will affect the functionality of this and many other websites that you visit.</p>
 
-                <h2 class="text-xl font-semibold mb-4">4. The Cookies We Set</h2>
-                <ul class="list-disc pl-6 mb-6 text-slate-600 space-y-2">
-                    <li>Account related cookies</li>
-                    <li>Login related cookies</li>
-                    <li>Site preferences cookies</li>
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">4. The Cookies We Set</h2>
+                <ul class="list-disc pl-6 mb-6 text-slate-600 dark:text-slate-300">
+                    <li class="mb-2">Login related cookies: We use cookies when you are logged in so
+                        that we can remember this fact.</li>
+                    <li class="mb-2">Forms related cookies: When you submit data to through a form such
+                        as those found on contact pages or comment forms cookies may be set to remember
+                        your user details for future correspondence.</li>
+                    <li class="mb-2">Site preferences cookies: In order to provide you with a great
+                        experience on this site we provide the functionality to set your preferences for
+                        how this site runs when you use it.</li>
                 </ul>
             </div>
         </div>
     </div>
+    <script src="/static/js/app.js"></script>
 </body>
 
 </html>

@@ -8,6 +8,18 @@
     <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -15,40 +27,70 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900">
-    <div class="container mx-auto px-4 py-12 max-w-4xl">
-        <div class="mb-8">
-            <a href="/" class="text-indigo-600 hover:text-indigo-800 font-medium transition">&larr; Back to Home</a>
-        </div>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-white transition-colors duration-200">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Navbar -->
+        <nav class="flex justify-between items-center mb-12">
+            <div class="flex items-center gap-2">
+                <a href="/" class="flex items-center gap-2 group">
+                    <div class="bg-indigo-600 text-white p-2 rounded-lg group-hover:bg-indigo-700 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Ticket<span
+                            class="text-indigo-600">AI</span></span>
+                </a>
+            </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-12">
+            <div class="flex items-center gap-4">
+                <a href="/"
+                    class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition">Home</a>
+                <button id="themeToggle"
+                    class="p-2 text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 transition"
+                    title="Toggle Dark Mode">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+        </nav>
+
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 md:p-12 transition-colors duration-200">
             <h1 class="text-3xl font-bold mb-8">Terms of Service</h1>
-            <p class="text-slate-500 mb-8">Last updated: January 2026</p>
+            <p class="text-slate-500 dark:text-slate-400 mb-8">Last updated: January 2026</p>
 
-            <div class="prose prose-slate max-w-none">
-                <h2 class="text-xl font-semibold mb-4">1. Agreement to Terms</h2>
-                <p class="mb-6 text-slate-600">By accessing our website, you agree to be bound by these Terms of Service
-                    and to comply with all applicable laws and regulations.</p>
+            <div class="prose prose-slate dark:prose-invert max-w-none">
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">1. Acceptance of Terms</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">By accessing and using TicketAI, you accept and agree
+                    to be bound by the
+                    terms and provision of this agreement.</p>
 
-                <h2 class="text-xl font-semibold mb-4">2. Use License</h2>
-                <p class="mb-6 text-slate-600">Permission is granted to temporarily download one copy of the materials
-                    (information or software) on TicketAI's website for personal, non-commercial transitory viewing
-                    only.</p>
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">2. Use License</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">Permission is granted to temporarily download one
+                    copy of the materials
+                    (information or software) on TicketAI's website for personal, non-commercial
+                    transitory viewing only.</p>
 
-                <h2 class="text-xl font-semibold mb-4">3. Disclaimer</h2>
-                <p class="mb-6 text-slate-600">The materials on TicketAI's website are provided on an 'as is' basis.
-                    TicketAI makes no warranties, expressed or implied, and hereby disclaims and negates all other
-                    warranties including, without limitation, implied warranties or conditions of merchantability,
-                    fitness for a particular purpose, or non-infringement of intellectual property or other violation of
-                    rights.</p>
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">3. Disclaimer</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">The materials on TicketAI's website are provided on
+                    an 'as is' basis.
+                    TicketAI makes no warranties, expressed or implied, and hereby disclaims and negates
+                    all other warranties including, without limitation, implied warranties or conditions
+                    of merchantability, fitness for a particular purpose, or non-infringement of
+                    intellectual property or other violation of rights.</p>
 
-                <h2 class="text-xl font-semibold mb-4">4. Limitations</h2>
-                <p class="mb-6 text-slate-600">In no event shall TicketAI or its suppliers be liable for any damages
-                    (including, without limitation, damages for loss of data or profit, or due to business interruption)
-                    arising out of the use or inability to use the materials on TicketAI's website.</p>
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">4. Limitations</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">In no event shall TicketAI or its suppliers be liable
+                    for any damages
+                    (including, without limitation, damages for loss of data or profit, or due to
+                    business interruption) arising out of the use or inability to use the materials on
+                    TicketAI's website.</p>
             </div>
         </div>
     </div>
+    <script src="/static/js/app.js"></script>
 </body>
 
 </html>
