@@ -5,53 +5,74 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
-    document.getElementById('userEmail').textContent = userInfo.email || 'User';
-    document.getElementById('currentTier').textContent = (userInfo.tier || 'Free').toUpperCase();
+    // Modal Logic
+    const modal = document.getElementById('createKeyModal');
+    const openBtn = document.getElementById('openCreateKeyModalBtn');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const modalBackdrop = document.getElementById('modalBackdrop');
 
-    // Logout handler
-    document.getElementById('logoutBtn').addEventListener('click', function (e) {
-        e.preventDefault();
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('user_info');
-        window.location.href = '/login';
-    });
+    function openModal() {
+        modal.classList.remove('hidden');
+        // Reset form state
+        document.getElementById('createKeyForm').classList.remove('hidden');
+        document.getElementById('newKeyDisplay').classList.add('hidden');
+        document.getElementById('saveKeyBtn').classList.remove('hidden');
+        document.getElementById('keyName').value = '';
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
 
     // Fetch API Keys
     fetchKeys();
 
     // Create Key Handler
-    document.getElementById('saveKeyBtn').addEventListener('click', async function () {
-        const name = document.getElementById('keyName').value;
-        if (!name) return;
+    const saveKeyBtn = document.getElementById('saveKeyBtn');
+    if (saveKeyBtn) {
+        saveKeyBtn.addEventListener('click', async function () {
+            const name = document.getElementById('keyName').value;
+            if (!name) return;
 
-        try {
-            const response = await fetch('/api/v1/auth/keys', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    'X-API-Key': 'dummy' // Some endpoints might check this, but JWT auth should bypass or we need to handle it
-                },
-                body: JSON.stringify({ name })
-            });
+            // Show loading state
+            const originalText = saveKeyBtn.textContent;
+            saveKeyBtn.textContent = 'Creating...';
+            saveKeyBtn.disabled = true;
 
-            const data = await response.json();
+            try {
+                const response = await fetch('/api/v1/auth/keys', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name })
+                });
 
-            if (response.ok) {
-                document.getElementById('createKeyForm').classList.add('d-none');
-                document.getElementById('newKeyDisplay').classList.remove('d-none');
-                document.getElementById('newKeyValue').value = data.key;
-                document.getElementById('saveKeyBtn').style.display = 'none';
-                fetchKeys(); // Refresh list
-            } else {
-                alert(data.error || 'Failed to create key');
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('createKeyForm').classList.add('hidden');
+                    document.getElementById('newKeyDisplay').classList.remove('hidden');
+                    document.getElementById('newKeyValue').value = data.key;
+                    saveKeyBtn.classList.add('hidden');
+                    fetchKeys(); // Refresh list
+                } else {
+                    alert(data.error || 'Failed to create key');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            } finally {
+                saveKeyBtn.textContent = originalText;
+                saveKeyBtn.disabled = false;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred');
-        }
-    });
+        });
+    }
 
     async function fetchKeys() {
         try {
@@ -70,24 +91,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const data = await response.json();
             const tbody = document.getElementById('keysTableBody');
-            tbody.innerHTML = '';
+            if (tbody) {
+                tbody.innerHTML = '';
 
-            document.getElementById('activeKeysCount').textContent = data.total || 0;
+                const countEl = document.getElementById('activeKeysCount');
+                if (countEl) countEl.textContent = data.total || 0;
 
-            if (data.keys) {
-                data.keys.forEach(key => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${key.name}</td>
-                        <td><code>${key.prefix || '...'}</code></td>
-                        <td>${new Date(key.created_at).toLocaleDateString()}</td>
-                        <td><span class="badge bg-${key.is_active ? 'success' : 'danger'}">${key.is_active ? 'Active' : 'Inactive'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-danger" onclick="revokeKey('${key.id}')">Revoke</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                if (data.keys) {
+                    data.keys.forEach(key => {
+                        const tr = document.createElement('tr');
+                        const statusClass = key.is_active
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                        const statusText = key.is_active ? 'Active' : 'Inactive';
+
+                        tr.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-white">${key.name}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400"><code class="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">${key.prefix || '...'}</code></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${new Date(key.created_at).toLocaleDateString()}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                    ${statusText}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
+                                <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 font-medium transition" onclick="revokeKey('${key.id}')">Revoke</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
             }
         } catch (error) {
             console.error('Error fetching keys:', error);
@@ -115,35 +148,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    window.startCheckout = async function (tier) {
-        try {
-            const response = await fetch('/api/v1/billing/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ tier })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.checkout_url) {
-                window.location.href = data.checkout_url;
-            } else {
-                alert(data.error || 'Failed to start checkout');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred');
-        }
-    };
-
     // Check for success/cancel query params
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success')) {
         alert('Payment successful! Your tier will be updated shortly.');
-        // Optionally clear query params
         window.history.replaceState({}, document.title, "/dashboard");
     } else if (urlParams.get('canceled')) {
         alert('Payment canceled.');

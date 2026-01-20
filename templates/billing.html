@@ -5,137 +5,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Billing - AI Ticket Classifier</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <style>
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 20px;
-            background-color: #343a40;
-            color: white;
-            width: 250px;
-        }
-
-        .sidebar a {
-            padding: 15px 25px;
-            text-decoration: none;
-            font-size: 1.1rem;
-            color: #818181;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            color: #f1f1f1;
-            background-color: #495057;
-        }
-
-        .sidebar .active {
-            color: white;
-            background-color: #0d6efd;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
+        body {
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
 
-<body>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-white transition-colors duration-200 min-h-screen">
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h4 class="text-center mb-4">AI Classifier</h4>
-        <a href="/dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
-        <a href="/billing" class="active"><i class="bi bi-credit-card me-2"></i> Billing</a>
-        <a href="#" onclick="alert('Coming soon!')"><i class="bi bi-gear me-2"></i> Settings</a>
-        <a href="#" id="logoutBtn" class="mt-5"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="container-fluid">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h2>Billing & Subscription</h2>
-                    <p class="text-muted">Manage your plan and payment details.</p>
+    <!-- Navbar -->
+    <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center gap-2">
+                        <span class="text-xl font-bold text-slate-800 dark:text-white tracking-tight">Ticket<span
+                                class="text-indigo-600 dark:text-indigo-400">AI</span></span>
+                    </a>
+                    <div class="hidden md:flex ml-10 space-x-8">
+                        <a href="/dashboard"
+                            class="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition">Dashboard</a>
+                        <a href="/billing"
+                            class="text-indigo-600 dark:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition">Billing</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="themeToggle"
+                        class="p-2 text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 transition"
+                        title="Toggle Dark Mode">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <a href="#" id="logoutBtn"
+                        class="text-sm text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition">Logout</a>
                 </div>
             </div>
+        </div>
+    </nav>
 
-            <!-- Current Plan -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0">Current Plan</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h4 class="mb-1 text-capitalize" id="currentPlanName">Loading...</h4>
-                            <p class="text-muted mb-0" id="planDescription">Fetching subscription details...</p>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <span class="badge bg-success fs-6" id="planStatus">Active</span>
-                        </div>
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Billing & Subscription</h2>
+            <p class="text-slate-600 dark:text-slate-400 mt-2">Manage your plan and payment details.</p>
+        </div>
+
+        <!-- Current Plan -->
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                <h5 class="font-semibold text-slate-900 dark:text-white">Current Plan</h5>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-white capitalize" id="currentPlanName">
+                            Loading...</h4>
+                        <p class="text-slate-500 dark:text-slate-400" id="planDescription">Fetching subscription
+                            details...</p>
+                    </div>
+                    <div>
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                            id="planStatus">Active</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Upgrade Options (Hidden if Pro) -->
-            <div id="upgradeSection" class="d-none">
-                <h4 class="mb-3">Available Plans</h4>
-                <div class="row">
-                    <!-- Starter -->
-                    <div class="col-md-4">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">Starter</h5>
-                                <h2 class="card-text">$0<small class="text-muted">/mo</small></h2>
-                                <ul class="list-unstyled mt-3 mb-4">
-                                    <li>✓ 50 requests/day</li>
-                                    <li>✓ Basic Support</li>
-                                </ul>
-                                <button class="btn btn-outline-primary w-100" disabled>Current Plan</button>
-                            </div>
-                        </div>
+        <!-- Upgrade Options (Hidden if Pro) -->
+        <div id="upgradeSection" class="hidden">
+            <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-4">Available Plans</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Starter -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex flex-col">
+                    <h5 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Starter</h5>
+                    <div class="flex items-baseline mb-4">
+                        <span class="text-3xl font-bold text-slate-900 dark:text-white">$0</span>
+                        <span class="text-slate-500 dark:text-slate-400 ml-1">/mo</span>
                     </div>
-                    <!-- Pro -->
-                    <div class="col-md-4">
-                        <div class="card shadow-sm border-primary h-100">
-                            <div class="card-header bg-primary text-white text-center">Recommended</div>
-                            <div class="card-body">
-                                <h5 class="card-title">Pro</h5>
-                                <h2 class="card-text">$49<small class="text-muted">/mo</small></h2>
-                                <ul class="list-unstyled mt-3 mb-4">
-                                    <li>✓ 5,000 requests/day</li>
-                                    <li>✓ Priority Support</li>
-                                    <li>✓ Batch Processing</li>
-                                </ul>
-                                <button class="btn btn-primary w-100" onclick="upgradeToPro()">Upgrade to Pro</button>
-                            </div>
-                        </div>
+                    <ul class="space-y-3 mb-6 flex-grow text-sm text-slate-600 dark:text-slate-300">
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> 50 requests/day</li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Basic Support</li>
+                    </ul>
+                    <button
+                        class="w-full py-2 px-4 border border-indigo-600 text-indigo-600 rounded-lg text-center font-medium opacity-50 cursor-not-allowed dark:border-indigo-400 dark:text-indigo-400"
+                        disabled>Current Plan</button>
+                </div>
+
+                <!-- Pro -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border-2 border-indigo-600 dark:border-indigo-500 p-6 flex flex-col relative transform scale-[1.02]">
+                    <div
+                        class="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                        RECOMMENDED</div>
+                    <h5 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Pro</h5>
+                    <div class="flex items-baseline mb-4">
+                        <span class="text-3xl font-bold text-slate-900 dark:text-white">$49</span>
+                        <span class="text-slate-500 dark:text-slate-400 ml-1">/mo</span>
                     </div>
+                    <ul class="space-y-3 mb-6 flex-grow text-sm text-slate-600 dark:text-slate-300">
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> 5,000 requests/day</li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Priority Support</li>
+                        <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Batch Processing</li>
+                    </ul>
+                    <button
+                        class="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-center transition shadow-md dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                        onclick="upgradeToPro()">Upgrade to Pro</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Manage Subscription (Hidden if Free) -->
-            <div id="manageSection" class="d-none">
-                <div class="alert alert-info">
+        <!-- Manage Subscription (Hidden if Free) -->
+        <div id="manageSection" class="hidden">
+            <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-4">
+                <p class="text-blue-700 dark:text-blue-300">
                     You are currently on the <strong>Pro</strong> plan. To manage your subscription, update payment
                     method, or cancel, please visit the Stripe Customer Portal.
-                </div>
-                <button class="btn btn-outline-dark" onclick="alert('Customer Portal integration coming soon!')">
-                    <i class="bi bi-box-arrow-up-right"></i> Open Customer Portal
-                </button>
+                </p>
             </div>
-
+            <button
+                class="inline-flex items-center px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                onclick="alert('Customer Portal integration coming soon!')">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                Open Customer Portal
+            </button>
         </div>
+
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/app.js"></script>
     <script>
         // Simple script to fetch user info and update UI
         document.addEventListener('DOMContentLoaded', async () => {
@@ -166,9 +182,9 @@
                 document.getElementById('planDescription').textContent = tier === 'pro' ? '5,000 requests/day' : '50 requests/day';
 
                 if (tier === 'free' || tier === 'starter') {
-                    document.getElementById('upgradeSection').classList.remove('d-none');
+                    document.getElementById('upgradeSection').classList.remove('hidden');
                 } else {
-                    document.getElementById('manageSection').classList.remove('d-none');
+                    document.getElementById('manageSection').classList.remove('hidden');
                 }
 
             } catch (error) {
