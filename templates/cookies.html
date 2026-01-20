@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cookie Policy - AI Ticket Classifier</title>
-    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -23,8 +22,136 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        <div class="prose prose-slate dark:prose-invert max-w-none"><h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">1. What Are Cookies</h2><p class="mb-6 text-slate-600 dark:text-slate-300">As is common practice with almost all professional websites this site uses cookies,
-        which are tiny files that are downloaded to your computer,
-        to improve your experience.</p><li class="mb-2">Login related cookies: We use cookies when you are logged in so that we can remember this fact.</li><li class="mb-2">Forms related cookies: When you submit data to through a form such as those found on contact pages or comment forms cookies may be set to remember your user details for future correspondence.</li><li class="mb-2">Site preferences cookies: In order to provide you with a great experience on this site we provide the functionality to set your preferences for how this site runs when you use it.</li></ul></div></div></div><script src="/static/js/app.js"></script></body></html>
+        /* Dark mode styles */
+        .dark {
+            background-color: #0f172a !important;
+        }
+
+        .dark nav {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+        }
+
+        .dark .bg-white {
+            background-color: #1e293b !important;
+        }
+
+        .dark .bg-slate-50 {
+            background-color: #0f172a !important;
+        }
+
+        .dark .text-slate-800,
+        .dark .text-slate-900 {
+            color: #f1f5f9 !important;
+        }
+
+        .dark .text-slate-600,
+        .dark .text-slate-700 {
+            color: #cbd5e1 !important;
+        }
+
+        .dark .text-slate-500 {
+            color: #94a3b8 !important;
+        }
+
+        .dark .border-slate-100,
+        .dark .border-slate-200 {
+            border-color: #334155 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <div class="bg-indigo-600 text-white p-2 rounded-lg group-hover:bg-indigo-700 transition">
+                            <span class="text-2xl">🎫</span>
+                        </div>
+                        <span class="text-xl font-bold text-slate-800 hover:text-indigo-600 transition">AI Ticket
+                            Classifier</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-slate-600 hover:text-indigo-600 font-medium transition">Home</a>
+                    <a href="/about" class="text-slate-600 hover:text-indigo-600 font-medium transition">About</a>
+                    <a href="/evaluation"
+                        class="text-slate-600 hover:text-indigo-600 font-medium transition">Evaluation</a>
+                    <a href="/docs" class="text-slate-600 hover:text-indigo-600 font-medium transition">API Docs</a>
+                    <a href="https://github.com/ArtemRivnyi/ai-ticket-classifier" target="_blank"
+                        class="text-slate-600 hover:text-indigo-600 font-medium transition">GitHub</a>
+                    <button id="themeToggle"
+                        class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                        <span id="themeIcon" class="text-2xl">🌙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-4">Cookie Policy</h1>
+            <p class="text-lg text-slate-600">Last updated: January 2026</p>
+        </div>
+
+        <div
+            class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 transition-colors duration-200">
+            <div class="prose prose-slate dark:prose-invert max-w-none">
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">1. What Are Cookies</h2>
+                <p class="mb-6 text-slate-600 dark:text-slate-300">As is common practice with almost all professional
+                    websites this site uses cookies, which are tiny files that are downloaded to your computer, to
+                    improve your experience.</p>
+
+                <h2 class="text-xl font-semibold mb-4 text-slate-900 dark:text-white">2. How We Use Cookies</h2>
+                <ul class="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-300 mb-6">
+                    <li><strong>Login related cookies:</strong> We use cookies when you are logged in so that we can
+                        remember this fact.</li>
+                    <li><strong>Forms related cookies:</strong> When you submit data to through a form such as those
+                        found on contact pages or comment forms cookies may be set to remember your user details for
+                        future correspondence.</li>
+                    <li><strong>Site preferences cookies:</strong> In order to provide you with a great experience on
+                        this site we provide the functionality to set your preferences for how this site runs when you
+                        use it.</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8">
+        <div class="container mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2025 AI Ticket Classifier. Built with ❤️ by Artem Rivnyi.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            themeIcon.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            const isDark = body.classList.contains('dark');
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+
+</html>
