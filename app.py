@@ -492,6 +492,11 @@ def evaluation_results():
 @limiter.limit("5 per minute")
 def run_evaluation():
     """Run the evaluation and return results."""
+    # Check if classifier is initialized
+    if not app.config.get("CLASSIFIER"):
+        logger.error("❌ Evaluation failed: Classifier not initialized")
+        return jsonify({"error": "Classifier not initialized. Check server logs for startup errors."}), 503
+
     try:
         import csv
         import time
