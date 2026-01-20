@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>AI Ticket Classifier</title>
+    <title>TicketAI - Enterprise Support Automation</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
     <script>
@@ -14,9 +14,10 @@
             originalWarn.apply(console, args);
         };
     </script>
-    <link rel="stylesheet" href="/static/css/style.css?v=2.4.1">
+    <link rel="stylesheet" href="/static/css/style.css?v=2.5.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -25,407 +26,438 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
+                    colors: {
+                        slate: {
+                            850: '#172033',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
                 }
             }
         }
     </script>
 </head>
-<a href="/" class="text-slate-600 hover:text-indigo-600 font-medium transition block">Home</a>
-<a href="/about" class="text-slate-600 hover:text-indigo-600 font-medium transition block">About</a>
-<a href="/evaluation" class="text-slate-600 hover:text-indigo-600 font-medium transition block">Evaluation</a>
-<a href="/docs" class="text-slate-600 hover:text-indigo-600 font-medium transition block">API Docs</a>
-<div class="flex items-center justify-between pt-4 border-t border-slate-100">
-    <span class="text-sm text-slate-500">Dark Mode</span>
-    <button id="themeToggleMobile" class="p-2 text-slate-400 hover:text-indigo-600 transition">
-        <span id="themeIconMobile">🌙</span>
-    </button>
-</div>
-</div>
 
-<div class="text-center mb-12">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
-        Instant Support Ticket <span class="gradient-text">Classification</span>
-    </h1>
-    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-        Powered by Google Gemini 2.0 Flash. Automatically categorize, prioritize, and route your support tickets
-        with AI-powered precision.
-    </p>
-</div>
+<body
+    class="bg-slate-50 min-h-screen font-sans text-slate-900 antialiased selection:bg-indigo-500 selection:text-white dark:bg-slate-950 dark:text-white transition-colors duration-300">
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
 
-<!-- Input Section -->
-<div
-    class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-slate-100 dark:border-slate-700 mb-8 transition-colors duration-200">
-    <h2 class="text-xl font-semibold text-slate-800 dark:text-white mb-4">Try it yourself</h2>
+    <!-- Navbar -->
+    <nav
+        class="fixed w-full z-40 top-0 start-0 border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:bg-slate-900/80 dark:border-slate-800/80 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <div
+                            class="bg-indigo-600 text-white p-2 rounded-lg group-hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/30">
+                            <span class="text-xl">🎫</span>
+                        </div>
+                        <span
+                            class="text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">Ticket<span
+                                class="text-indigo-600 dark:text-indigo-400">AI</span></span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <div class="hidden md:flex items-center space-x-1">
+                        <a href="/"
+                            class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition">Home</a>
+                        <a href="/about"
+                            class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition">About</a>
+                        <a href="/evaluation"
+                            class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition">Evaluation</a>
+                        <a href="/docs"
+                            class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800 transition">API</a>
+                        <a href="https://github.com/ArtemRivnyi/ai-ticket-classifier" target="_blank"
+                            class="p-2 rounded-md text-slate-400 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden md:block"></div>
+                    <button id="themeToggle"
+                        class="p-2 rounded-md text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition"
+                        title="Toggle Dark Mode">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-600 hover:text-indigo-600 transition">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <!-- Example Buttons -->
-    <div id="exampleButtonsContainer" class="flex flex-wrap gap-2 mb-4">
-        <!-- Buttons injected by JS -->
+    <!-- Mobile Menu -->
+    <div id="navLinks"
+        class="md:hidden hidden fixed inset-x-0 top-16 z-30 flex-col gap-1 p-4 bg-white/95 backdrop-blur dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-700 shadow-xl">
+        <a href="/"
+            class="px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white font-medium transition">Home</a>
+        <a href="/about"
+            class="px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white font-medium transition">About</a>
+        <a href="/evaluation"
+            class="px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white font-medium transition">Evaluation</a>
+        <a href="/docs"
+            class="px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white font-medium transition">API
+            Docs</a>
     </div>
 
-    <form id="classifyForm" class="space-y-4">
-        <div>
-            <label for="ticketText" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ticket
-                Description</label>
-            <textarea id="ticketText" name="ticketText" rows="5"
-                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition bg-white dark:bg-slate-700 dark:text-white"
-                placeholder="e.g., My internet stopped working after the router update..." required></textarea>
-        </div>
-        <button type="submit"
-            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition transform hover:scale-[1.02] flex items-center justify-center dark:bg-indigo-500 dark:hover:bg-indigo-600">
-            <span id="submitBtnText">Classify Ticket</span>
-            <svg id="submitBtnSpinner" class="animate-spin ml-2 h-5 w-5 text-white hidden"
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                </circle>
-                <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
-            </svg>
-        </button>
-    </form>
-
-    <!-- CSV Upload Section -->
-    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
-        <h3 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Or upload a CSV file</h3>
-        <form id="csvUploadForm" class="flex items-center gap-2">
-            <input type="file" id="csvFile" accept=".csv" class="block w-full text-sm text-slate-500 dark:text-slate-400
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-xs file:font-semibold
-                        file:bg-indigo-50 file:text-indigo-700
-                        hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-indigo-400" />
-            <button type="submit"
-                class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-4 rounded-lg shadow transition whitespace-nowrap dark:bg-slate-700 dark:hover:bg-slate-600">
-                Upload & Process
-            </button>
-        </form>
-        <p class="text-xs text-slate-400 mt-2">CSV must have a "ticket" column. Max 10 rows (Free Tier).</p>
-    </div>
-</div>
-
-<!-- Result Section -->
-<div
-    class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-slate-100 dark:border-slate-700 relative overflow-hidden flex flex-col justify-center min-h-[400px] transition-colors duration-200">
-
-    <!-- Empty State -->
-    <div id="emptyState"
-        class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-white dark:bg-slate-800 z-10 text-center p-6 transition-colors duration-200">
-        <svg class="w-16 h-16 mb-4 text-slate-200 dark:text-slate-600" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-            </path>
-        </svg>
-        <p class="text-lg font-medium text-slate-500 dark:text-slate-400">Ready to classify</p>
-        <p class="text-sm text-slate-400 dark:text-slate-500">Enter a ticket description or use a sample</p>
-    </div>
-
-    <!-- Skeleton Loader -->
-    <div id="skeletonLoader" class="hidden space-y-6 w-full">
-        <div class="skeleton-shimmer h-8 rounded w-3/4 mx-auto"></div>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="skeleton-shimmer h-16 rounded"></div>
-            <div class="skeleton-shimmer h-16 rounded"></div>
-        </div>
-        <div class="skeleton-shimmer h-24 rounded"></div>
-    </div>
-
-    <!-- Result Content -->
-    <div id="resultContent" class="opacity-0 transition-opacity duration-300 w-full space-y-6 hidden">
-
-        <!-- Matched Pattern Highlight -->
-        <div id="highlightedTicketContainer"
-            class="hidden mb-4 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-300">
-            <span
-                class="font-semibold block mb-1 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Detected
-                Pattern:</span>
-            <p id="highlightedTicketText" class="italic"></p>
-        </div>
-
-        <div class="text-center">
-            <span id="resCategory" class="text-3xl font-bold text-slate-900 dark:text-white block mb-2">Network
-                Issue</span>
-            <span id="resConfidence"
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">98%
-                Confidence</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+    <!-- Hero Section -->
+    <div class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <!-- Background Effects -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0 pointer-events-none">
             <div
-                class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl border border-slate-100 dark:border-slate-600 text-center">
-                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold mb-1">
-                    Priority</p>
-                <span id="resPriority"
-                    class="inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                    High
+                class="absolute top-20 left-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl mix-blend-multiply dark:bg-indigo-500/20">
+            </div>
+            <div
+                class="absolute top-40 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl mix-blend-multiply dark:bg-cyan-500/20">
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 max-w-6xl relative z-10 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-semibold uppercase tracking-wide mb-8 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300">
+                <span class="relative flex h-2 w-2">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                 </span>
+                Powered by Gemini 2.0 Flash
             </div>
-            <div
-                class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl border border-slate-100 dark:border-slate-600 text-center">
-                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide font-semibold mb-1">
-                    Processing Time
-                </p>
-                <span id="resTime" class="text-base font-medium text-slate-700 dark:text-slate-300">0.45s</span>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4 text-sm">
-            <div class="p-3 bg-white dark:bg-slate-600 rounded-lg border border-slate-100 dark:border-slate-500">
-                <p class="text-slate-500 dark:text-slate-300 mb-1">Provider</p>
-                <p id="resProvider" class="font-medium text-slate-900 dark:text-white">Gemini</p>
-            </div>
-            <div class="p-3 bg-white dark:bg-slate-600 rounded-lg border border-slate-100 dark:border-slate-500">
-                <p class="text-slate-500 dark:text-slate-300 mb-1">Request ID</p>
-                <p id="resReqId" class="font-medium text-slate-900 dark:text-white truncate" title="">-</p>
-            </div>
-        </div>
+            <h1
+                class="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
+                Support Automation <br class="hidden md:block" />
+                <span class="gradient-text">Reimagined</span>
+            </h1>
 
-        <!-- Feedback Section -->
-        <div id="feedbackSection" class="hidden mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 text-center">
-            <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Was this classification correct?</p>
-            <div class="flex justify-center gap-2">
-                <button onclick="sendFeedback(true)"
-                    class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 rounded-lg transition">
-                    👍 Yes
-                </button>
-                <button onclick="sendFeedback(false)"
-                    class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800 rounded-lg transition">
-                    👎 No
-                </button>
-            </div>
-            <p id="feedbackConfirmation" class="hidden text-sm text-green-600 dark:text-green-400 font-medium mt-2">
-                Thanks for
-                your feedback!</p>
-        </div>
-    </div>
-</div>
-</div>
+            <p class="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+                Categorize, prioritize, and route support tickets instantly with enterprise-grade AI.
+                Reduce triage time by <span class="text-slate-900 dark:text-white font-semibold">99%</span>.
+            </p>
 
-<!-- ROI / Efficiency Section -->
-<div class="mt-16 mb-16">
-    <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Why Automate Ticket Classification?</h2>
-        <p class="text-slate-600 dark:text-slate-400 mt-2">Reduce triage time, eliminate human error, and save
-            costs.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div
-            class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center hover:shadow-md transition duration-200">
-            <div
-                class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                ⚡</div>
-            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">Instant Routing</h3>
-            <p class="text-slate-600 dark:text-slate-400 text-sm">Reduce triage time from 5 minutes to <span
-                    class="font-bold text-indigo-600 dark:text-indigo-400">0.5 seconds</span> per ticket.</p>
-        </div>
-        <div
-            class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center hover:shadow-md transition duration-200">
-            <div
-                class="w-12 h-12 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                💰</div>
-            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">Cost Efficiency</h3>
-            <p class="text-slate-600 dark:text-slate-400 text-sm">Save up to <span
-                    class="font-bold text-blue-600 dark:text-blue-400">60%</span> on
-                support operations by automating L1 triage.</p>
-        </div>
-        <div
-            class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center hover:shadow-md transition duration-200">
-            <div
-                class="w-12 h-12 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                🎯</div>
-            <h3 class="font-bold text-lg text-slate-800 dark:text-white mb-2">Consistent AI Classification</h3>
-            <p class="text-slate-600 dark:text-slate-400 text-sm">Eliminate human error and fatigue. Every ticket is
-                tagged
-                correctly, 24/7.</p>
-        </div>
-    </div>
-
-    <!-- Real World Impact Example -->
-    <div
-        class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
-        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl">
-        </div>
-        <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl">
-        </div>
-
-        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div class="text-left md:w-1/2">
-                <h3 class="text-2xl font-bold mb-4">Real World Impact</h3>
-                <p class="text-indigo-100 mb-6">
-                    For a company processing <strong>10,000 tickets/month</strong>:
-                </p>
-                <ul class="space-y-2 text-indigo-50">
-                    <li class="flex items-center">
-                        <span class="mr-2">?</span> Manual Triage: ~$5,000/mo (at $0.50/ticket)
-                    </li>
-                    <li class="flex items-center">
-                        <span class="mr-2">?</span> AI Triage: ~$10/mo (at $0.001/ticket)
-                    </li>
-                </ul>
-            </div>
-            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center md:w-1/3 border border-white/20">
-                <p class="text-indigo-200 text-sm uppercase tracking-wider font-semibold mb-2">Total Savings</p>
-                <p class="text-4xl font-extrabold text-white mb-1">$4,990</p>
-                <p class="text-indigo-200 text-xs">per month</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#demo"
+                    class="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 transition transform hover:-translate-y-1">
+                    Try Live Demo
+                </a>
+                <a href="/docs"
+                    class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl border border-slate-200 shadow-sm transition dark:bg-slate-800 dark:text-white dark:border-slate-700 dark:hover:bg-slate-700">
+                    View Documentation
+                </a>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Pricing Section -->
-<div id="pricing" class="py-16 bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
-    <div class="container mx-auto px-4 max-w-5xl">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Simple, Transparent Pricing</h2>
-            <p class="text-slate-600 dark:text-slate-400 mt-2">Start for free, upgrade as you scale.</p>
-        </div>
+    <!-- Demo Section -->
+    <div id="demo" class="py-20 bg-white dark:bg-slate-900 transition-colors duration-300">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Free Tier -->
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 hover:shadow-md transition relative duration-200">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Starter</h3>
-                <div class="flex items-baseline mb-4">
-                    <span class="text-4xl font-bold text-slate-900 dark:text-white">$0</span>
-                    <span class="text-slate-500 dark:text-slate-400 ml-1">/mo</span>
+                <!-- Input Column -->
+                <div class="lg:col-span-5 space-y-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Experience the Speed</h2>
+                        <p class="text-slate-600 dark:text-slate-400">
+                            Paste a support ticket or choose an example to see how TicketAI analyzes and tags content in
+                            milliseconds.
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Input Ticket</label>
+                            <div id="exampleButtonsContainer" class="flex gap-2">
+                                <!-- Buttons injected by JS -->
+                            </div>
+                        </div>
+
+                        <form id="classifyForm" class="space-y-4">
+                            <textarea id="ticketText" name="ticketText" rows="6"
+                                class="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-slate-900 dark:text-white resize-none shadow-sm"
+                                placeholder="e.g., I can't access my account even though I reset my password..."
+                                required></textarea>
+
+                            <button type="submit"
+                                class="w-full py-3 px-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-lg transition flex items-center justify-center gap-2 dark:bg-indigo-600 dark:hover:bg-indigo-700">
+                                <span id="submitBtnText">Analyze Ticket</span>
+                                <svg id="submitBtnSpinner" class="animate-spin h-5 w-5 text-white hidden"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- CSV Upload -->
+                    <div class="text-center">
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Have a dataset?</p>
+                        <form id="csvUploadForm" class="inline-flex">
+                            <label
+                                class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                </svg>
+                                Upload CSV
+                                <input type="file" id="csvFile" accept=".csv" class="hidden" />
+                            </label>
+                        </form>
+                    </div>
                 </div>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Perfect for testing and small projects.
-                </p>
-                <ul class="space-y-3 mb-8 text-sm text-slate-600 dark:text-slate-300">
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> 50 requests / day
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Basic
-                        Classification
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Community Support
-                    </li>
-                </ul>
-                <a href="/register"
-                    class="block w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium rounded-lg text-center transition dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">Get
-                    Started</a>
+
+                <!-- Output Column -->
+                <div class="lg:col-span-7">
+                    <div class="relative">
+                        <!-- Decorative blob -->
+                        <div
+                            class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-2xl blur opacity-20 dark:opacity-40">
+                        </div>
+
+                        <div
+                            class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 min-h-[500px] flex flex-col">
+
+                            <!-- Header -->
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 rounded-t-2xl">
+                                <div class="flex gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                </div>
+                                <span class="text-xs font-mono text-slate-400">analysis_result.json</span>
+                            </div>
+
+                            <!-- Content Area -->
+                            <div class="p-8 flex-grow flex flex-col justify-center relative">
+
+                                <!-- Empty State -->
+                                <div id="emptyState"
+                                    class="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+                                    <div
+                                        class="w-20 h-20 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mb-6">
+                                        <svg class="w-10 h-10 text-slate-300 dark:text-slate-500" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Ready to
+                                        Analyze</h3>
+                                    <p class="text-slate-500 dark:text-slate-400 max-w-xs">AI model is loaded and ready.
+                                        Submit a ticket to see the classification results.</p>
+                                </div>
+
+                                <!-- Skeleton -->
+                                <div id="skeletonLoader" class="hidden space-y-6 w-full max-w-md mx-auto">
+                                    <div class="skeleton-shimmer h-8 rounded w-2/3 mx-auto"></div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="skeleton-shimmer h-24 rounded-xl"></div>
+                                        <div class="skeleton-shimmer h-24 rounded-xl"></div>
+                                    </div>
+                                    <div class="skeleton-shimmer h-16 rounded-xl"></div>
+                                </div>
+
+                                <!-- Results -->
+                                <div id="resultContent" class="hidden w-full space-y-8">
+
+                                    <div class="text-center">
+                                        <span
+                                            class="text-xs font-bold tracking-wider text-slate-400 uppercase mb-2 block">Detected
+                                            Category</span>
+                                        <h2 id="resCategory"
+                                            class="text-4xl font-bold text-slate-900 dark:text-white mb-3">Network Issue
+                                        </h2>
+                                        <div
+                                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-sm font-medium">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <span id="resConfidence">98% Confidence</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div
+                                            class="p-5 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 text-center">
+                                            <span
+                                                class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Priority</span>
+                                            <div id="resPriority"
+                                                class="mt-2 text-xl font-bold text-slate-800 dark:text-white">High</div>
+                                        </div>
+                                        <div
+                                            class="p-5 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 text-center">
+                                            <span
+                                                class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Latency</span>
+                                            <div id="resTime"
+                                                class="mt-2 text-xl font-bold text-slate-800 dark:text-white">0.45s
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Feedback -->
+                                    <div id="feedbackSection"
+                                        class="pt-6 border-t border-slate-100 dark:border-slate-700 text-center">
+                                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Is this
+                                            classification correct?</p>
+                                        <div class="flex justify-center gap-3">
+                                            <button onclick="sendFeedback(true)"
+                                                class="px-4 py-2 rounded-lg bg-white border border-slate-200 hover:border-green-500 hover:text-green-600 transition text-sm font-medium text-slate-600 shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:border-green-500 dark:hover:text-green-400">
+                                                👍 Yes
+                                            </button>
+                                            <button onclick="sendFeedback(false)"
+                                                class="px-4 py-2 rounded-lg bg-white border border-slate-200 hover:border-red-500 hover:text-red-600 transition text-sm font-medium text-slate-600 shadow-sm dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300 dark:hover:border-red-500 dark:hover:text-red-400">
+                                                👎 No
+                                            </button>
+                                        </div>
+                                        <p id="feedbackConfirmation"
+                                            class="hidden text-sm text-green-600 dark:text-green-400 font-medium mt-3 animate-fade-in">
+                                            Feedback received. Thank you!</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="py-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Why Enterprise Teams Choose TicketAI
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Built for scale, security, and speed.
+                    Replace manual triage with intelligent automation.</p>
             </div>
 
-            <!-- Pro Tier -->
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-indigo-100 dark:border-indigo-900 p-8 transform scale-105 relative z-10 transition duration-200">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
                 <div
-                    class="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-                    POPULAR</div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Pro</h3>
-                <div class="flex items-baseline mb-4">
-                    <span class="text-4xl font-bold text-slate-900 dark:text-white">$49</span>
-                    <span class="text-slate-500 dark:text-slate-400 ml-1">/mo</span>
+                    class="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition duration-300">
+                    <div
+                        class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center mb-6 text-2xl">
+                        ⚡</div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Instant Routing</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Route tickets to the right team in
+                        milliseconds, not hours. Reduce response times and improve SLA compliance.</p>
                 </div>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">For growing businesses and teams.</p>
-                <ul class="space-y-3 mb-8 text-sm text-slate-600 dark:text-slate-300">
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> 5,000 requests /
-                        day
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Advanced Analytics
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Priority Email
-                        Support
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Batch Processing
-                    </li>
-                </ul>
-                <a href="/register?plan=pro"
-                    class="block w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-center transition shadow-md dark:bg-indigo-500 dark:hover:bg-indigo-600">Start
-                    Free Trial</a>
+                <!-- Feature 2 -->
+                <div
+                    class="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition duration-300">
+                    <div
+                        class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400 rounded-xl flex items-center justify-center mb-6 text-2xl">
+                        🔒</div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Bank-Grade Security</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Your data is processed securely. We
+                        adhere to strict privacy standards and offer on-premise deployment options.</p>
+                </div>
+                <!-- Feature 3 -->
+                <div
+                    class="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition duration-300">
+                    <div
+                        class="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mb-6 text-2xl">
+                        📈</div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">Actionable Insights</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Uncover trends in support requests.
+                        Identify recurring issues and optimize your product roadmap.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Section -->
+    <div class="py-20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="flex items-center justify-between mb-10">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Recent Analysis</h2>
+                <button id="clearHistoryBtn"
+                    class="text-sm text-slate-500 hover:text-red-600 font-medium transition flex items-center gap-2 dark:text-slate-400 dark:hover:text-red-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 0 00-1 1v3M4 7h16">
+                        </path>
+                    </svg>
+                    Clear History
+                </button>
             </div>
 
-            <!-- Enterprise Tier -->
+            <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- History items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-2">
+                    <a href="/" class="flex items-center gap-2 mb-6 group">
+                        <div class="bg-indigo-600 text-white p-1.5 rounded group-hover:bg-indigo-500 transition">
+                            <span class="text-lg">🎫</span>
+                        </div>
+                        <span class="text-xl font-bold text-white tracking-tight">Ticket<span
+                                class="text-indigo-500">AI</span></span>
+                    </a>
+                    <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
+                        Empowering support teams with next-generation AI.
+                        Automate the mundane, focus on the meaningful.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-6">Product</h4>
+                    <ul class="space-y-4 text-sm">
+                        <li><a href="#demo" class="hover:text-indigo-400 transition">Live Demo</a></li>
+                        <li><a href="/evaluation" class="hover:text-indigo-400 transition">Performance</a></li>
+                        <li><a href="/docs" class="hover:text-indigo-400 transition">API Documentation</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-6">Company</h4>
+                    <ul class="space-y-4 text-sm">
+                        <li><a href="/about" class="hover:text-indigo-400 transition">About Us</a></li>
+                        <li><a href="/contact" class="hover:text-indigo-400 transition">Contact</a></li>
+                        <li><a href="https://github.com/ArtemRivnyi/ai-ticket-classifier" target="_blank"
+                                class="hover:text-indigo-400 transition">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
             <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 hover:shadow-md transition duration-200">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Enterprise</h3>
-                <div class="flex items-baseline mb-4">
-                    <span class="text-4xl font-bold text-slate-900 dark:text-white">Custom</span>
+                class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
+                <p>&copy; 2026 TicketAI. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="/privacy" class="hover:text-slate-400 transition">Privacy Policy</a>
+                    <a href="/terms" class="hover:text-slate-400 transition">Terms of Service</a>
+                    <a href="/cookies" class="hover:text-slate-400 transition">Cookie Policy</a>
                 </div>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">For large scale operations.</p>
-                <ul class="space-y-3 mb-8 text-sm text-slate-600 dark:text-slate-300">
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Unlimited requests
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Custom Model
-                        Training
-                    </li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Dedicated Account
-                        Manager</li>
-                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> SLA Guarantee</li>
-                </ul>
-                <a href="/contact"
-                    class="block w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium rounded-lg text-center transition dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">Contact
-                    Sales</a>
             </div>
         </div>
-    </div>
-</div>
+    </footer>
 
-<!-- History Section -->
-<div class="mt-16 border-t border-slate-200 dark:border-slate-700 pt-12 mb-16">
-    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Classification History</h2>
-        <button id="clearHistoryBtn"
-            class="text-sm text-slate-500 hover:text-red-600 font-medium transition flex items-center dark:text-slate-400 dark:hover:text-red-400">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 0 00-1 1v3M4 7h16">
-                </path>
-            </svg>
-            Clear History
-        </button>
-    </div>
-    <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- History items will be injected here -->
-    </div>
-</div>
-
-<!-- Footer -->
-<footer class="bg-slate-900 text-slate-300 py-12">
-    <div class="container mx-auto px-4 max-w-5xl">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div class="col-span-1 md:col-span-2">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-xl font-bold text-white tracking-tight">Ticket<span
-                            class="text-indigo-500">AI</span></span>
-                </div>
-                <p class="text-sm text-slate-400 max-w-xs">
-                    Automating customer support with advanced AI classification. Built for speed and accuracy.
-                </p>
-            </div>
-            <div>
-                <h4 class="text-white font-semibold mb-4">Product</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
-                    <li><a href="/docs" class="hover:text-white transition">API Docs</a></li>
-                    <li><a href="/evaluation" class="hover:text-white transition">Evaluation</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-white font-semibold mb-4">Company</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="/about" class="hover:text-white transition">About</a></li>
-                    <li><a href="/contact" class="hover:text-white transition">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-        <div
-            class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-            <p>&copy; 2026 TicketAI. All rights reserved.</p>
-            <div class="flex gap-4 mt-4 md:mt-0">
-                <a href="/terms" class="hover:text-white transition">Terms</a>
-                <a href="/privacy" class="hover:text-white transition">Privacy</a>
-                <a href="/cookies" class="hover:text-white transition">Cookies</a>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<script>
-    window.DEMO_API_KEY = "{{ demo_api_key }}";
-</script>
-<script src="/static/js/app.js"></script>
-
+    <script>
+        window.DEMO_API_KEY = "{{ demo_api_key }}";
+    </script>
+    <script src="/static/js/app.js"></script>
 </body>
 
 </html>
