@@ -90,30 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (themeIconMobile) themeIconMobile.textContent = '☀️';
     }
 
-    if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
-    if (themeToggleMobile) themeToggleMobile.addEventListener('click', toggleTheme);
-
-    // Health Check
-    async function checkSystemHealth() {
-        try {
-            const response = await fetch('/api/v1/health');
-            if (response.ok) {
-                systemStatus.innerHTML = '● System Online';
-                systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 hidden md:inline-block';
-            } else {
-                throw new Error('Health check failed');
-            }
-        } catch (error) {
-            console.error('System health check failed:', error);
-            systemStatus.innerHTML = '● System Offline';
-            systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 hidden md:inline-block';
-            // Don't show toast for health check to avoid annoyance
-        }
-    }
-
-    // Run health check on load
-    checkSystemHealth();
-
     // Analytics Tracking
     function trackClassification(category) {
         // Placeholder for analytics
