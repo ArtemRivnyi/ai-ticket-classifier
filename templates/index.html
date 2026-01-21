@@ -7,17 +7,9 @@
     <title>TicketAI - Enterprise Support Automation</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎫</text></svg>">
-    <script>
-        const originalWarn = console.warn;
-        console.warn = (...args) => {
-            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
-            originalWarn.apply(console, args);
-        };
-    </script>
     <link rel="stylesheet" href="/static/css/style.css?v=2.5.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?v=3.4.1"
+        onerror="console.error('Tailwind CSS failed to load'); alert('Failed to load styling. Please check your connection.');"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -270,18 +262,6 @@
                                     <div class="skeleton-shimmer h-8 rounded w-2/3 mx-auto"></div>
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="skeleton-shimmer h-24 rounded-xl"></div>
-                                        <div class="skeleton-shimmer h-24 rounded-xl"></div>
-                                    </div>
-                                    <div class="skeleton-shimmer h-16 rounded-xl"></div>
-                                </div>
-
-                                <!-- Results -->
-                                <div id="resultContent" class="hidden w-full space-y-8">
-
-                                    <div class="text-center">
-                                        <span
-                                            class="text-xs font-bold tracking-wider text-slate-400 uppercase mb-2 block">Detected
-                                            Category</span>
                                         <h2 id="resCategory"
                                             class="text-4xl font-bold text-slate-900 dark:text-white mb-3">Network Issue
                                         </h2>
@@ -332,6 +312,10 @@
                                             class="hidden text-sm text-green-600 dark:text-green-400 font-medium mt-3 animate-fade-in">
                                             Feedback received. Thank you!</p>
                                     </div>
+
+                                    <!-- Hidden Data Fields -->
+                                    <span id="resProvider" class="hidden"></span>
+                                    <span id="resReqId" class="hidden"></span>
                                 </div>
 
                             </div>

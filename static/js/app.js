@@ -180,6 +180,23 @@ document.addEventListener('DOMContentLoaded', () => {
         exampleButtonsContainer.appendChild(randomBtn);
     }
 
+    // Reset View Helper
+    window.resetView = function () {
+        if (document.getElementById('batchResultContent')) {
+            document.getElementById('batchResultContent').classList.add('hidden');
+        }
+        if (document.getElementById('resultContent')) {
+            document.getElementById('resultContent').classList.add('hidden');
+        }
+        if (document.getElementById('emptyState')) {
+            document.getElementById('emptyState').classList.remove('hidden');
+        }
+        if (document.getElementById('ticketText')) {
+            document.getElementById('ticketText').value = '';
+            document.getElementById('ticketText').disabled = false;
+        }
+    };
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -209,7 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Network error handling (response.ok check)
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
@@ -221,8 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setLoading(false);
 
         } catch (error) {
-            console.error('Error:', error);
-            showToast('Classification failed. Please check your connection and try again.', 'error');
+            console.error('Classification Error:', error);
+            // Show specific error message to help debugging
+            showToast(`Classification failed: ${error.message}`, 'error');
             setLoading(false);
             // Ensure empty state is visible if no result is shown
             if (resultContent.classList.contains('hidden')) {
@@ -241,6 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Immediately hide result and show skeleton
             if (resultContent) resultContent.classList.add('hidden');
+            if (document.getElementById('batchResultContent')) {
+                document.getElementById('batchResultContent').classList.add('hidden');
+            }
             if (emptyState) emptyState.classList.add('hidden');
             if (skeletonLoader) skeletonLoader.classList.remove('hidden');
 
@@ -261,6 +283,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide empty state
         if (emptyState) emptyState.classList.add('hidden');
 
+        // Hide batch results if open
+        if (document.getElementById('batchResultContent')) {
+            document.getElementById('batchResultContent').classList.add('hidden');
+        }
+
         // Always show result content
         if (resultContent) {
             resultContent.classList.remove('hidden');
@@ -276,37 +303,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Update fields
-        document.getElementById('resCategory').textContent = data.category;
+        // Update fields with safety checks
+        if (document.getElementById('resCategory')) document.getElementById('resCategory').textContent = data.category || 'Unknown';
 
         // Confidence color
         const confidenceEl = document.getElementById('resConfidence');
-        const confidence = (data.confidence * 100).toFixed(0);
-        confidenceEl.textContent = `${confidence}% Confidence`; // Fixed format
+        if (confidenceEl) {
+            const confidenceVal = data.confidence !== undefined ? data.confidence : 0;
+            const confidence = (confidenceVal * 100).toFixed(0);
+            confidenceEl.textContent = `${confidence}% Confidence`;
 
-        if (confidence > 80) {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
-        } else if (confidence > 50) {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
-        } else {
-            confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
+            if (confidence > 80) {
+                confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-100 text-green-800';
+            } else if (confidence > 50) {
+                confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800';
+            } else {
+                confidenceEl.className = 'ml-3 px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-100 text-red-800';
+            }
         }
 
         // Priority color
         const priorityEl = document.getElementById('resPriority');
-        priorityEl.textContent = data.priority;
-        if (data.priority === 'High' || data.priority === 'Critical') {
-            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800';
-        } else if (data.priority === 'Medium') {
-            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-yellow-100 text-yellow-800';
-        } else {
-            priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-green-100 text-green-800';
+        if (priorityEl) {
+            priorityEl.textContent = data.priority || 'Medium';
+            if (data.priority === 'High' || data.priority === 'Critical') {
+                priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-red-100 text-red-800';
+            } else if (data.priority === 'Medium') {
+                priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-yellow-100 text-yellow-800';
+            } else {
+                priorityEl.className = 'inline-flex items-center px-3 py-1 rounded-lg text-base font-medium bg-green-100 text-green-800';
+            }
         }
 
-        document.getElementById('resTime').textContent = `${data.processing_time.toFixed(3)}s`;
-        document.getElementById('resProvider').textContent = data.provider;
-        document.getElementById('resReqId').textContent = data.request_id;
-        document.getElementById('resReqId').title = data.request_id;
+        if (document.getElementById('resTime')) document.getElementById('resTime').textContent = `${(data.processing_time || 0).toFixed(3)}s`;
+        if (document.getElementById('resProvider')) document.getElementById('resProvider').textContent = data.provider || 'AI';
+        if (document.getElementById('resReqId')) {
+            document.getElementById('resReqId').textContent = data.request_id || '';
+            document.getElementById('resReqId').title = data.request_id || '';
+        }
 
         // Show matched pattern if available
         if (data.matched_pattern) {
@@ -317,38 +351,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Reset feedback section
-        document.getElementById('feedbackSection').classList.remove('hidden');
-        document.getElementById('feedbackConfirmation').classList.add('hidden');
+        if (document.getElementById('feedbackSection')) document.getElementById('feedbackSection').classList.remove('hidden');
+        if (document.getElementById('feedbackConfirmation')) document.getElementById('feedbackConfirmation').classList.add('hidden');
     }
 
     // History Management
     loadHistory();
-    document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+    if (document.getElementById('clearHistoryBtn')) {
+        document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+    }
 
     function addToHistory(data, text) {
-        const historyItem = {
-            text: text,
-            category: data.category,
-            priority: data.priority,
-            timestamp: new Date().toISOString()
-        };
+        try {
+            const historyItem = {
+                text: text,
+                category: data.category || 'Unknown',
+                priority: data.priority || 'Medium',
+                timestamp: new Date().toISOString()
+            };
 
-        let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
-        history.unshift(historyItem);
-        if (history.length > 50) history.pop(); // Keep last 50 (Increased from 10)
-        localStorage.setItem('classificationHistory', JSON.stringify(history));
+            let history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+            history.unshift(historyItem);
+            if (history.length > 50) history.pop();
+            localStorage.setItem('classificationHistory', JSON.stringify(history));
 
-        renderHistory(history);
+            renderHistory(history);
+        } catch (e) {
+            console.error('Failed to save history:', e);
+        }
     }
 
     function loadHistory() {
-        const history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
-        renderHistory(history);
+        try {
+            const history = JSON.parse(localStorage.getItem('classificationHistory') || '[]');
+            renderHistory(history);
+        } catch (e) {
+            console.error('Failed to load history:', e);
+        }
     }
 
     function renderHistory(history) {
         const historyList = document.getElementById('historyList');
-        if (!historyList) return; // Safety check
+        if (!historyList) return;
 
         historyList.innerHTML = '';
 
@@ -457,6 +501,12 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.textContent = 'Processing...';
             btn.disabled = true;
 
+            // Show loading state in main area
+            if (emptyState) emptyState.classList.add('hidden');
+            if (resultContent) resultContent.classList.add('hidden');
+            if (document.getElementById('batchResultContent')) document.getElementById('batchResultContent').classList.add('hidden');
+            if (skeletonLoader) skeletonLoader.classList.remove('hidden');
+
             try {
                 const apiKey = window.DEMO_API_KEY;
 
@@ -472,19 +522,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     showToast(`Processed ${data.total} tickets successfully!`, 'success');
-                    console.log('Batch results:', data.results);
 
-                    let summary = `Processed ${data.total} tickets.\n`;
-                    summary += `Successful: ${data.successful}\n`;
-                    summary += `Failed: ${data.failed}`;
-                    alert(summary);
+                    // Render Batch Results
+                    const batchContainer = document.getElementById('batchResultContent');
+                    const batchList = document.getElementById('batchList');
+                    const batchSummary = document.getElementById('batchSummary');
+
+                    if (batchContainer && batchList) {
+                        batchSummary.textContent = `Processed ${data.total} tickets (${data.successful} success, ${data.failed} failed) in ${data.processing_time}s`;
+                        batchList.innerHTML = '';
+
+                        // Combine results and errors for display
+                        const allItems = [
+                            ...data.results.map(r => ({ ...r, status: 'success' })),
+                            ...data.errors.map(e => ({ ...e, status: 'error' }))
+                        ];
+
+                        allItems.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'p-3 rounded-lg border text-sm ' +
+                                (item.status === 'success'
+                                    ? 'bg-white border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+                                    : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800');
+
+                            if (item.status === 'success') {
+                                div.innerHTML = `
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-semibold text-slate-900 dark:text-white">${item.category}</span>
+                                        <span class="text-xs text-slate-500">${(item.confidence * 100).toFixed(0)}%</span>
+                                    </div>
+                                    <p class="text-slate-600 dark:text-slate-400 truncate">${item.ticket || 'Ticket text'}</p>
+                                `;
+                            } else {
+                                div.innerHTML = `
+                                    <div class="font-semibold text-red-600 dark:text-red-400 mb-1">Error</div>
+                                    <p class="text-slate-600 dark:text-slate-400 truncate">${item.ticket || 'Ticket text'}</p>
+                                    <p class="text-xs text-red-500 mt-1">${item.error}</p>
+                                `;
+                            }
+                            batchList.appendChild(div);
+                        });
+
+                        skeletonLoader.classList.add('hidden');
+                        batchContainer.classList.remove('hidden');
+                    }
 
                 } else {
-                    showToast(data.error || 'Batch processing failed', 'error');
+                    throw new Error(data.error || 'Batch processing failed');
                 }
             } catch (error) {
                 console.error('Batch error:', error);
-                showToast('Error uploading file', 'error');
+                showToast(`Batch failed: ${error.message}`, 'error');
+                skeletonLoader.classList.add('hidden');
+                emptyState.classList.remove('hidden');
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
