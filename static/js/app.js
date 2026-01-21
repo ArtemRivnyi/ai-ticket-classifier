@@ -319,11 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Show matched pattern if available
-        if (data.matched_pattern) {
-            highlightedTicketContainer.classList.remove('hidden');
-            highlightedTicketText.textContent = data.matched_pattern;
-        } else {
-            highlightedTicketContainer.classList.add('hidden');
+        if (highlightedTicketContainer && highlightedTicketText) {
+            if (data.matched_pattern) {
+                highlightedTicketContainer.classList.remove('hidden');
+                highlightedTicketText.textContent = data.matched_pattern;
+            } else {
+                highlightedTicketContainer.classList.add('hidden');
+            }
         }
 
         // Reset feedback section
