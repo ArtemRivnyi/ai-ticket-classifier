@@ -505,8 +505,9 @@ def handle_contact():
             logger.error("❌ MAIL_USERNAME not configured")
             return jsonify({"error": "Email service not configured"}), 503
             
-        # Log the contact request
+        # Log the contact request and configuration (debug)
         logger.info(f"📩 Contact Request from {name} ({email}): {message}")
+        logger.info(f"🔧 Mail Config: Server={app.config.get('MAIL_SERVER')}, Port={app.config.get('MAIL_PORT')}, TLS={app.config.get('MAIL_USE_TLS')}, User={app.config.get('MAIL_USERNAME')}")
         
         # Prepare email message
         msg = Message(
@@ -516,19 +517,14 @@ def handle_contact():
             reply_to=email
         )
 
-        # Send email asynchronously
-        def send_async_email(app, msg):
-            with app.app_context():
-                try:
-                    mail.send(msg)
-                    logger.info(f"✅ Email sent successfully to {app.config['MAIL_USERNAME']}")
-                except Exception as e:
-                    logger.error(f"❌ Failed to send email: {e}")
-
-        thread = threading.Thread(target=send_async_email, args=(current_app._get_current_object(), msg))
-        thread.start()
-
-        return jsonify({"message": "Message sent successfully"}), 200
+        # Send email synchronously for debugging
+        try:
+            mail.send(msg)
+            logger.info(f"✅ Email sent successfully to {app.config['MAIL_USERNAME']}")
+            return jsonify({"message": "Message sent successfully"}), 200
+        except Exception as e:
+            logger.error(f"❌ Failed to send email: {e}")
+            return jsonify({"error": str(e)}), 500
 
     except Exception as e:
         logger.error(f"❌ Contact form error: {e}")
