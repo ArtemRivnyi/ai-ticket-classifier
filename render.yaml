@@ -40,6 +40,18 @@ services:
         sync: false
       - key: STRIPE_PRICE_PRO
         sync: false
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USE_TLS
+        value: "true"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        sync: false
 
   - type: redis
     name: ticket-classifier-redis

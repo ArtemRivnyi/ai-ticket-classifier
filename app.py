@@ -291,7 +291,7 @@ mail = Mail(app)
 
 # Mail Configuration
 mail_port = int(os.getenv('MAIL_PORT', 587))
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.office365.com')
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = mail_port
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')

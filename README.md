@@ -168,7 +168,7 @@ This project is a **demonstration** of AI capabilities.
 
 **Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
 
-* 📧 [artemrivnyi@outlook.com](mailto:artemrivnyi@outlook.com)  
+* 📧 [ticketiq.ai@gmail.com](mailto:ticketiq.ai@gmail.com)  
 * 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
 * 🌐 [Personal Projects](https://personal-page-devops.onrender.com/)  
 * 💻 [GitHub](https://github.com/ArtemRivnyi)
