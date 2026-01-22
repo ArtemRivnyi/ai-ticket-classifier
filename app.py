@@ -277,12 +277,20 @@ cache = Cache(app, config=cache_config)
 mail = Mail(app)
 
 # Mail Configuration
+mail_port = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.office365.com')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
+app.config['MAIL_PORT'] = mail_port
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
+# Auto-configure SSL/TLS based on port
+if mail_port == 465:
+    app.config['MAIL_USE_SSL'] = True
+    app.config['MAIL_USE_TLS'] = False
+else:
+    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_USE_TLS'] = True
 
 # Import providers and middleware
 try:
@@ -507,7 +515,7 @@ def handle_contact():
             
         # Log the contact request and configuration (debug)
         logger.info(f"📩 Contact Request from {name} ({email}): {message}")
-        logger.info(f"🔧 Mail Config: Server={app.config.get('MAIL_SERVER')}, Port={app.config.get('MAIL_PORT')}, TLS={app.config.get('MAIL_USE_TLS')}, User={app.config.get('MAIL_USERNAME')}")
+        logger.info(f"🔧 Mail Config: Server={app.config.get('MAIL_SERVER')}, Port={app.config.get('MAIL_PORT')}, TLS={app.config.get('MAIL_USE_TLS')}, SSL={app.config.get('MAIL_USE_SSL')}, User={app.config.get('MAIL_USERNAME')}")
         
         # Prepare email message
         msg = Message(
