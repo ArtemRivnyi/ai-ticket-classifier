@@ -54,3 +54,4 @@ pandas==2.3.3
 
 # Caching
 Flask-Caching==2.1.0
+Flask-Mail==0.9.1

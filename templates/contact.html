@@ -138,7 +138,7 @@
 
         <div
             class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 transition-colors duration-200">
-            <form class="space-y-6">
+            <form class="space-y-6" id="contactForm">
                 <div>
                     <label for="name"
                         class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
@@ -173,30 +173,255 @@
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-800 py-8">
-        <div class="container mx-auto px-4 text-center text-slate-500 dark:text-slate-400">
-            <p>&copy; 2026 TicketAI. All rights reserved.</p>
-        </div>
-    </footer>
+    <!DOCTYPE html>
+    <html lang="en">
 
-    <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const body = document.body;
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contact Us - AI Ticket Classifier</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
+        <script>
+            tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                    }
+                }
+            }
+        </script>
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
 
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
-            body.classList.add('dark');
-            themeIcon.textContent = '☀️';
-        }
+            /* Dark mode styles */
+            .dark {
+                background-color: #0f172a !important;
+            }
 
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark');
-            const isDark = body.classList.contains('dark');
-            themeIcon.textContent = isDark ? '☀️' : '🌙';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-    </script>
-</body>
+            .dark nav {
+                background-color: #1e293b !important;
+                border-color: #334155 !important;
+            }
 
-</html>
+            .dark .bg-white {
+                background-color: #1e293b !important;
+            }
+
+            .dark .bg-slate-50 {
+                background-color: #0f172a !important;
+            }
+
+            .dark .text-slate-800,
+            .dark .text-slate-900 {
+                color: #f1f5f9 !important;
+            }
+
+            .dark .text-slate-600,
+            .dark .text-slate-700 {
+                color: #cbd5e1 !important;
+            }
+
+            .dark .text-slate-500 {
+                color: #94a3b8 !important;
+            }
+
+            .dark .border-slate-100,
+            .dark .border-slate-200,
+            .dark .border-slate-300 {
+                border-color: #334155 !important;
+            }
+
+            .dark input,
+            .dark textarea {
+                background-color: #0f172a !important;
+                color: #f1f5f9 !important;
+                border-color: #334155 !important;
+            }
+        </style>
+    </head>
+
+    <body class="bg-slate-50 min-h-screen flex flex-col dark:bg-slate-900 transition-colors duration-200">
+
+        <!-- Navbar -->
+        <nav
+            class="bg-white border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700 transition-colors duration-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <a href="/" class="flex items-center gap-2 group">
+                            <div class="bg-indigo-600 text-white p-2 rounded-lg group-hover:bg-indigo-700 transition">
+                                <span class="text-2xl">🎫</span>
+                            </div>
+                            <span
+                                class="text-xl font-bold text-slate-800 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">Ticket<span
+                                    class="text-indigo-600 dark:text-indigo-400">AI</span></span>
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center space-x-4">
+                            <a href="/"
+                                class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition">Home</a>
+                            <a href="/about"
+                                class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition">About</a>
+                            <a href="/evaluation"
+                                class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition">Evaluation</a>
+                            <a href="/docs"
+                                class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 font-medium transition">API
+                                Docs</a>
+                            <a href="https://github.com/ArtemRivnyi/ai-ticket-classifier" target="_blank"
+                                class="text-slate-400 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300 transition">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd"
+                                        d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </a>
+                        </div>
+                        <button id="themeToggle"
+                            class="p-2 text-slate-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400 transition"
+                            title="Toggle Dark Mode">
+                            <span id="themeIcon">🌙</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow container mx-auto px-4 py-12 max-w-3xl">
+            <a href="javascript:history.back()"
+                class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition mb-6 group">
+                <svg class="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18">
+                    </path>
+                </svg>
+                Back
+            </a>
+
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-4">Contact Us</h1>
+                <p class="text-lg text-slate-600 dark:text-slate-400">Have questions or need support? We're here to
+                    help.
+                </p>
+            </div>
+
+            <div
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 transition-colors duration-200">
+                <form class="space-y-6" id="contactForm">
+                    <div>
+                        <label for="name"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
+                        <input type="text" id="name"
+                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-slate-700 dark:text-white transition-colors"
+                            placeholder="Your Name">
+                    </div>
+                    <div>
+                        <label for="email"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                        <input type="email" id="email"
+                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-slate-700 dark:text-white transition-colors"
+                            placeholder="you@example.com">
+                    </div>
+                    <div>
+                        <label for="message"
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Message</label>
+                        <textarea id="message" rows="4"
+                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white dark:bg-slate-700 dark:text-white transition-colors"
+                            placeholder="How can we help?"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition transform hover:scale-[1.02]">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+
+            <div class="mt-12 text-center text-slate-500 dark:text-slate-400 text-sm">
+                <p>Or email us directly at <a href="mailto:artemrivnyi@outlook.com"
+                        class="text-indigo-600 hover:underline dark:text-indigo-400">artemrivnyi@outlook.com</a></p>
+            </div>
+        </main>
+
+        <footer class="bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-800 py-8">
+            <div class="container mx-auto px-4 text-center text-slate-500 dark:text-slate-400">
+                <p>&copy; 2026 TicketAI. All rights reserved.</p>
+            </div>
+        </footer>
+
+        <script>
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+            const body = document.body;
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                body.classList.add('dark');
+                themeIcon.textContent = '☀️';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark');
+                const isDark = body.classList.contains('dark');
+                themeIcon.textContent = isDark ? '☀️' : '🌙';
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+
+            // Contact Form Handling
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerText;
+
+                    // Set loading state
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Sending...';
+
+                    const formData = {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        message: document.getElementById('message').value
+                    };
+
+                    try {
+                        const response = await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(formData)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert('Message sent successfully! We will get back to you soon.');
+                            contactForm.reset();
+                        } else {
+                            alert(result.error || 'Failed to send message. Please try again.');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again later.');
+                    } finally {
+                        // Reset loading state
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = originalText;
+                    }
+                });
+            }
+        </script>
+    </body>
+
+    </html>

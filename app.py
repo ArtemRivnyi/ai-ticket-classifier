@@ -59,6 +59,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from flask_caching import Cache
+from flask_mail import Mail, Message
+import threading
 from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -271,6 +273,17 @@ else:
 
 cache = Cache(app, config=cache_config)
 
+# Initialize Mail
+mail = Mail(app)
+
+# Mail Configuration
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.office365.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
 # Import providers and middleware
 try:
     from providers.multi_provider import MultiProvider
@@ -469,6 +482,57 @@ def terms():
 def cookies():
     """Cookie Policy page"""
     return render_template("cookies.html")
+
+
+@app.route("/api/contact", methods=["POST"])
+@limiter.limit("3 per minute")
+def handle_contact():
+    """Handle contact form submission."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid request"}), 400
+            
+        name = data.get("name")
+        email = data.get("email")
+        message = data.get("message")
+        
+        if not all([name, email, message]):
+            return jsonify({"error": "All fields are required"}), 400
+            
+        # Check if email is configured
+        if not app.config.get('MAIL_USERNAME'):
+            logger.error("❌ MAIL_USERNAME not configured")
+            return jsonify({"error": "Email service not configured"}), 503
+            
+        # Log the contact request
+        logger.info(f"📩 Contact Request from {name} ({email}): {message}")
+        
+        # Prepare email message
+        msg = Message(
+            subject=f"New Contact Request from {name}",
+            recipients=[app.config['MAIL_USERNAME']],
+            body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}",
+            reply_to=email
+        )
+
+        # Send email asynchronously
+        def send_async_email(app, msg):
+            with app.app_context():
+                try:
+                    mail.send(msg)
+                    logger.info(f"✅ Email sent successfully to {app.config['MAIL_USERNAME']}")
+                except Exception as e:
+                    logger.error(f"❌ Failed to send email: {e}")
+
+        thread = threading.Thread(target=send_async_email, args=(current_app._get_current_object(), msg))
+        thread.start()
+
+        return jsonify({"message": "Message sent successfully"}), 200
+
+    except Exception as e:
+        logger.error(f"❌ Contact form error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/api/v1/evaluation-results")
