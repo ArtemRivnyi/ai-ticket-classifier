@@ -61,6 +61,7 @@ from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 from flask_mail import Mail, Message
 import threading
+import socket
 from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
@@ -517,6 +518,18 @@ def handle_contact():
         logger.info(f"📩 Contact Request from {name} ({email}): {message}")
         logger.info(f"🔧 Mail Config: Server={app.config.get('MAIL_SERVER')}, Port={app.config.get('MAIL_PORT')}, TLS={app.config.get('MAIL_USE_TLS')}, SSL={app.config.get('MAIL_USE_SSL')}, User={app.config.get('MAIL_USERNAME')}")
         
+        # Diagnostic: Check TCP connection
+        server = app.config.get('MAIL_SERVER')
+        port = app.config.get('MAIL_PORT')
+        try:
+            logger.info(f"🔍 Testing TCP connection to {server}:{port}...")
+            sock = socket.create_connection((server, port), timeout=5)
+            logger.info(f"✅ TCP Connection to {server}:{port} successful")
+            sock.close()
+        except Exception as e:
+            logger.error(f"❌ TCP Connection to {server}:{port} FAILED: {e}")
+            return jsonify({"error": f"Network error: Could not connect to {server}:{port}. {e}"}), 503
+
         # Prepare email message
         msg = Message(
             subject=f"New Contact Request from {name}",
