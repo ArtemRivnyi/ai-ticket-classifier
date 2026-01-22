@@ -62,6 +62,18 @@ from flask_caching import Cache
 from flask_mail import Mail, Message
 import threading
 import socket
+
+# Monkey-patch socket.getaddrinfo to force IPv4
+# This resolves [Errno 101] Network is unreachable on Render/Docker
+_original_getaddrinfo = socket.getaddrinfo
+
+def _ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    # If family is unspecified (0), force AF_INET (IPv4)
+    if family == 0:
+        family = socket.AF_INET
+    return _original_getaddrinfo(host, port, family, type, proto, flags)
+
+socket.getaddrinfo = _ipv4_getaddrinfo
 from flask_swagger_ui import get_swaggerui_blueprint
 from pydantic import BaseModel, Field, ValidationError, EmailStr, field_validator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
