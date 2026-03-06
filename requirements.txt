@@ -19,6 +19,7 @@ bleach==6.1.0
 
 # Monitoring
 prometheus-client==0.20.0
+prometheus-flask-exporter==0.23.0
 sentry-sdk[flask]>=2.8.0
 
 # Storage
@@ -34,8 +35,9 @@ cryptography==44.0.1
 
 # Database
 SQLAlchemy==2.0.31
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
 psycopg2-binary
-stripe>=10.0.0
 
 # Utilities
 requests==2.32.3

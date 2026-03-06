@@ -88,6 +88,36 @@ graph TB
 
 ---
 
+## 🚀 Running Locally
+
+### Prerequisites
+- Docker & Docker Compose
+- Python 3.12 (if running without Docker)
+
+### Quick Start (Docker)
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/ArtemRivnyi/ai-ticket-classifier.git
+   cd ai-ticket-classifier
+   ```
+
+2. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your API keys (GEMINI_API_KEY is recommended)
+   ```
+
+3. **Run with Docker Compose**
+   ```bash
+   docker-compose up --build
+   ```
+   The application will be available at `http://localhost:5000`.
+   
+   *Note: The application uses SQLite by default, so no external database setup is required.*
+
+---
+
 ## 📚 API Documentation
 
 ### Authentication

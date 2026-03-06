@@ -62,6 +62,14 @@ from flask_caching import Cache
 from flask_mail import Mail, Message
 import threading
 import socket
+from prometheus_flask_exporter import PrometheusMetrics
+
+# Initialize database
+from models import db, Feedback
+try:
+    from flask_migrate import Migrate
+except ImportError:
+    Migrate = None
 
 # Monkey-patch socket.getaddrinfo to force IPv4
 # This resolves [Errno 101] Network is unreachable on Render/Docker
@@ -138,6 +146,18 @@ if not env_status.is_valid:
     logger.error("Missing required environment variables", missing=env_status.missing)
     if not _is_testing:
         sys.exit(1)
+
+# Configure SQLAlchemy PostgreSQL
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/ai_ticket_classifier')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+if Migrate:
+    migrate = Migrate(app, db)
+
+# Configure Prometheus Metrics
+metrics_exporter = PrometheusMetrics(app, path='/metrics')
+metrics_exporter.info('app_info', 'Application info', version='2.5.0')
 
 REQUEST_ID_HEADER = "X-Request-ID"
 
@@ -691,7 +711,7 @@ def run_evaluation():
 @app.route("/api/feedback", methods=["POST"])
 @limiter.limit("10 per minute")
 def submit_feedback():
-    """Submit feedback for a classification result."""
+    """Submit feedback for a classification result and store it in PostgreSQL."""
     try:
         json_data = request.get_json(silent=True)
         if json_data is None:
@@ -699,37 +719,24 @@ def submit_feedback():
 
         data = FeedbackRequest(**json_data)
 
-        feedback_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "request_id": data.request_id,
-            "correct": data.correct,
-            "ticket": data.ticket,
-            "predicted": data.predicted,
-            "comments": data.comments,
-        }
+        # Store in PostgreSQL database instead of JSON file
+        new_feedback = Feedback(
+            request_id=data.request_id,
+            correct=data.correct,
+            ticket=data.ticket,
+            predicted=data.predicted,
+            comments=data.comments
+        )
+        db.session.add(new_feedback)
+        db.session.commit()
 
-        # Append to local file (simple storage for MVP)
-        feedback_file = "data/feedback.json"
-        existing_feedback = []
-
-        if os.path.exists(feedback_file):
-            try:
-                with open(feedback_file, "r") as f:
-                    existing_feedback = json.load(f)
-            except json.JSONDecodeError:
-                pass  # Start fresh if corrupted
-
-        existing_feedback.append(feedback_entry)
-
-        with open(feedback_file, "w") as f:
-            json.dump(existing_feedback, f, indent=2)
-
-        return jsonify({"status": "success", "message": "Feedback received"}), 200
+        return jsonify({"status": "success", "message": "Feedback received securely in database"}), 200
 
     except ValidationError as e:
         return jsonify({"error": "Validation error", "details": e.errors()}), 400
     except Exception as e:
         logger.error(f"Feedback error: {e}")
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 
