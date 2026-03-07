@@ -16,6 +16,12 @@ import app as app_module
 class TestAppInitialization:
     """Test app initialization paths"""
 
+    @pytest.fixture(autouse=True)
+    def disable_prometheus(self):
+        """Mock PrometheusMetrics to prevent duplicate timeseries errors on app module reload"""
+        with patch("prometheus_flask_exporter.PrometheusMetrics"):
+            yield
+
     def test_redis_connection_success(self):
         """Test successful Redis connection"""
         with patch("redis.from_url") as mock_redis:
