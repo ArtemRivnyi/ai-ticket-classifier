@@ -52,6 +52,7 @@ from flask import (
     current_app,
     send_from_directory,
     render_template,
+    make_response,
 )
 from flask_cors import CORS
 from utils.errors import APIError
@@ -779,7 +780,7 @@ class BatchTicketRequest(BaseModel):
     def sanitize_tickets(cls, v):
         """Sanitize batch tickets"""
         return [
-            re.sub(r"\s+", " ", ticket.replace("\x00", ""))[:5000].strip()
+            re.sub(r"\s+", " ", bleach.clean(ticket.replace("\x00", ""), strip=True))[:5000].strip()
             for ticket in v
             if ticket.strip()
         ]

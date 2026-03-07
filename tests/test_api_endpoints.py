@@ -4,11 +4,18 @@ from app import app
 import os
 
 
+from models import db
+
 @pytest.fixture
 def client():
     app.config["TESTING"] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     with app.test_client() as client:
-        yield client
+        with app.app_context():
+            db.create_all()
+            yield client
+            db.session.remove()
+            db.drop_all()
 
 
 def test_feedback_endpoint(client):
@@ -26,10 +33,7 @@ def test_feedback_endpoint(client):
     assert response.json["status"] == "success"
 
     # Verify file was created
-    assert os.path.exists("data/feedback.json")
-
-    # Clean up
-    # os.remove('feedback.json') # Keep it for inspection if needed, or remove
+    # Legacy file assertion removed, since feedback goes to PostgreSQL now.
 
 
 def test_feedback_invalid_json(client):
