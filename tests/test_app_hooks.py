@@ -21,11 +21,9 @@ def test_before_request_force_https_enabled(client, mocker):
     """Test before_request with FORCE_HTTPS enabled"""
     mocker.patch.dict(os.environ, {"FORCE_HTTPS": "true"})
 
-    # Reload app to pick up new env var
-    from importlib import reload
-    import app as app_module
-
-    reload(app_module)
+    # Clear settings cache so it picks up the patched env var
+    from config.settings import get_settings
+    get_settings.cache_clear()
 
     response = client.get("/api/v1/health")
     # Should either work or return 403 if HTTPS is enforced
@@ -51,11 +49,6 @@ def test_after_request_security_headers(client):
 def test_after_request_hsts_header(client, mocker):
     """Test after_request adds HSTS header when FORCE_HTTPS is enabled"""
     mocker.patch.dict(os.environ, {"FORCE_HTTPS": "true"})
-    from importlib import reload
-    import app as app_module
-
-    reload(app_module)
-
     response = client.get("/api/v1/health", headers={"X-Forwarded-Proto": "https"})
     if response.status_code == 200:
         assert "Strict-Transport-Security" in response.headers
