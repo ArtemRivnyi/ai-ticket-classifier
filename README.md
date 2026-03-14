@@ -1,6 +1,14 @@
 [![API Docs](https://img.shields.io/badge/📚_API-Docs-blue?style=for-the-badge)](https://ai-ticket-classifier.onrender.com/docs/)
 [![Portfolio](https://img.shields.io/badge/👨‍💻_My-Portfolio-orange?style=for-the-badge)](https://artemrivnyi.com)
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google-gemini&logoColor=white" />
+</p>
+
 **Enterprise-grade AI support ticket classification API** powered by Google Gemini 2.0 Flash with OpenAI GPT-4 fallback.
 
 ---
