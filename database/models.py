@@ -21,6 +21,7 @@ class User(Base):
     stripe_customer_id = Column(String, nullable=True)
     subscription_id = Column(String, nullable=True)
     subscription_status = Column(String, default="free")  # free, active, past_due, canceled
+    tier = Column(String(20), default="free")  # free, starter, pro
     
     # Relationships
     api_keys = relationship("APIKey", back_populates="user", cascade="all, delete-orphan")

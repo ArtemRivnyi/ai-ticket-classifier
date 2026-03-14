@@ -124,3 +124,29 @@ def handle_checkout_completed(session):
             logger.error(f"Error updating user tier: {e}")
         finally:
             db.close()
+
+
+@billing_bp.route("/customer-portal", methods=["POST"])
+@require_jwt_or_api_key
+def customer_portal():
+    """Create a Stripe Customer Portal session for managing subscription"""
+    try:
+        user_id = request.user_id
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.id == int(user_id)).first()
+            if not user:
+                return jsonify({"error": "User not found"}), 404
+            if not user.stripe_customer_id:
+                return jsonify({"error": "No billing account found"}), 400
+
+            session = stripe.billing_portal.Session.create(
+                customer=user.stripe_customer_id,
+                return_url=request.host_url.rstrip("/") + "/billing",
+            )
+            return jsonify({"portal_url": session.url})
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Error creating portal session: {e}")
+        return jsonify({"error": str(e)}), 500
