@@ -28,8 +28,42 @@ document.addEventListener('DOMContentLoaded', function () {
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
 
-    // Fetch API Keys
+    // Fetch API Keys and Usage
     fetchKeys();
+    fetchUsage();
+
+    async function fetchUsage() {
+        try {
+            const response = await fetch('/api/v1/auth/usage', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update Current Tier
+                const currentTierEl = document.getElementById('currentTier');
+                if (currentTierEl) currentTierEl.textContent = data.tier || 'Free';
+
+                // Update Requests Today
+                const requestsTodayEl = document.getElementById('requestsToday');
+                if (requestsTodayEl && data.rate_limits) {
+                    const limit = data.rate_limits.daily_limit;
+                    if (limit === -1 || limit === undefined) {
+                        requestsTodayEl.textContent = "Unlimited";
+                    } else {
+                        const remaining = data.rate_limits.daily_remaining || 0;
+                        const used = Math.max(0, limit - remaining);
+                        requestsTodayEl.textContent = `${used.toLocaleString()} / ${limit.toLocaleString()}`;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching usage:', error);
+        }
+    }
 
     // Create Key Handler
     const saveKeyBtn = document.getElementById('saveKeyBtn');

@@ -4,9 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const alertMessage = document.getElementById('alertMessage');
 
     function showAlert(message, type = 'danger') {
+        const isError = type === 'danger' || type === 'error';
+        const bgClass = isError ? 'bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' : 'bg-green-50 text-green-600 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800';
+
         alertMessage.textContent = message;
-        alertMessage.className = `alert alert-${type} mt-3`;
-        alertMessage.classList.remove('d-none');
+        alertMessage.className = `mt-4 p-3 rounded-lg text-sm ${bgClass}`;
+        alertMessage.classList.remove('hidden');
     }
 
     if (loginForm) {

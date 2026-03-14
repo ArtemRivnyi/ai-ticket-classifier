@@ -186,7 +186,7 @@
     <script>
         // Simple script to fetch user info and update UI
         document.addEventListener('DOMContentLoaded', async () => {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('jwt_token');
             if (!token) {
                 window.location.href = '/login';
                 return;
@@ -195,7 +195,7 @@
             // Logout handler
             document.getElementById('logoutBtn').addEventListener('click', (e) => {
                 e.preventDefault();
-                localStorage.removeItem('token');
+                localStorage.removeItem('jwt_token');
                 window.location.href = '/login';
             });
 
@@ -224,7 +224,7 @@
         });
 
         async function upgradeToTier(tier) {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('jwt_token');
             try {
                 const response = await fetch('/api/v1/billing/create-checkout-session', {
                     method: 'POST',
@@ -238,7 +238,7 @@
         }
 
         async function openCustomerPortal() {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('jwt_token');
             const btn = document.getElementById('portalBtn');
             btn.disabled = true;
             btn.textContent = 'Opening...';

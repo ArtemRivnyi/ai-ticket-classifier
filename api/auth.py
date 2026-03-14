@@ -12,10 +12,11 @@ from sqlalchemy.orm import Session
 
 # Import after middleware is created
 try:
-    from middleware.auth import APIKeyManager, require_api_key
+    from middleware.auth import APIKeyManager
+    from security.jwt_auth import require_jwt_or_api_key
 except ImportError:
     APIKeyManager = None
-    require_api_key = lambda f: f
+    require_jwt_or_api_key = lambda f: f
 
 from database.models import SessionLocal, User
 
@@ -114,7 +115,7 @@ def register():
 
 
 @auth_bp.route("/keys", methods=["GET"])
-@require_api_key
+@require_jwt_or_api_key
 def list_keys():
     """List all API keys for current user"""
     try:
@@ -133,7 +134,7 @@ def list_keys():
 
 
 @auth_bp.route("/keys", methods=["POST"])
-@require_api_key
+@require_jwt_or_api_key
 def create_key():
     """Create a new API key"""
     try:
@@ -163,7 +164,7 @@ def create_key():
 
 
 @auth_bp.route("/keys/<string:key_id>", methods=["DELETE"])
-@require_api_key
+@require_jwt_or_api_key
 def revoke_key(key_id):
     """Revoke an API key"""
     try:
@@ -182,7 +183,7 @@ def revoke_key(key_id):
 
 
 @auth_bp.route("/usage", methods=["GET"])
-@require_api_key
+@require_jwt_or_api_key
 def usage():
     """Get current usage statistics"""
     try:
