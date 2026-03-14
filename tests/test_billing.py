@@ -90,3 +90,55 @@ def test_webhook_checkout_completed(client, mock_db_session, mocker):
     assert mock_user.tier == "pro"
     assert mock_user.subscription_id == "sub_123"
     assert mock_user.subscription_status == "active"
+
+def test_webhook_payment_failed(client, mock_db_session, mocker):
+    """Test webhook handling for payment failed"""
+    mock_event = {
+        "type": "invoice.payment_failed",
+        "data": {
+            "object": {
+                "subscription": "sub_123",
+                "customer": "cus_123"
+            }
+        }
+    }
+    mocker.patch("api.billing.stripe.Webhook.construct_event", return_value=mock_event)
+    
+    mock_user = Mock(spec=User)
+    mock_user.subscription_id = "sub_123"
+    mock_user.tier = "pro"
+    mock_user.subscription_status = "active"
+    mock_db_session.query.return_value.filter.return_value.first.return_value = mock_user
+    
+    headers = {"Stripe-Signature": "valid_signature"}
+    response = client.post("/api/v1/billing/webhook", data="payload", headers=headers)
+    
+    assert response.status_code == 200
+    assert mock_user.tier == "free"
+    assert mock_user.subscription_status == "past_due"
+
+def test_webhook_subscription_deleted(client, mock_db_session, mocker):
+    """Test webhook handling for subscription deleted"""
+    mock_event = {
+        "type": "customer.subscription.deleted",
+        "data": {
+            "object": {
+                "id": "sub_123",
+                "customer": "cus_123"
+            }
+        }
+    }
+    mocker.patch("api.billing.stripe.Webhook.construct_event", return_value=mock_event)
+    
+    mock_user = Mock(spec=User)
+    mock_user.subscription_id = "sub_123"
+    mock_user.tier = "pro"
+    mock_user.subscription_status = "active"
+    mock_db_session.query.return_value.filter.return_value.first.return_value = mock_user
+    
+    headers = {"Stripe-Signature": "valid_signature"}
+    response = client.post("/api/v1/billing/webhook", data="payload", headers=headers)
+    
+    assert response.status_code == 200
+    assert mock_user.tier == "free"
+    assert mock_user.subscription_status == "canceled"
