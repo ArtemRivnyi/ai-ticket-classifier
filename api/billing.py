@@ -99,10 +99,32 @@ def stripe_webhook():
         session = event["data"]["object"]
         handle_checkout_completed(session)
     elif event["type"] == "invoice.payment_succeeded":
+        pass  # subscription auto-renews, no action needed
+    elif event["type"] == "invoice.payment_failed":
         invoice = event["data"]["object"]
-        # handle_payment_succeeded(invoice) # Optional: extend subscription
-    
+        _set_user_tier_by_subscription(invoice.get("subscription"), "free", "past_due")
+    elif event["type"] == "customer.subscription.deleted":
+        sub = event["data"]["object"]
+        _set_user_tier_by_subscription(sub.get("id"), "free", "canceled")
+
     return jsonify({"status": "success"})
+
+def _set_user_tier_by_subscription(subscription_id, tier, status):
+    """Helper to update user tier by subscription ID"""
+    if not subscription_id:
+        return
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.subscription_id == subscription_id).first()
+        if user:
+            user.tier = tier
+            user.subscription_status = status
+            db.commit()
+            logger.info(f"User subscription {subscription_id} → tier={tier} status={status}")
+    except Exception as e:
+        logger.error(f"Error updating tier by subscription: {e}")
+    finally:
+        db.close()
 
 def handle_checkout_completed(session):
     """Update user tier after successful checkout"""
