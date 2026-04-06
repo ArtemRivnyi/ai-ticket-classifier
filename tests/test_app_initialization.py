@@ -80,9 +80,12 @@ class TestAppInitialization:
 
     def test_auth_middleware_loading_success(self):
         """Test successful auth middleware loading"""
-        with patch("app.require_api_key", Mock()), patch(
-            "app.optional_api_key", Mock()
-        ), patch("app.APIKeyManager", Mock()), patch("app.RateLimiter", Mock()):
+        with (
+            patch("app.require_api_key", Mock()),
+            patch("app.optional_api_key", Mock()),
+            patch("app.APIKeyManager", Mock()),
+            patch("app.RateLimiter", Mock()),
+        ):
             import importlib
 
             importlib.reload(app_module)
@@ -148,12 +151,12 @@ class TestAppInitialization:
 
     def test_metrics_initialization_success(self):
         """Test successful metrics initialization"""
-        with patch("app.request_count", Mock()), patch(
-            "app.request_duration", Mock()
-        ), patch("app.classification_count", Mock()), patch(
-            "app.error_count", Mock()
-        ), patch(
-            "app.active_requests", Mock()
+        with (
+            patch("app.request_count", Mock()),
+            patch("app.request_duration", Mock()),
+            patch("app.classification_count", Mock()),
+            patch("app.error_count", Mock()),
+            patch("app.active_requests", Mock()),
         ):
             import importlib
 

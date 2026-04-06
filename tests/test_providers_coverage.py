@@ -195,9 +195,10 @@ class TestMultiProviderCoverage:
         try:
             os.environ["GEMINI_API_KEY"] = "test_key"
             # Patch google.generativeai before importing
-            with patch("google.generativeai.configure") as mock_configure, patch(
-                "google.generativeai.GenerativeModel"
-            ) as mock_generative_model:
+            with (
+                patch("google.generativeai.configure") as mock_configure,
+                patch("google.generativeai.GenerativeModel") as mock_generative_model,
+            ):
                 mock_model = MagicMock()
                 mock_generative_model.return_value = mock_model
                 # Reload module to use mocked genai

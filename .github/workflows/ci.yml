@@ -57,7 +57,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install flake8 pylint black
+          pip install flake8 pylint black==25.12.0
       
       - name: Run flake8
         run: |
@@ -70,7 +70,7 @@ jobs:
       
       - name: Check formatting with black
         run: |
-          black --check .
+          black --check --target-version py312 .
 
   security:
     name: Security Scan

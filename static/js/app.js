@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function checkSystemStatus() {
         if (!systemStatus) return;
         try {
-            const response = await fetch('/api/v1/ready');
+            const response = await fetch('/api/v1/health');
             if (response.ok) {
                 systemStatus.innerHTML = '<span class="text-green-500">●</span> System Ready';
                 systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 hidden md:inline-block border border-green-100';
