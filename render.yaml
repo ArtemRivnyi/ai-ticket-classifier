@@ -2,6 +2,7 @@ services:
   - type: web
     name: ai-ticket-classifier
     env: docker
+    branch: main
     envVars:
       - key: FLASK_ENV
         value: production
