@@ -88,11 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeIcon = document.getElementById('themeIcon');
     const themeToggleMobile = document.getElementById('themeToggleMobile');
     const themeIconMobile = document.getElementById('themeIconMobile');
-    const body = document.body;
+    const root = document.documentElement;
 
     function toggleTheme() {
-        body.classList.toggle('dark');
-        const isDark = body.classList.contains('dark');
+        root.classList.toggle('dark');
+        const isDark = root.classList.contains('dark');
         const icon = isDark ? '☀️' : '🌙';
 
         if (themeIcon) themeIcon.textContent = icon;
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load saved theme
     const savedTheme = localStorage.getItem('theme') || 'light';
     if (savedTheme === 'dark') {
-        body.classList.add('dark');
+        root.classList.add('dark');
         if (themeIcon) themeIcon.textContent = '☀️';
         if (themeIconMobile) themeIconMobile.textContent = '☀️';
     }
