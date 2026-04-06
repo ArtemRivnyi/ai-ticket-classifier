@@ -102,3 +102,7 @@ local.db
 # Garbage / Mistake files
 [auth]
 [internal]
+
+# Dev utility scripts (not part of the application)
+get_prices.py
+verify_stripe.py

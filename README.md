@@ -204,7 +204,7 @@ This project is a **demonstration** of AI capabilities.
 
 ## 🧰 Maintainer
 
-**Artem Rivnyi** — Junior Technical Support / DevOps Enthusiast
+**Artem Rivnyi** — DevOps Engineer
 
 * 📧 [ticketiq.ai@gmail.com](mailto:ticketiq.ai@gmail.com)  
 * 🔗 [LinkedIn](https://www.linkedin.com/in/artem-rivnyi/)  
