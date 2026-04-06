@@ -119,6 +119,9 @@ def _set_user_tier_by_subscription(subscription_id, tier, status):
         if user:
             user.tier = tier
             user.subscription_status = status
+            
+            _sync_api_keys_tier(db, user.id, tier)
+            
             db.commit()
             logger.info(f"User subscription {subscription_id} → tier={tier} status={status}")
     except Exception as e:
@@ -140,12 +143,37 @@ def handle_checkout_completed(session):
                 user.tier = tier
                 user.subscription_id = subscription_id
                 user.subscription_status = "active"
+                
+                _sync_api_keys_tier(db, user.id, tier)
+                
                 db.commit()
                 logger.info(f"User {user_id} upgraded to {tier}")
         except Exception as e:
             logger.error(f"Error updating user tier: {e}")
         finally:
             db.close()
+
+
+def _sync_api_keys_tier(db, user_id, tier):
+    """Synchronize user's tier to all their API keys and update Redis cache."""
+    from database.models import APIKey
+    try:
+        from middleware.auth import redis_client
+    except ImportError:
+        redis_client = None
+
+    try:
+        keys = db.query(APIKey).filter(APIKey.user_id == user_id).all()
+        for k in keys:
+            k.tier = tier
+            if redis_client:
+                try:
+                    redis_client.hset(f"api_key:{k.key_hash}", "tier", tier)
+                except Exception as e:
+                    logger.error(f"Redis tier update failed for API key {k.id}: {e}")
+    except Exception as e:
+        logger.error(f"Failed to sync API keys tier: {e}")
+
 
 
 @billing_bp.route("/customer-portal", methods=["POST"])
