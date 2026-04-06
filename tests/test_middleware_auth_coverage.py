@@ -26,8 +26,9 @@ class TestMiddlewareAuthCoverage:
                             mock_instance = MockAPIKey.return_value
                             mock_instance.id = 1
                             from datetime import datetime
+
                             mock_instance.created_at = datetime(2025, 1, 1)
-                            
+
                             key_data = middleware.auth.APIKeyManager.create_key(
                                 "123", "test_key", "free"
                             )
@@ -63,7 +64,9 @@ class TestMiddlewareAuthCoverage:
         with patch("middleware.auth.redis_client", None):
             with patch("middleware.auth.SessionLocal") as mock_session:
                 # Mock empty list return
-                mock_session.return_value.query.return_value.filter.return_value.all.return_value = []
+                mock_session.return_value.query.return_value.filter.return_value.all.return_value = (
+                    []
+                )
                 result = middleware.auth.APIKeyManager.list_user_keys("1")
                 assert result == []
 
@@ -88,9 +91,7 @@ class TestMiddlewareAuthCoverage:
         try:
             middleware.auth.redis_client = None
             # When Redis is None, check_rate_limit should return (True, {})
-            allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "1", "free"
-            )
+            allowed, info = middleware.auth.RateLimiter.check_rate_limit("1", "free")
             assert allowed is True
             # When Redis is None, info should be empty dict
             assert info == {}
@@ -126,9 +127,7 @@ class TestMiddlewareAuthCoverage:
         mock_redis.ttl.return_value = 3600
 
         with patch("middleware.auth.redis_client", mock_redis):
-            allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "1", "free"
-            )
+            allowed, info = middleware.auth.RateLimiter.check_rate_limit("1", "free")
             assert allowed is False
             assert "limit" in info or "remaining" in info or "hourly_limit" in info
 
@@ -154,9 +153,7 @@ class TestMiddlewareAuthCoverage:
         mock_redis.ttl.return_value = 86400
 
         with patch("middleware.auth.redis_client", mock_redis):
-            allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "1", "free"
-            )
+            allowed, info = middleware.auth.RateLimiter.check_rate_limit("1", "free")
             assert allowed is False
             assert "limit" in info
 
@@ -174,9 +171,7 @@ class TestMiddlewareAuthCoverage:
         mock_redis.get.return_value = 1
 
         with patch("middleware.auth.redis_client", mock_redis):
-            allowed, info = middleware.auth.RateLimiter.check_rate_limit(
-                "1", "free"
-            )
+            allowed, info = middleware.auth.RateLimiter.check_rate_limit("1", "free")
             assert allowed is True
             # expire should be called for both hour and day keys
             assert mock_redis.expire.call_count >= 1

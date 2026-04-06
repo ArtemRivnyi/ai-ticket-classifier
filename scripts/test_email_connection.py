@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-smtp_server = os.getenv('MAIL_SERVER')
-smtp_port = int(os.getenv('MAIL_PORT'))
-smtp_user = os.getenv('MAIL_USERNAME')
-smtp_password = os.getenv('MAIL_PASSWORD')
+smtp_server = os.getenv("MAIL_SERVER")
+smtp_port = int(os.getenv("MAIL_PORT"))
+smtp_user = os.getenv("MAIL_USERNAME")
+smtp_password = os.getenv("MAIL_PASSWORD")
 
 print(f"Testing connection to {smtp_server}:{smtp_port}...")
 print(f"User: {smtp_user}")

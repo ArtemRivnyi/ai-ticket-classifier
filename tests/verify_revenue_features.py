@@ -1,10 +1,12 @@
 import sys
 import os
+
 sys.path.append(os.getcwd())
 import json
 import pytest
 from app import app
 from database.models import init_db, User, APIKey, SessionLocal
+
 
 def test_revenue_features():
     print("Initializing DB...")
@@ -27,7 +29,7 @@ def test_revenue_features():
         "email": "test@example.com",
         "password": "securepassword123",
         "organization": "Test Org",
-        "name": "Test User"
+        "name": "Test User",
     }
     response = client.post("/api/v1/auth/register", json=reg_payload)
     assert response.status_code == 201
@@ -42,7 +44,7 @@ def test_revenue_features():
     classify_payload = {"ticket": "My internet is not working, please help."}
     headers = {"X-API-Key": api_key}
     response = client.post("/api/v1/classify", json=classify_payload, headers=headers)
-    
+
     # Note: If providers are not configured, we might get 503, but auth should pass (not 401)
     print(f"   Status Code: {response.status_code}")
     if response.status_code == 401:
@@ -67,8 +69,8 @@ def test_revenue_features():
     assert response.status_code == 200
     keys_data = response.get_json()
     print(f"   Keys found: {len(keys_data['keys'])}")
-    assert len(keys_data['keys']) >= 1
-    key_id = keys_data['keys'][0]['id']
+    assert len(keys_data["keys"]) >= 1
+    key_id = keys_data["keys"][0]["id"]
 
     # 5. Revoke Key
     print(f"\n5. Testing Revoke Key (ID: {key_id})...")
@@ -83,6 +85,7 @@ def test_revenue_features():
     print("   Correctly rejected (401)")
 
     print("\n✅ All Revenue Features Verified Successfully!")
+
 
 if __name__ == "__main__":
     try:

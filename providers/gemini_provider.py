@@ -45,10 +45,12 @@ class GeminiClassifier:
         wait=wait_exponential(multiplier=1, min=2, max=10),
         retry=retry_if_exception_type((Exception,)),
     )
-    def classify(self, ticket_text: str) -> dict:
+    def classify(self, ticket_text: str, extra_examples: str = "") -> dict:
         """Classify with retry logic and comprehensive prompt"""
         try:
-            prompt = format_classification_prompt(ticket_text, provider="gemini")
+            prompt = format_classification_prompt(
+                ticket_text, provider="gemini", extra_examples=extra_examples
+            )
 
             response = self.model.generate_content(
                 prompt,

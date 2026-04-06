@@ -9,10 +9,14 @@ logger = logging.getLogger(__name__)
 
 webhooks_bp = Blueprint("webhooks", __name__, url_prefix="/api/v1/webhooks")
 
+
 class WebhookCreate(BaseModel):
     url: str = Field(..., description="Webhook URL")
     secret: Optional[str] = Field(None, description="Secret for signature verification")
-    events: List[str] = Field(default=["classification.completed"], description="Events to subscribe to")
+    events: List[str] = Field(
+        default=["classification.completed"], description="Events to subscribe to"
+    )
+
 
 @webhooks_bp.route("", methods=["GET"])
 @require_jwt_or_api_key
@@ -22,19 +26,23 @@ def list_webhooks():
     db = SessionLocal()
     try:
         webhooks = db.query(Webhook).filter(Webhook.user_id == int(user_id)).all()
-        return jsonify({
-            "webhooks": [
-                {
-                    "id": w.id,
-                    "url": w.url,
-                    "events": w.events.split(","),
-                    "is_active": w.is_active,
-                    "created_at": w.created_at.isoformat()
-                } for w in webhooks
-            ]
-        })
+        return jsonify(
+            {
+                "webhooks": [
+                    {
+                        "id": w.id,
+                        "url": w.url,
+                        "events": w.events.split(","),
+                        "is_active": w.is_active,
+                        "created_at": w.created_at.isoformat(),
+                    }
+                    for w in webhooks
+                ]
+            }
+        )
     finally:
         db.close()
+
 
 @webhooks_bp.route("", methods=["POST"])
 @require_jwt_or_api_key
@@ -57,21 +65,27 @@ def create_webhook():
             user_id=int(user_id),
             url=str(data.url),
             secret=data.secret,
-            events=",".join(data.events)
+            events=",".join(data.events),
         )
         db.add(webhook)
         db.commit()
-        
-        return jsonify({
-            "status": "success",
-            "webhook_id": webhook.id,
-            "message": "Webhook registered"
-        }), 201
+
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "webhook_id": webhook.id,
+                    "message": "Webhook registered",
+                }
+            ),
+            201,
+        )
     except Exception as e:
         logger.error(f"Error creating webhook: {e}")
         return jsonify({"error": "Failed to create webhook"}), 500
     finally:
         db.close()
+
 
 @webhooks_bp.route("/<int:webhook_id>", methods=["DELETE"])
 @require_jwt_or_api_key
@@ -80,14 +94,15 @@ def delete_webhook(webhook_id):
     user_id = request.user_id
     db = SessionLocal()
     try:
-        webhook = db.query(Webhook).filter(
-            Webhook.id == webhook_id,
-            Webhook.user_id == int(user_id)
-        ).first()
-        
+        webhook = (
+            db.query(Webhook)
+            .filter(Webhook.id == webhook_id, Webhook.user_id == int(user_id))
+            .first()
+        )
+
         if not webhook:
             return jsonify({"error": "Webhook not found"}), 404
-            
+
         db.delete(webhook)
         db.commit()
         return jsonify({"status": "success", "message": "Webhook deleted"})

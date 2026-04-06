@@ -23,6 +23,7 @@ def test_before_request_force_https_enabled(client, mocker):
 
     # Clear settings cache so it picks up the patched env var
     from config.settings import get_settings
+
     get_settings.cache_clear()
 
     response = client.get("/api/v1/health")

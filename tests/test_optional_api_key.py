@@ -14,7 +14,10 @@ def test_optional_api_key_anonymous_rate_limit_exceeded(mocker):
     test_app.config["TESTING"] = True
 
     # Patch RateLimiter.check_rate_limit directly to ensure it returns False
-    mocker.patch("middleware.auth.RateLimiter.check_rate_limit", return_value=(False, {"reset_in": 60}))
+    mocker.patch(
+        "middleware.auth.RateLimiter.check_rate_limit",
+        return_value=(False, {"reset_in": 60}),
+    )
 
     @test_app.route("/test-anonymous-limit")
     @optional_api_key
@@ -32,7 +35,10 @@ def test_optional_api_key_anonymous_first_request(mocker):
     test_app.config["TESTING"] = True
 
     # Patch RateLimiter.check_rate_limit
-    with patch("middleware.auth.RateLimiter.check_rate_limit", return_value=(True, {})) as mock_check:
+    with patch(
+        "middleware.auth.RateLimiter.check_rate_limit", return_value=(True, {})
+    ) as mock_check:
+
         @test_app.route("/test-anonymous-first")
         @optional_api_key
         def test_endpoint():

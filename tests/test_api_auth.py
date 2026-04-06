@@ -58,7 +58,7 @@ def test_register_success(client, mocker, mock_db_session):
         "email": "test@example.com",
         "name": "Test User",
         "organization": "Test Org",
-        "password": "securepassword123"
+        "password": "securepassword123",
     }
 
     response = client.post("/api/v1/auth/register", json=payload)

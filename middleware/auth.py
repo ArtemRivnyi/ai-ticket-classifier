@@ -75,7 +75,7 @@ class APIKeyManager:
             }
 
         key_hash = APIKeyManager.hash_key(key)
-        
+
         # 1. Try Redis
         if redis_client:
             cached_data = redis_client.hgetall(f"api_key:{key_hash}")
@@ -86,31 +86,34 @@ class APIKeyManager:
                     "user_id": cached_data.get("user_id"),
                     "tier": cached_data.get("tier"),
                     "is_active": cached_data.get("is_active") == "true",
-                    "name": cached_data.get("name")
+                    "name": cached_data.get("name"),
                 }
 
         # 2. Try Database
         db: Session = SessionLocal()
         try:
             api_key_obj = db.query(APIKey).filter(APIKey.key_hash == key_hash).first()
-            
+
             if api_key_obj:
                 data = {
                     "id": str(api_key_obj.id),
                     "user_id": str(api_key_obj.user_id),
                     "tier": api_key_obj.tier,
                     "is_active": api_key_obj.is_active,
-                    "name": api_key_obj.name
+                    "name": api_key_obj.name,
                 }
-                
+
                 # Cache in Redis
                 if redis_client:
-                    redis_data = {k: str(v).lower() if isinstance(v, bool) else str(v) for k, v in data.items()}
+                    redis_data = {
+                        k: str(v).lower() if isinstance(v, bool) else str(v)
+                        for k, v in data.items()
+                    }
                     redis_client.hset(f"api_key:{key_hash}", mapping=redis_data)
-                    redis_client.expire(f"api_key:{key_hash}", 300) # Cache for 5 mins
-                
+                    redis_client.expire(f"api_key:{key_hash}", 300)  # Cache for 5 mins
+
                 return data
-            
+
             return None
         finally:
             db.close()
@@ -120,36 +123,36 @@ class APIKeyManager:
         """Create a new API key"""
         key = APIKeyManager.generate_key()
         key_hash = APIKeyManager.hash_key(key)
-        
+
         db: Session = SessionLocal()
         try:
-            # Ensure user exists (if user_id is int, but here we use string IDs for now? 
+            # Ensure user exists (if user_id is int, but here we use string IDs for now?
             # The User model uses Integer ID. But api/auth.py generates "usr_..." string.
-            # We need to reconcile this. 
+            # We need to reconcile this.
             # Strategy: Let's change User model to use String ID or map it.
             # For now, let's assume user_id passed here is the Integer ID from the DB.
             # But api/auth.py generates a string.
             # Let's fix api/auth.py to create User in DB and get the Integer ID.
-            
+
             new_key = APIKey(
                 key_hash=key_hash,
-                user_id=int(user_id), # Assuming user_id is int
+                user_id=int(user_id),  # Assuming user_id is int
                 name=name,
                 tier=tier,
-                is_active=True
+                is_active=True,
             )
             db.add(new_key)
             db.commit()
             db.refresh(new_key)
-            
+
             key_data = {
                 "key": key,
                 "key_id": str(new_key.id),
                 "tier": tier,
                 "created_at": new_key.created_at.isoformat(),
-                "name": name
+                "name": name,
             }
-            
+
             # Cache in Redis
             if redis_client:
                 redis_data = {
@@ -157,11 +160,11 @@ class APIKeyManager:
                     "user_id": str(user_id),
                     "tier": tier,
                     "is_active": "true",
-                    "name": name
+                    "name": name,
                 }
                 redis_client.hset(f"api_key:{key_hash}", mapping=redis_data)
                 redis_client.sadd(f"user_keys:{user_id}", key_hash)
-                
+
             return key_data
         except Exception as e:
             db.rollback()
@@ -175,15 +178,19 @@ class APIKeyManager:
         """Revoke an API key"""
         db: Session = SessionLocal()
         try:
-            key = db.query(APIKey).filter(APIKey.id == int(key_id), APIKey.user_id == int(user_id)).first()
+            key = (
+                db.query(APIKey)
+                .filter(APIKey.id == int(key_id), APIKey.user_id == int(user_id))
+                .first()
+            )
             if key:
                 key.is_active = False
                 db.commit()
-                
+
                 # Update Redis
                 if redis_client:
                     redis_client.hset(f"api_key:{key.key_hash}", "is_active", "false")
-                
+
                 return True
             return False
         except Exception as e:
@@ -206,12 +213,13 @@ class APIKeyManager:
                     "is_active": k.is_active,
                     "created_at": k.created_at.isoformat(),
                     "last_used": k.last_used.isoformat() if k.last_used else None,
-                    "requests_count": k.total_requests
+                    "requests_count": k.total_requests,
                 }
                 for k in keys
             ]
         finally:
             db.close()
+
 
 class RateLimiter:
     """Rate limiting per API key"""
@@ -239,27 +247,35 @@ class RateLimiter:
                 "remaining": 0,
                 "reset_in": redis_client.ttl(hour_key),
             }
-            
+
         # Check daily limit
         if limits["requests_per_day"] != -1:
             day_key = f"rate_limit:day:{user_id}"
             day_count = redis_client.incr(day_key)
-            
+
             if day_count == 1:
                 redis_client.expire(day_key, 86400)
-                
+
             if day_count > limits["requests_per_day"]:
                 return False, {
                     "limit": limits["requests_per_day"],
                     "remaining": 0,
                     "reset_in": redis_client.ttl(day_key),
                 }
-        
+
         return True, {
             "hourly_limit": limits["requests_per_hour"],
             "hourly_remaining": limits["requests_per_hour"] - hour_count,
             "daily_limit": limits["requests_per_day"],
-            "daily_remaining": max(0, limits["requests_per_day"] - (redis_client.get(f"rate_limit:day:{user_id}") or 0) if limits["requests_per_day"] != -1 else -1)
+            "daily_remaining": max(
+                0,
+                (
+                    limits["requests_per_day"]
+                    - (redis_client.get(f"rate_limit:day:{user_id}") or 0)
+                    if limits["requests_per_day"] != -1
+                    else -1
+                ),
+            ),
         }
 
 
@@ -287,47 +303,60 @@ def require_api_key(f):
         allowed, rate_info = RateLimiter.check_rate_limit(user_id, tier)
 
         if not allowed:
-            return jsonify({
-                "error": "Rate limit exceeded",
-                "retry_after": rate_info.get("reset_in")
-            }), 429
+            return (
+                jsonify(
+                    {
+                        "error": "Rate limit exceeded",
+                        "retry_after": rate_info.get("reset_in"),
+                    }
+                ),
+                429,
+            )
 
         # Attach context
         g.user_id = user_id
         g.tier = tier
-        
+
         # Also attach to request for compatibility
         request.user_id = user_id
         request.api_key_tier = tier
         request.rate_limit_info = rate_info
-        
+
         # Async update usage stats (fire and forget in Redis, sync to DB later or via background worker)
         # For now, we just update DB directly in a separate thread or just simple increment if performance allows
-        # To keep it simple for MVP, we'll skip DB write on every request and rely on Redis counters if needed, 
+        # To keep it simple for MVP, we'll skip DB write on every request and rely on Redis counters if needed,
         # or just write to DB if traffic is low.
-        
+
         return f(*args, **kwargs)
 
     return decorated_function
 
+
 def optional_api_key(f):
     """Decorator for optional API key"""
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         api_key = request.headers.get("X-API-Key")
         if api_key:
             return require_api_key(f)(*args, **kwargs)
-        
+
         # Anonymous fallback
         g.user_id = f"anon:{request.remote_addr}"
         g.tier = "free"
-        
+
         allowed, rate_info = RateLimiter.check_rate_limit(g.user_id, g.tier)
         if not allowed:
-            return jsonify({
-                "error": "Rate limit exceeded",
-                "retry_after": rate_info.get("reset_in")
-            }), 429
-            
+            return (
+                jsonify(
+                    {
+                        "error": "Rate limit exceeded",
+                        "retry_after": rate_info.get("reset_in"),
+                    }
+                ),
+                429,
+            )
+
         return f(*args, **kwargs)
+
     return decorated_function

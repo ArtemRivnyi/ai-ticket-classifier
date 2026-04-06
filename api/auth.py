@@ -41,26 +41,26 @@ def register():
     """Register a new user and get their first API key and JWT token"""
     try:
         data = UserRegistration(**request.json)
-        
+
         db: Session = SessionLocal()
         try:
             # Check if user exists
             existing_user = db.query(User).filter(User.email == data.email).first()
             if existing_user:
                 return jsonify({"error": "Email already registered"}), 409
-            
+
             # Create user
             new_user = User(
                 email=data.email,
                 password_hash=generate_password_hash(data.password),
-                role="user"
+                role="user",
             )
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
-            
+
             user_id = str(new_user.id)
-            
+
             # Generate API key
             api_key_data = None
             if APIKeyManager:
@@ -100,10 +100,12 @@ def register():
 
             if jwt_token:
                 response["jwt_token"] = jwt_token
-                response["jwt_expires_in"] = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
+                response["jwt_expires_in"] = int(
+                    os.getenv("JWT_EXPIRATION_HOURS", "24")
+                )
 
             return jsonify(response), 201
-            
+
         finally:
             db.close()
 
@@ -119,11 +121,13 @@ def register():
 def list_keys():
     """List all API keys for current user"""
     try:
-        user_id = request.user_id # This comes from middleware, which gets it from API Key
+        user_id = (
+            request.user_id
+        )  # This comes from middleware, which gets it from API Key
         # If user_id is None (e.g. master key), handle it
         if not user_id:
-             return jsonify({"error": "User context required"}), 400
-             
+            return jsonify({"error": "User context required"}), 400
+
         keys = APIKeyManager.list_user_keys(user_id)
 
         return jsonify({"keys": keys, "total": len(keys)}), 200
@@ -252,39 +256,38 @@ def login():
     """Login with email and password to get JWT token"""
     try:
         data = UserLogin(**request.json)
-        
+
         db: Session = SessionLocal()
         try:
             user = db.query(User).filter(User.email == data.email).first()
-            
+
             if not user or not check_password_hash(user.password_hash, data.password):
                 return jsonify({"error": "Invalid email or password"}), 401
-                
+
             # Generate JWT token
             from security.jwt_auth import generate_jwt_token
-            
+
             # Get user's tier (assuming stored on user or default to free)
             # For now, we'll use a default or fetch if we add tier to User model
-            tier = "free" 
+            tier = "free"
             if hasattr(user, "tier") and user.tier:
                 tier = user.tier
 
             jwt_token = generate_jwt_token(
-                user_id=str(user.id), 
-                tier=tier,
-                email=user.email
+                user_id=str(user.id), tier=tier, email=user.email
             )
-            
-            return jsonify({
-                "jwt_token": jwt_token,
-                "expires_in": int(os.getenv("JWT_EXPIRATION_HOURS", "24")),
-                "user": {
-                    "id": str(user.id),
-                    "email": user.email,
-                    "tier": tier
-                }
-            }), 200
-            
+
+            return (
+                jsonify(
+                    {
+                        "jwt_token": jwt_token,
+                        "expires_in": int(os.getenv("JWT_EXPIRATION_HOURS", "24")),
+                        "user": {"id": str(user.id), "email": user.email, "tier": tier},
+                    }
+                ),
+                200,
+            )
+
         finally:
             db.close()
 

@@ -16,7 +16,6 @@ from flask import Flask, request
 import hashlib
 
 
-
 @pytest.fixture
 def mock_db_session(mocker):
     """Mock database session"""
@@ -25,6 +24,7 @@ def mock_db_session(mocker):
     mock_session.return_value = mock_db
     mocker.patch("middleware.auth.SessionLocal", mock_session)
     return mock_db
+
 
 @pytest.fixture
 def mock_redis_client(mocker):
@@ -64,17 +64,18 @@ def test_api_key_manager_hash_key():
 def test_api_key_manager_create_key(mock_redis_client, mock_db_session):
     """Test creating an API key"""
     mock_redis_client.hgetall.return_value = {}
-    
+
     # Patch APIKey to return a mock with created_at
     with patch("middleware.auth.APIKey") as MockAPIKey:
         mock_instance = MockAPIKey.return_value
         mock_instance.id = 1
         # Need a real datetime object for isoformat()
         from datetime import datetime
+
         mock_instance.created_at = datetime(2025, 1, 1)
-        
+
         key_data = APIKeyManager.create_key("123", "Test Key", "free")
-        
+
     assert "key" in key_data
     assert "key_id" in key_data
     assert "tier" in key_data
@@ -91,8 +92,9 @@ def test_api_key_manager_create_key_no_redis(mock_db_session):
                 mock_instance = MockAPIKey.return_value
                 mock_instance.id = 1
                 from datetime import datetime
+
                 mock_instance.created_at = datetime(2025, 1, 1)
-                
+
                 # Should succeed using DB only
                 key_data = APIKeyManager.create_key("123", "Test Key", "free")
                 assert "key" in key_data
@@ -143,13 +145,13 @@ def test_api_key_manager_revoke_key(mock_redis_client, mock_db_session):
         {"id": "key_id_1", "is_active": "true"},
         {"id": "key_id_2", "is_active": "true"},
     ]
-    
+
     # Mock DB finding the key
     mock_key = Mock()
     mock_key.key_hash = "key_hash_1"
     mock_db_session.query.return_value.filter.return_value.first.return_value = mock_key
 
-    result = APIKeyManager.revoke_key("1", "123") # key_id must be int-able
+    result = APIKeyManager.revoke_key("1", "123")  # key_id must be int-able
     assert result is True
     assert mock_redis_client.hset.called
 
@@ -158,7 +160,7 @@ def test_api_key_manager_revoke_key_not_found(mock_redis_client, mock_db_session
     """Test revoking non-existent key"""
     mock_redis_client.smembers.return_value = {"key_hash_1"}
     mock_redis_client.hgetall.return_value = {"id": "other_key_id"}
-    
+
     # Mock DB not finding the key
     mock_db_session.query.return_value.filter.return_value.first.return_value = None
 
@@ -177,7 +179,7 @@ def test_api_key_manager_list_user_keys(mock_redis_client, mock_db_session):
     mock_key.created_at.isoformat.return_value = "2025-01-01T00:00:00Z"
     mock_key.last_used = None
     mock_key.total_requests = 10
-    
+
     mock_db_session.query.return_value.filter.return_value.all.return_value = [mock_key]
 
     keys = APIKeyManager.list_user_keys("123")

@@ -10,6 +10,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const highlightedTicketText = document.getElementById('highlightedTicketText');
     const systemStatus = document.getElementById('systemStatus');
 
+    // System Status Check
+    async function checkSystemStatus() {
+        if (!systemStatus) return;
+        try {
+            const response = await fetch('/api/v1/ready');
+            if (response.ok) {
+                systemStatus.innerHTML = '<span class="text-green-500">●</span> System Ready';
+                systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 hidden md:inline-block border border-green-100';
+            } else {
+                systemStatus.innerHTML = '<span class="text-red-500">●</span> Degraded';
+                systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700 hidden md:inline-block border border-red-100';
+            }
+        } catch (e) {
+            systemStatus.innerHTML = '<span class="text-red-500">●</span> Offline';
+            systemStatus.className = 'ml-3 px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700 hidden md:inline-block border border-red-100';
+        }
+    }
+    checkSystemStatus();
+
     // Mobile Menu Logic
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navLinks = document.getElementById('navLinks');
@@ -197,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'X-API-Key': apiKey
                 },
-                body: JSON.stringify({ ticket: text })
+                body: JSON.stringify({ ticket: text, no_cache: true })
             });
 
             // Network error handling (response.ok check)

@@ -122,7 +122,7 @@ class MultiProvider:
         else:
             logger.warning("⚠️ OPENAI_API_KEY not found")
 
-    def classify(self, ticket_text: str) -> Dict:
+    def classify(self, ticket_text: str, extra_examples: str = "") -> Dict:
         """
         Classify ticket using available providers with failover:
         1. Gemini (Primary)
@@ -132,7 +132,9 @@ class MultiProvider:
         # 1. Try Gemini
         if self.gemini_available:
             try:
-                return self.gemini_circuit.call(self.classify_with_gemini, ticket_text)
+                return self.gemini_circuit.call(
+                    self.classify_with_gemini, ticket_text, extra_examples
+                )
             except Exception as e:
                 logger.warning(f"Gemini failed: {e}")
 
@@ -162,9 +164,9 @@ class MultiProvider:
             return self._post_process_result(fallback_result, ticket_text)
         raise Exception("All providers failed")
 
-    def classify_with_gemini(self, ticket_text: str) -> Dict:
+    def classify_with_gemini(self, ticket_text: str, extra_examples: str = "") -> Dict:
         """Classify using Gemini provider"""
-        return self.gemini_classifier.classify(ticket_text)
+        return self.gemini_classifier.classify(ticket_text, extra_examples)
 
     @retry(
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10)

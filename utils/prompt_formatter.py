@@ -1,7 +1,9 @@
 from typing import Optional
 
 
-def format_classification_prompt(ticket_text: str, provider: str = None) -> str:
+def format_classification_prompt(
+    ticket_text: str, provider: str = None, extra_examples: str = ""
+) -> str:
     """
     Format the classification prompt for AI providers.
     """
@@ -117,6 +119,8 @@ Example 15:
 Ticket: "Someone accessed my account without permission"
 Category: Security Incident
 Subcategory: Unauthorized Access
+
+{extra_examples}
 
 **NOW CLASSIFY THIS TICKET:**
 Ticket: "{ticket_text}"

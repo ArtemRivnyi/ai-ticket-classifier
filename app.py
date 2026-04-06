@@ -67,6 +67,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 
 # Initialize database
 from models import db, Feedback
+
 try:
     from flask_migrate import Migrate
 except ImportError:
@@ -76,11 +77,13 @@ except ImportError:
 # This resolves [Errno 101] Network is unreachable on Render/Docker
 _original_getaddrinfo = socket.getaddrinfo
 
+
 def _ipv4_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
     # If family is unspecified (0), force AF_INET (IPv4)
     if family == 0:
         family = socket.AF_INET
     return _original_getaddrinfo(host, port, family, type, proto, flags)
+
 
 socket.getaddrinfo = _ipv4_getaddrinfo
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -149,16 +152,18 @@ if not env_status.is_valid:
         sys.exit(1)
 
 # Configure SQLAlchemy PostgreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/ai_ticket_classifier')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/ai_ticket_classifier"
+)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 if Migrate:
     migrate = Migrate(app, db)
 
 # Configure Prometheus Metrics
-metrics_exporter = PrometheusMetrics(app, path='/metrics')
-metrics_exporter.info('app_info', 'Application info', version='2.5.0')
+metrics_exporter = PrometheusMetrics(app, path="/metrics")
+metrics_exporter.info("app_info", "Application info", version="2.5.0")
 
 REQUEST_ID_HEADER = "X-Request-ID"
 
@@ -194,7 +199,7 @@ def add_security_headers(response):
             "'self'",
             "'unsafe-inline'",
             "'unsafe-eval'",  # Required for Tailwind CDN JIT
-            "blob:",          # Required for Tailwind CDN worker
+            "blob:",  # Required for Tailwind CDN worker
             "https://cdn.tailwindcss.com",
             "https://cdnjs.cloudflare.com",
         ],
@@ -311,20 +316,20 @@ cache = Cache(app, config=cache_config)
 mail = Mail(app)
 
 # Mail Configuration
-mail_port = int(os.getenv('MAIL_PORT', 587))
-app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = mail_port
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+mail_port = int(os.getenv("MAIL_PORT", 587))
+app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+app.config["MAIL_PORT"] = mail_port
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
 
 # Auto-configure SSL/TLS based on port
 if mail_port == 465:
-    app.config['MAIL_USE_SSL'] = True
-    app.config['MAIL_USE_TLS'] = False
+    app.config["MAIL_USE_SSL"] = True
+    app.config["MAIL_USE_TLS"] = False
 else:
-    app.config['MAIL_USE_SSL'] = False
-    app.config['MAIL_USE_TLS'] = True
+    app.config["MAIL_USE_SSL"] = False
+    app.config["MAIL_USE_TLS"] = True
 
 # Import providers and middleware
 try:
@@ -446,9 +451,6 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 # ===== PYDANTIC MODELS =====
 
 
-
-
-
 class FeedbackRequest(BaseModel):
     request_id: str
     correct: bool
@@ -534,26 +536,28 @@ def handle_contact():
         data = request.get_json()
         if not data:
             return jsonify({"error": "Invalid request"}), 400
-            
+
         name = data.get("name")
         email = data.get("email")
         message = data.get("message")
-        
+
         if not all([name, email, message]):
             return jsonify({"error": "All fields are required"}), 400
-            
+
         # Check if email is configured
-        if not app.config.get('MAIL_USERNAME'):
+        if not app.config.get("MAIL_USERNAME"):
             logger.error("❌ MAIL_USERNAME not configured")
             return jsonify({"error": "Email service not configured"}), 503
-            
+
         # Log the contact request and configuration (debug)
         logger.info(f"📩 Contact Request from {name} ({email}): {message}")
-        logger.info(f"🔧 Mail Config: Server={app.config.get('MAIL_SERVER')}, Port={app.config.get('MAIL_PORT')}, TLS={app.config.get('MAIL_USE_TLS')}, SSL={app.config.get('MAIL_USE_SSL')}, User={app.config.get('MAIL_USERNAME')}")
-        
+        logger.info(
+            f"🔧 Mail Config: Server={app.config.get('MAIL_SERVER')}, Port={app.config.get('MAIL_PORT')}, TLS={app.config.get('MAIL_USE_TLS')}, SSL={app.config.get('MAIL_USE_SSL')}, User={app.config.get('MAIL_USERNAME')}"
+        )
+
         # Diagnostic: Check TCP connection
-        server = app.config.get('MAIL_SERVER')
-        port = app.config.get('MAIL_PORT')
+        server = app.config.get("MAIL_SERVER")
+        port = app.config.get("MAIL_PORT")
         try:
             logger.info(f"🔍 Testing TCP connection to {server}:{port}...")
             sock = socket.create_connection((server, port), timeout=5)
@@ -561,14 +565,21 @@ def handle_contact():
             sock.close()
         except Exception as e:
             logger.error(f"❌ TCP Connection to {server}:{port} FAILED: {e}")
-            return jsonify({"error": f"Network error: Could not connect to {server}:{port}. {e}"}), 503
+            return (
+                jsonify(
+                    {
+                        "error": f"Network error: Could not connect to {server}:{port}. {e}"
+                    }
+                ),
+                503,
+            )
 
         # Prepare email message
         msg = Message(
             subject=f"New Contact Request from {name}",
-            recipients=[app.config['MAIL_USERNAME']],
+            recipients=[app.config["MAIL_USERNAME"]],
             body=f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}",
-            reply_to=email
+            reply_to=email,
         )
 
         # Send email synchronously for debugging
@@ -609,7 +620,14 @@ def run_evaluation():
     # Check if classifier is initialized
     if not app.config.get("CLASSIFIER"):
         logger.error("❌ Evaluation failed: Classifier not initialized")
-        return jsonify({"error": "Classifier not initialized. Check server logs for startup errors."}), 503
+        return (
+            jsonify(
+                {
+                    "error": "Classifier not initialized. Check server logs for startup errors."
+                }
+            ),
+            503,
+        )
 
     try:
         import csv
@@ -726,12 +744,20 @@ def submit_feedback():
             correct=data.correct,
             ticket=data.ticket,
             predicted=data.predicted,
-            comments=data.comments
+            comments=data.comments,
         )
         db.session.add(new_feedback)
         db.session.commit()
 
-        return jsonify({"status": "success", "message": "Feedback received securely in database"}), 200
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "Feedback received securely in database",
+                }
+            ),
+            200,
+        )
 
     except ValidationError as e:
         return jsonify({"error": "Validation error", "details": e.errors()}), 400
@@ -749,6 +775,9 @@ class TicketRequest(BaseModel):
 
     ticket: str = Field(
         ..., min_length=1, max_length=5000, description="Ticket text to classify"
+    )
+    no_cache: Optional[bool] = Field(
+        False, description="Whether to bypass cache for this request"
     )
 
     @field_validator("ticket")
@@ -780,7 +809,9 @@ class BatchTicketRequest(BaseModel):
     def sanitize_tickets(cls, v):
         """Sanitize batch tickets"""
         return [
-            re.sub(r"\s+", " ", bleach.clean(ticket.replace("\x00", ""), strip=True))[:5000].strip()
+            re.sub(r"\s+", " ", bleach.clean(ticket.replace("\x00", ""), strip=True))[
+                :5000
+            ].strip()
             for ticket in v
             if ticket.strip()
         ]
@@ -886,7 +917,7 @@ def get_trace_logger():
 def make_cache_key(*args, **kwargs):
     """Generate a secure cache key using MD5 hash of the ticket text"""
     if request.is_json and request.json and "ticket" in request.json:
-        ticket_text = request.json['ticket']
+        ticket_text = request.json["ticket"]
         # Use hash for fixed length key
         text_hash = hashlib.md5(ticket_text.encode()).hexdigest()
         return f"classify:v1:{text_hash}"
@@ -946,8 +977,6 @@ def after_request(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-
-
 
     if os.getenv("FORCE_HTTPS", "false").lower() == "true":
         response.headers["Strict-Transport-Security"] = (
@@ -1094,14 +1123,15 @@ def classify():
 
     # Check cache manually to handle the response object correctly
     if request.is_json and request.json and "ticket" in request.json:
-        cache_key = f"classify:{request.json['ticket']}"
-        cached_response = cache.get(cache_key)
-        if cached_response:
-            logger.info("✅ Cache hit for classification")
-            # If cached response is a dict, wrap it
-            if isinstance(cached_response, dict):
-                return make_response(cached_response)
-            return cached_response
+        if not request.json.get("no_cache", False):
+            cache_key = f"classify:{request.json['ticket']}"
+            cached_response = cache.get(cache_key)
+            if cached_response:
+                logger.info("✅ Cache hit for classification")
+                # If cached response is a dict, wrap it
+                if isinstance(cached_response, dict):
+                    return make_response(cached_response)
+                return cached_response
 
     start_time = time.time()
     trace_logger = get_trace_logger()
@@ -1181,7 +1211,33 @@ def classify():
                     503,
                 )
 
-        result = classifier.classify(ticket)
+        # Fetch dynamic examples from recent correct feedback
+        dynamic_examples = ""
+        try:
+            from models import Feedback
+
+            recent_feedbacks = (
+                Feedback.query.filter_by(correct=True)
+                .order_by(Feedback.id.desc())
+                .limit(3)
+                .all()
+            )
+            if recent_feedbacks:
+                dynamic_examples = "\n\n**LEARNED EXAMPLES FROM USER FEEDBACK:**\n"
+                for i, f in enumerate(recent_feedbacks, 1):
+                    dynamic_examples += f"\nDynamic Example {i}:\n"
+                    dynamic_examples += f'Ticket: "{f.ticket}"\n'
+                    if f.predicted and " > " in f.predicted:
+                        cat, subcat = f.predicted.split(" > ", 1)
+                        dynamic_examples += (
+                            f"Category: {cat.strip()}\nSubcategory: {subcat.strip()}\n"
+                        )
+                    else:
+                        dynamic_examples += f"Category: {f.predicted or 'Other'}\nSubcategory: Unclassified\n"
+        except Exception as e:
+            logger.warning(f"Could not load feedback examples: {e}")
+
+        result = classifier.classify(ticket, extra_examples=dynamic_examples)
 
         # Cache the result
         if request.is_json and request.json and "ticket" in request.json:

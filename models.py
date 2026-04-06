@@ -3,9 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 class Feedback(db.Model):
-    __tablename__ = 'feedback'
-    
+    __tablename__ = "feedback"
+
     id = db.Column(db.Integer, primary_key=True)
     request_id = db.Column(db.String(100), nullable=False, index=True)
     correct = db.Column(db.Boolean, nullable=False)
@@ -16,11 +17,11 @@ class Feedback(db.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'request_id': self.request_id,
-            'correct': self.correct,
-            'ticket': self.ticket,
-            'predicted': self.predicted,
-            'comments': self.comments,
-            'timestamp': self.timestamp.isoformat() if self.timestamp else None
+            "id": self.id,
+            "request_id": self.request_id,
+            "correct": self.correct,
+            "ticket": self.ticket,
+            "predicted": self.predicted,
+            "comments": self.comments,
+            "timestamp": self.timestamp.isoformat() if self.timestamp else None,
         }

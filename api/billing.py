@@ -20,6 +20,7 @@ PRICE_IDS = {
     "pro": os.getenv("STRIPE_PRICE_PRO", "price_pro_monthly"),
 }
 
+
 @billing_bp.route("/create-checkout-session", methods=["POST"])
 @require_jwt_or_api_key
 def create_checkout_session():
@@ -27,31 +28,30 @@ def create_checkout_session():
     try:
         data = request.json
         tier = data.get("tier")
-        user_id = request.user_id # From JWT/API Key middleware
-        
+        user_id = request.user_id  # From JWT/API Key middleware
+
         if tier not in PRICE_IDS:
             return jsonify({"error": "Invalid tier"}), 400
-            
+
         if not user_id:
-             return jsonify({"error": "User authentication required"}), 401
+            return jsonify({"error": "User authentication required"}), 401
 
         db = SessionLocal()
         try:
             user = db.query(User).filter(User.id == int(user_id)).first()
             if not user:
                 return jsonify({"error": "User not found"}), 404
-                
+
             # Create or get Stripe Customer
             if not user.stripe_customer_id:
                 customer = stripe.Customer.create(
-                    email=user.email,
-                    metadata={"user_id": str(user.id)}
+                    email=user.email, metadata={"user_id": str(user.id)}
                 )
                 user.stripe_customer_id = customer.id
                 db.commit()
-            
+
             customer_id = user.stripe_customer_id
-            
+
             # Create Checkout Session
             checkout_session = stripe.checkout.Session.create(
                 customer=customer_id,
@@ -67,15 +67,16 @@ def create_checkout_session():
                 cancel_url=request.host_url.rstrip("/") + "/dashboard?canceled=true",
                 metadata={"user_id": str(user.id), "tier": tier},
             )
-            
+
             return jsonify({"checkout_url": checkout_session.url})
-            
+
         finally:
             db.close()
 
     except Exception as e:
         logger.error(f"Error creating checkout session: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 @billing_bp.route("/webhook", methods=["POST"])
 def stripe_webhook():
@@ -109,6 +110,7 @@ def stripe_webhook():
 
     return jsonify({"status": "success"})
 
+
 def _set_user_tier_by_subscription(subscription_id, tier, status):
     """Helper to update user tier by subscription ID"""
     if not subscription_id:
@@ -119,22 +121,25 @@ def _set_user_tier_by_subscription(subscription_id, tier, status):
         if user:
             user.tier = tier
             user.subscription_status = status
-            
+
             _sync_api_keys_tier(db, user.id, tier)
-            
+
             db.commit()
-            logger.info(f"User subscription {subscription_id} → tier={tier} status={status}")
+            logger.info(
+                f"User subscription {subscription_id} → tier={tier} status={status}"
+            )
     except Exception as e:
         logger.error(f"Error updating tier by subscription: {e}")
     finally:
         db.close()
+
 
 def handle_checkout_completed(session):
     """Update user tier after successful checkout"""
     user_id = session.get("metadata", {}).get("user_id")
     tier = session.get("metadata", {}).get("tier")
     subscription_id = session.get("subscription")
-    
+
     if user_id and tier:
         db = SessionLocal()
         try:
@@ -143,9 +148,9 @@ def handle_checkout_completed(session):
                 user.tier = tier
                 user.subscription_id = subscription_id
                 user.subscription_status = "active"
-                
+
                 _sync_api_keys_tier(db, user.id, tier)
-                
+
                 db.commit()
                 logger.info(f"User {user_id} upgraded to {tier}")
         except Exception as e:
@@ -157,6 +162,7 @@ def handle_checkout_completed(session):
 def _sync_api_keys_tier(db, user_id, tier):
     """Synchronize user's tier to all their API keys and update Redis cache."""
     from database.models import APIKey
+
     try:
         from middleware.auth import redis_client
     except ImportError:
@@ -173,7 +179,6 @@ def _sync_api_keys_tier(db, user_id, tier):
                     logger.error(f"Redis tier update failed for API key {k.id}: {e}")
     except Exception as e:
         logger.error(f"Failed to sync API keys tier: {e}")
-
 
 
 @billing_bp.route("/customer-portal", methods=["POST"])
