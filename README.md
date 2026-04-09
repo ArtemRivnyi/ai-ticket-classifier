@@ -42,6 +42,19 @@
 
 ---
 
+## 🛠️ Ticketing System Integration (Zendesk)
+
+The AI Ticket Classifier is designed to fit seamlessly into existing ticketing workflows. It includes a specialized **Zendesk Adapter** that allows for:
+
+- **Automated Triage**: Listen for new Zendesk tickets and instantly apply tags/categories.
+- **Priority Routing**: Automatically escalate tickets based on AI-determined priority.
+- **Sentiment Analysis**: Alert managers when high-negativity tickets arrive.
+- **Seamless Hand-off**: The `zendesk_adapter.py` provides a blueprint for integrating with any modern helpdesk API.
+
+*Reduce manual sorting time by up to 90% and ensure critical issues are seen first.*
+
+---
+
 ## 🏗️ Architecture
 
 The system is designed for high availability and resilience.
