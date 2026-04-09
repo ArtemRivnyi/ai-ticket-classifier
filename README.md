@@ -42,12 +42,16 @@
 
 ---
 
-## 🎫 Ticketing System Integration (Zendesk-compatible)
+## 🎫 Zendesk Integration
 
-This classifier is designed to integrate with ticketing platforms like **Zendesk**.
-The `/api/v1/classify` endpoint can be called via Zendesk Triggers or Webhooks
-to automatically triage incoming tickets — assigning category, priority, and routing
-without human intervention.
+This classifier plugs directly into **Zendesk ticketing workflows**:
+
+- **Zendesk Triggers / Webhooks** → call `/api/v1/classify` on every new ticket
+- **Auto-tagging**: returned `category` maps to Zendesk ticket tags
+- **Priority routing**: returned `priority` drives Zendesk SLA assignment
+- **Batch endpoint** `/api/v1/batch` supports bulk triage during high-volume periods
+
+> Real-world use case: replaces manual first-line triage, reducing handle time and ensuring consistent routing 24/7.
 
 ---
 
