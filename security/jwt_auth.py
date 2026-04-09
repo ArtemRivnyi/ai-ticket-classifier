@@ -116,7 +116,9 @@ def require_jwt_or_api_key(f):
                 from middleware.auth import APIKeyManager, RateLimiter
 
                 key_data = APIKeyManager.get_key_data(api_key)
-                if not key_data or key_data.get("is_active") != "true":
+                is_active = key_data.get("is_active")
+                # Handle both bool (from DB/Redis-parsed) and string (from raw Redis)
+                if not key_data or (is_active is False or is_active == "false"):
                     return (
                         jsonify(
                             {

@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - AI Ticket Classifier</title>
+    <script src="/static/js/theme.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -78,6 +80,35 @@
                 <h5 class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">API
                     Requests (Today)</h5>
                 <h2 class="text-3xl font-bold text-slate-900 dark:text-white" id="requestsToday">- / -</h2>
+            </div>
+        </div>
+        
+        <!-- Analytics Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Accuracy Chart -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Accuracy Trend (Last 7 Days)</h3>
+                <div class="h-64">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Category Distribution -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Top Categories</h3>
+                <div class="h-64">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-8 mb-8">
+            <!-- Volume Chart -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Request Volume Trend</h3>
+                <div class="h-64">
+                    <canvas id="volumeChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -180,6 +211,92 @@
 
     <script src="/static/js/app.js"></script>
     <script src="/static/js/dashboard.js"></script>
+    <script>
+        async function loadCharts() {
+            try {
+                const response = await fetch('/api/analytics/stats');
+                const data = await response.json();
+                
+                const isDark = document.documentElement.classList.contains('dark');
+                const textColor = isDark ? '#94a3b8' : '#64748b';
+                const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+                // Chart Defaults
+                Chart.defaults.color = textColor;
+                Chart.defaults.font.family = "'Inter', sans-serif";
+
+                // Accuracy Chart
+                new Chart(document.getElementById('accuracyChart'), {
+                    type: 'line',
+                    data: {
+                        labels: data.accuracy_over_time.map(d => d.date),
+                        datasets: [{
+                            label: 'Accuracy %',
+                            data: data.accuracy_over_time.map(d => d.accuracy),
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { min: 0, max: 100, grid: { color: gridColor } },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                // Category Chart
+                new Chart(document.getElementById('categoryChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.category_distribution.map(d => d.category),
+                        datasets: [{
+                            data: data.category_distribution.map(d => d.count),
+                            backgroundColor: ['#6366f1', '#10b981', '#0ea5e9', '#f59e0b', '#ef4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'right' } }
+                    }
+                });
+
+                // Volume Chart
+                new Chart(document.getElementById('volumeChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: data.request_volume.map(d => d.date),
+                        datasets: [{
+                            label: 'Requests',
+                            data: data.request_volume.map(d => d.count),
+                            backgroundColor: '#6366f1',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: gridColor } },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading charts:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadCharts);
+    </script>
 </body>
 
 </html>

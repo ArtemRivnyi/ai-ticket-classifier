@@ -49,73 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Rate Limiting State
     let isProcessing = false;
 
-    // Toast Notification System
-    function showToast(message, type = 'error') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-
-        const colors = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-        const icon = type === 'success' ? '✅' : '⚠️';
-
-        toast.className = `toast flex items-center w-full max-w-xs p-4 mb-4 text-white rounded-lg shadow ${colors}`;
-        toast.innerHTML = `
-            <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-white rounded-lg bg-white/20">
-                ${icon}
-            </div>
-            <div class="ml-3 text-sm font-normal">${message}</div>
-            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white/20 text-white hover:text-gray-100 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-white/30 inline-flex h-8 w-8" aria-label="Close" onclick="this.parentElement.remove()">
-                <span class="sr-only">Close</span>
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-            </button>
-        `;
-
-        container.appendChild(toast);
-
-        // Trigger animation
-        requestAnimationFrame(() => {
-            toast.classList.add('show');
-        });
-
-        // Auto remove
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 5000);
-    }
-
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const themeToggleMobile = document.getElementById('themeToggleMobile');
-    const themeIconMobile = document.getElementById('themeIconMobile');
-    const root = document.documentElement;
-
-    function toggleTheme() {
-        root.classList.toggle('dark');
-        const isDark = root.classList.contains('dark');
-        const icon = isDark ? '☀️' : '🌙';
-
-        if (themeIcon) themeIcon.textContent = icon;
-        if (themeIconMobile) themeIconMobile.textContent = icon;
-
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
-
-    if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-    }
-    if (themeToggleMobile) {
-        themeToggleMobile.addEventListener('click', toggleTheme);
-    }
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        root.classList.add('dark');
-        if (themeIcon) themeIcon.textContent = '☀️';
-        if (themeIconMobile) themeIconMobile.textContent = '☀️';
-    }
-
     // Analytics Tracking
     function trackClassification(category) {
         // Placeholder for analytics
@@ -199,58 +132,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-        // Rate Limiting Check
-        if (isProcessing) {
-            showToast('Please wait for the current classification to complete.', 'error');
-            return;
-        }
-
-        const text = ticketInput.value.trim();
-        if (!text) return;
-
-        // UI Loading State
-        setLoading(true);
-
-        try {
-            const apiKey = window.DEMO_API_KEY;
-
-            const response = await fetch('/api/v1/classify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-Key': apiKey
-                },
-                body: JSON.stringify({ ticket: text, no_cache: true })
-            });
-
-            // Network error handling (response.ok check)
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            // Rate Limiting Check
+            if (isProcessing) {
+                showToast('Please wait for the current classification to complete.', 'error');
+                return;
             }
 
-            const data = await response.json();
+            const text = ticketInput ? ticketInput.value.trim() : '';
+            if (!text) return;
 
-            displayResult(data);
-            addToHistory(data, text);
-            trackClassification(data.category);
-            showToast('Classification successful', 'success');
-            setLoading(false);
+            // UI Loading State
+            setLoading(true);
 
-        } catch (error) {
-            console.error('Classification Error:', error);
-            // Show specific error message to help debugging
-            showToast(`Classification failed: ${error.message}`, 'error');
-            setLoading(false);
-            // Ensure empty state is visible if no result is shown
-            if (resultContent.classList.contains('hidden')) {
-                emptyState.classList.remove('hidden');
+            try {
+                const apiKey = window.DEMO_API_KEY;
+
+                const response = await fetch('/api/v1/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ ticket: text, no_cache: true })
+                });
+
+                // Network error handling (response.ok check)
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                displayResult(data);
+                addToHistory(data, text);
+                trackClassification(data.category);
+                showToast('Classification successful', 'success');
+                setLoading(false);
+
+            } catch (error) {
+                console.error('Classification Error:', error);
+                // Show specific error message to help debugging
+                showToast(`Classification failed: ${error.message}`, 'error');
+                setLoading(false);
+                // Ensure empty state is visible if no result is shown
+                if (resultContent && resultContent.classList.contains('hidden')) {
+                    if (emptyState) emptyState.classList.remove('hidden');
+                }
             }
-        }
-    });
+        });
+    }
 
     function setLoading(isLoading) {
         isProcessing = isLoading; // Update rate limiting flag
@@ -298,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update highlighted ticket
         if (highlightedTicketContainer && highlightedTicketText) {
-            const ticketValue = ticketInput.value.trim();
+            const ticketValue = ticketInput ? ticketInput.value.trim() : '';
             if (ticketValue) {
                 highlightedTicketText.textContent = ticketValue;
                 highlightedTicketContainer.classList.remove('hidden');
@@ -349,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.matched_pattern) {
                 highlightedTicketContainer.classList.remove('hidden');
                 highlightedTicketText.textContent = data.matched_pattern;
-            } else {
+            } else if (!ticketInput || !ticketInput.value.trim()) {
                 highlightedTicketContainer.classList.add('hidden');
             }
         }
@@ -441,11 +376,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Expose sendFeedback to global scope
     window.sendFeedback = async function (isCorrect) {
-        document.getElementById('feedbackConfirmation').classList.remove('hidden');
+        const feedbackConfirm = document.getElementById('feedbackConfirmation');
+        if (feedbackConfirm) feedbackConfirm.classList.remove('hidden');
 
-        const reqId = document.getElementById('resReqId').textContent;
-        const ticketText = document.getElementById('ticketText').value;
-        const category = document.getElementById('resCategory').textContent;
+        const reqId = document.getElementById('resReqId') ? document.getElementById('resReqId').textContent : '';
+        const ticketText = document.getElementById('ticketText') ? document.getElementById('ticketText').value : '';
+        const category = document.getElementById('resCategory') ? document.getElementById('resCategory').textContent : '';
 
         try {
             await fetch('/api/feedback', {
@@ -469,8 +405,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Expose tryExample to global scope
     window.tryExample = function (text) {
-        ticketInput.value = text;
-        ticketInput.focus();
+        if (ticketInput) {
+            ticketInput.value = text;
+            ticketInput.focus();
+        }
     };
 
     // Alias for backward compatibility
@@ -484,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         csvForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const fileInput = document.getElementById('csvFile');
-            const file = fileInput.files[0];
+            const file = fileInput ? fileInput.files[0] : null;
 
             if (!file) {
                 showToast('Please select a CSV file', 'error');
@@ -501,9 +439,11 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('file', file);
 
             const btn = csvForm.querySelector('button');
-            const originalText = btn.textContent;
-            btn.textContent = 'Processing...';
-            btn.disabled = true;
+            const originalText = btn ? btn.textContent : 'Process';
+            if (btn) {
+                btn.textContent = 'Processing...';
+                btn.disabled = true;
+            }
 
             // Show loading state in main area
             if (emptyState) emptyState.classList.add('hidden');
@@ -533,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const batchSummary = document.getElementById('batchSummary');
 
                     if (batchContainer && batchList) {
-                        batchSummary.textContent = `Processed ${data.total} tickets (${data.successful} success, ${data.failed} failed) in ${data.processing_time}s`;
+                        if (batchSummary) batchSummary.textContent = `Processed ${data.total} tickets (${data.successful} success, ${data.failed} failed) in ${data.processing_time}s`;
                         batchList.innerHTML = '';
 
                         // Combine results and errors for display
@@ -567,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             batchList.appendChild(div);
                         });
 
-                        skeletonLoader.classList.add('hidden');
+                        if (skeletonLoader) skeletonLoader.classList.add('hidden');
                         batchContainer.classList.remove('hidden');
                     }
 
@@ -577,13 +517,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Batch error:', error);
                 showToast(`Batch failed: ${error.message}`, 'error');
-                skeletonLoader.classList.add('hidden');
-                emptyState.classList.remove('hidden');
+                if (skeletonLoader) skeletonLoader.classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
             } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-                fileInput.value = '';
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+                if (fileInput) fileInput.value = '';
             }
         });
     }
+
 });

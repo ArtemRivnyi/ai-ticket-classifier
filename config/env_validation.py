@@ -56,8 +56,11 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
     enforce_providers = runtime_env == "production" and not allow_providerless
 
     for var in REQUIRED_VARS:
-        if not os.getenv(var):
+        val = os.getenv(var)
+        if not val:
             missing.append(var)
+        elif len(val) < 32:
+            warnings.append(f"⚠️ {var} is too short (current: {len(val)} chars). Recommend at least 32 chars for security.")
 
     if not any(os.getenv(var) for var in PROVIDER_VARS):
         if enforce_providers:
@@ -68,6 +71,23 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
     for var, warning in OPTIONAL_WARNINGS.items():
         if not os.getenv(var):
             warnings.append(warning)
+
+    # Active connectivity checks
+    if os.getenv("DATABASE_URL") and not skip_failure:
+        try:
+            from sqlalchemy import create_url, create_engine
+            engine = create_engine(os.getenv("DATABASE_URL"), connect_args={"connect_timeout": 2})
+            engine.connect().close()
+        except Exception as e:
+            warnings.append(f"⚠️ Database connectivity check failed: {e}")
+
+    if os.getenv("REDIS_URL") and not skip_failure:
+        try:
+            import redis
+            r = redis.from_url(os.getenv("REDIS_URL"), socket_connect_timeout=1)
+            r.ping()
+        except Exception as e:
+            warnings.append(f"⚠️ Redis connectivity check failed: {e}")
 
     if skip_failure:
         # When skipping failure (e.g., during tests) we downgrade missing vars to warnings

@@ -116,7 +116,9 @@ class MultiProvider:
 
         # Initialize OpenAI (optional fallback)
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.openai_client = None
         if self.openai_api_key:
+            # We don't check openai library here to allow mocking in tests
             self.openai_available = True
             logger.info("✅ OpenAI provider initialized")
         else:
@@ -172,25 +174,21 @@ class MultiProvider:
         stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10)
     )
     def classify_with_openai(self, ticket_text: str) -> Dict:
-        """Classify using OpenAI provider"""
-        # Placeholder for actual OpenAI implementation
-        # For now, we'll simulate a failure if called, or implement basic if needed
-        # But since we don't have the client initialized, we can't really call it.
-        # Assuming the user wants the structure.
-        # If we had the client, we would use it here.
-        # For now, let's raise if not implemented or mock it if strictly required.
-        # Given the context, I'll implement a basic request if key exists, or fail.
-
+        """Classify using OpenAI provider with lazy client initialization"""
         if not self.openai_api_key:
             raise Exception("OpenAI API key not configured")
 
-        try:
-            import openai
+        if not self.openai_available:
+            raise Exception("OpenAI provider not available")
 
-            client = openai.OpenAI(api_key=self.openai_api_key)
+        try:
+            if self.openai_client is None:
+                import openai
+                self.openai_client = openai.OpenAI(api_key=self.openai_api_key)
+
             prompt = format_classification_prompt(ticket_text, provider="openai")
 
-            response = client.chat.completions.create(
+            response = self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {
@@ -223,9 +221,6 @@ class MultiProvider:
 
             return result
 
-        except ImportError:
-            logger.error("OpenAI library not installed")
-            raise
         except Exception as e:
             logger.error(f"OpenAI classification failed: {e}")
             raise
