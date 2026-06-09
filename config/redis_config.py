@@ -2,7 +2,6 @@ import os
 import redis
 from redis import ConnectionPool
 
-
 _redis_pool = None
 _redis_client = None
 

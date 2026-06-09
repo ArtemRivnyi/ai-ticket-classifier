@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field, ValidationError
 from middleware.auth import require_api_key
 from integrations.zendesk_adapter import ZendeskAdapter
 
-
 integrations_bp = Blueprint(
     "integrations",
     __name__,
