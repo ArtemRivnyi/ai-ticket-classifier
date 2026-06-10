@@ -1,5 +1,5 @@
 [![API Docs](https://img.shields.io/badge/📚_API-Docs-blue?style=for-the-badge)](https://ai-ticket-classifier.onrender.com/docs/)
-[![Portfolio](https://img.shields.io/badge/👨‍💻_My-Portfolio-orange?style=for-the-badge)](https://artemrivnyi.com)
+[![Portfolio](https://img.shields.io/badge/👨‍💻_My-Portfolio-orange?style=for-the-badge)](https://personal-page-devops.onrender.com)
 
 <p align="left">
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
