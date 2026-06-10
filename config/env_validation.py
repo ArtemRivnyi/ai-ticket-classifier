@@ -60,7 +60,9 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
         if not val:
             missing.append(var)
         elif len(val) < 32:
-            warnings.append(f"⚠️ {var} is too short (current: {len(val)} chars). Recommend at least 32 chars for security.")
+            warnings.append(
+                f"⚠️ {var} is too short (current: {len(val)} chars). Recommend at least 32 chars for security."
+            )
 
     if not any(os.getenv(var) for var in PROVIDER_VARS):
         if enforce_providers:
@@ -76,7 +78,10 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
     if os.getenv("DATABASE_URL") and not skip_failure:
         try:
             from sqlalchemy import create_url, create_engine
-            engine = create_engine(os.getenv("DATABASE_URL"), connect_args={"connect_timeout": 2})
+
+            engine = create_engine(
+                os.getenv("DATABASE_URL"), connect_args={"connect_timeout": 2}
+            )
             engine.connect().close()
         except Exception as e:
             warnings.append(f"⚠️ Database connectivity check failed: {e}")
@@ -84,6 +89,7 @@ def validate_environment(skip_failure: bool = False) -> EnvironmentStatus:
     if os.getenv("REDIS_URL") and not skip_failure:
         try:
             import redis
+
             r = redis.from_url(os.getenv("REDIS_URL"), socket_connect_timeout=1)
             r.ping()
         except Exception as e:

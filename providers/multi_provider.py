@@ -148,7 +148,9 @@ class MultiProvider:
                 logger.warning(f"OpenAI failed: {e}")
 
         # 3. Try Rule Engine as FALLBACK
-        logger.info("⚠️ AI providers failed or unavailable, falling back to Rule Engine")
+        logger.info(
+            "⚠️ AI providers failed or unavailable, falling back to Rule Engine"
+        )
         rule_match = self.rule_classifier.classify(ticket_text)
         if rule_match:
             logger.info(f"✅ Rule Engine matched (fallback): {rule_match['category']}")
@@ -184,6 +186,7 @@ class MultiProvider:
         try:
             if self.openai_client is None:
                 import openai
+
                 self.openai_client = openai.OpenAI(api_key=self.openai_api_key)
 
             prompt = format_classification_prompt(ticket_text, provider="openai")
