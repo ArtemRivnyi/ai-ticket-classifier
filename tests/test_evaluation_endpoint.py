@@ -35,7 +35,7 @@ def test_batch_csv_invalid_extension(client, headers):
     assert "error" in data
 
 
-def test_batch_csv_success(client, headers, mocker):
+def test_batch_csv_success(client, headers, app, mocker):
     """Test successful CSV batch classification"""
     # Mock classifier
     mock_classifier = MagicMock()
@@ -45,7 +45,7 @@ def test_batch_csv_success(client, headers, mocker):
         "provider": "gemini",
         "confidence": 0.95,
     }
-    mocker.patch("app.classifier", mock_classifier)
+    mocker.patch.dict(app.config, {"CLASSIFIER": mock_classifier})
 
     # Create CSV file
     csv_content = b"ticket\nVPN is down\nCannot login"
@@ -81,12 +81,12 @@ def test_batch_csv_empty_file(client, headers):
     assert "error" in data
 
 
-def test_batch_csv_classification_failure(client, headers, mocker):
+def test_batch_csv_classification_failure(client, headers, app, mocker):
     """Test CSV batch when classification fails"""
     # Mock classifier that raises exception
     mock_classifier = MagicMock()
     mock_classifier.classify.side_effect = Exception("Classification failed")
-    mocker.patch("app.classifier", mock_classifier)
+    mocker.patch.dict(app.config, {"CLASSIFIER": mock_classifier})
 
     csv_content = b"ticket\nVPN is down"
 

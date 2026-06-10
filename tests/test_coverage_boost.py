@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 
-def test_run_evaluation_with_real_dataset(client, headers, mocker):
+def test_run_evaluation_with_real_dataset(client, headers, app, mocker):
     """Test evaluation with actual dataset file"""
     # Mock classifier
     mock_classifier = MagicMock()
@@ -15,7 +15,7 @@ def test_run_evaluation_with_real_dataset(client, headers, mocker):
         "priority": "high",
         "provider": "gemini",
     }
-    mocker.patch("app.classifier", mock_classifier)
+    mocker.patch.dict(app.config, {"CLASSIFIER": mock_classifier})
 
     response = client.post("/api/evaluation/run", headers=headers)
 
@@ -29,7 +29,7 @@ def test_run_evaluation_with_real_dataset(client, headers, mocker):
         assert response.status_code == 404
 
 
-def test_batch_csv_with_pandas_error(client, headers, mocker):
+def test_batch_csv_with_pandas_error(client, headers, app, mocker):
     """Test CSV batch when pandas fails to read CSV"""
     from io import BytesIO
     import pandas as pd
@@ -51,7 +51,7 @@ def test_batch_csv_with_pandas_error(client, headers, mocker):
     assert "error" in data
 
 
-def test_batch_csv_missing_ticket_column(client, headers, mocker):
+def test_batch_csv_missing_ticket_column(client, headers, app, mocker):
     """Test CSV batch when ticket column is missing"""
     from io import BytesIO
     import pandas as pd
@@ -74,7 +74,7 @@ def test_batch_csv_missing_ticket_column(client, headers, mocker):
     assert "error" in data
 
 
-def test_batch_csv_partial_success(client, headers, mocker):
+def test_batch_csv_partial_success(client, headers, app, mocker):
     """Test CSV batch with some successful and some failed classifications"""
     from io import BytesIO
 
@@ -85,7 +85,7 @@ def test_batch_csv_partial_success(client, headers, mocker):
         Exception("Classification failed"),
         {"category": "Billing Bug", "priority": "medium", "provider": "gemini"},
     ]
-    mocker.patch("app.classifier", mock_classifier)
+    mocker.patch.dict(app.config, {"CLASSIFIER": mock_classifier})
 
     csv_content = b"ticket\nVPN down\nTest error\nBilling issue"
 

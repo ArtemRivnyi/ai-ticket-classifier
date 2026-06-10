@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from app import app, cache
+from extensions import cache
+from app import app
 
 
 @pytest.fixture

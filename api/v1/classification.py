@@ -92,3 +92,54 @@ def batch_classify():
         )
     except Exception as e:
         return jsonify({"error": "Batch error", "message": str(e)}), 500
+
+
+@classification_bp.route("/classify/batch-csv", methods=["POST"])
+@require_api_key
+@limiter.limit("10 per minute")
+def batch_csv():
+    classifier = current_app.config.get("CLASSIFIER")
+    if not classifier:
+        return jsonify({"error": "Service unavailable"}), 503
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+
+    try:
+        import pandas as pd
+        df = pd.read_csv(file)
+        
+        if "ticket" not in df.columns:
+            return jsonify({"error": "CSV must contain a 'ticket' column"}), 400
+            
+        tickets = [sanitize_text(str(t)) for t in df["ticket"].tolist() if pd.notna(t)]
+        
+        results = [None] * len(tickets)
+        errors = []
+        
+        with ThreadPoolExecutor(max_workers=min(len(tickets), 10)) as executor:
+            def task(i, t):
+                try:
+                    results[i] = classifier.classify(t)
+                except Exception as e:
+                    errors.append({"index": i, "error": str(e)})
+
+            futures = [executor.submit(task, i, t) for i, t in enumerate(tickets)]
+            for f in futures:
+                f.result()
+
+        return jsonify({
+            "total": len(tickets),
+            "successful": len([r for r in results if r]),
+            "failed": len(errors),
+            "results": [r for r in results if r],
+            "errors": errors
+        }), 200
+
+    except Exception as e:
+        logger.error(f"CSV Batch error: {e}")
+        return jsonify({"error": "Batch processing failed", "message": str(e)}), 400
