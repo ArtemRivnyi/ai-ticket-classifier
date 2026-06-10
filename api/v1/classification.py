@@ -111,17 +111,19 @@ def batch_csv():
 
     try:
         import pandas as pd
+
         df = pd.read_csv(file)
-        
+
         if "ticket" not in df.columns:
             return jsonify({"error": "CSV must contain a 'ticket' column"}), 400
-            
+
         tickets = [sanitize_text(str(t)) for t in df["ticket"].tolist() if pd.notna(t)]
-        
+
         results = [None] * len(tickets)
         errors = []
-        
+
         with ThreadPoolExecutor(max_workers=min(len(tickets), 10)) as executor:
+
             def task(i, t):
                 try:
                     results[i] = classifier.classify(t)
@@ -132,13 +134,18 @@ def batch_csv():
             for f in futures:
                 f.result()
 
-        return jsonify({
-            "total": len(tickets),
-            "successful": len([r for r in results if r]),
-            "failed": len(errors),
-            "results": [r for r in results if r],
-            "errors": errors
-        }), 200
+        return (
+            jsonify(
+                {
+                    "total": len(tickets),
+                    "successful": len([r for r in results if r]),
+                    "failed": len(errors),
+                    "results": [r for r in results if r],
+                    "errors": errors,
+                }
+            ),
+            200,
+        )
 
     except Exception as e:
         logger.error(f"CSV Batch error: {e}")

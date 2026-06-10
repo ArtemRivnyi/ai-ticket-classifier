@@ -19,9 +19,6 @@ def client():
             db.drop_all()
 
 
-
-
-
 def test_about_page(client):
     """Test about page renders"""
     response = client.get("/about")

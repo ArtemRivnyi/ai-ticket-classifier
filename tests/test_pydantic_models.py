@@ -32,12 +32,14 @@ def test_ticket_request_too_long():
 def test_ticket_request_sanitize_null_bytes():
     """Test TicketRequest sanitization removes null bytes"""
     from api.v1.classification import sanitize_text
+
     assert "\x00" not in sanitize_text("test\x00string")
 
 
 def test_ticket_request_sanitize_whitespace():
     """Test TicketRequest sanitization normalizes whitespace"""
     from api.v1.classification import sanitize_text
+
     assert sanitize_text("test   string\n\t") == "test string"
 
 
@@ -63,9 +65,8 @@ def test_batch_ticket_request_too_many():
 def test_batch_ticket_request_sanitize():
     """Test BatchTicketRequest sanitization"""
     from api.v1.classification import sanitize_text
+
     tickets = ["Ticket 1\x00", "  Ticket 2  ", ""]
     sanitized = [sanitize_text(t) for t in tickets if sanitize_text(t)]
     assert len(sanitized) >= 1
     assert "\x00" not in sanitized[0]
-
-

@@ -28,8 +28,6 @@ def test_api_health(client):
     assert "healthy" in rv.get_json()["status"]
 
 
-
-
 def test_html_sanitization_bleach(client):
     """Test that bleach sanitizes malicious HTML tags from the ticket text"""
     malicious_ticket = "I need help with my router! <script>alert('xss');</script> <b>Please fix it</b>"
@@ -42,6 +40,3 @@ def test_html_sanitization_bleach(client):
     assert "<script>" not in sanitized
     # Bleach strips tags by default in our app.py implementation, but leaves the text content
     assert "Please fix it" in sanitized
-
-
-

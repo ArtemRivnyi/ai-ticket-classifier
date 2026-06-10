@@ -161,6 +161,3 @@ def test_real_rate_limiting_info(client, app, mocker, headers, api_key):
     # Check for rate limit headers (if rate limiting is enabled)
     if "X-RateLimit-Limit" in response.headers:
         assert "X-RateLimit-Remaining" in response.headers
-
-
-
