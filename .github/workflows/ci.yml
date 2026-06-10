@@ -57,7 +57,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          pip install flake8 pylint black==25.12.0
+          pip install flake8 pylint black==26.5.1
       
       - name: Run flake8
         run: |
