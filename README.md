@@ -1,5 +1,5 @@
 [![API Docs](https://img.shields.io/badge/📚_API-Docs-blue?style=for-the-badge)](https://ai-ticket-classifier.onrender.com/docs/)
-[![Portfolio](https://img.shields.io/badge/👨‍💻_My-Portfolio-orange?style=for-the-badge)](https://artemrivnyi.com)
+[![Portfolio](https://img.shields.io/badge/👨‍💻_My-Portfolio-orange?style=for-the-badge)](https://personal-page-devops.onrender.com)
 
 <p align="left">
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -39,6 +39,19 @@
     - **Secure Dependencies**: Automated vulnerability scanning with `pip-audit`.
 - **Comprehensive Monitoring**: Prometheus metrics, Sentry error tracking, and structured logging.
 - **Developer Friendly**: Full Swagger/OpenAPI documentation and easy-to-use REST endpoints.
+
+---
+
+## 🎫 Zendesk Integration
+
+This classifier plugs directly into **Zendesk ticketing workflows**:
+
+- **Zendesk Triggers / Webhooks** → call `/api/v1/classify` on every new ticket
+- **Auto-tagging**: returned `category` maps to Zendesk ticket tags
+- **Priority routing**: returned `priority` drives Zendesk SLA assignment
+- **Batch endpoint** `/api/v1/batch` supports bulk triage during high-volume periods
+
+> Real-world use case: replaces manual first-line triage, reducing handle time and ensuring consistent routing 24/7.
 
 ---
 
