@@ -73,6 +73,19 @@ def create_app(test_config=None):
     app.register_blueprint(analytics_bp)
     app.register_blueprint(classification_bp, url_prefix="/api/v1")
 
+    # Swagger UI
+    try:
+        from flask_swagger_ui import get_swaggerui_blueprint
+        swaggerui_blueprint = get_swaggerui_blueprint(
+            '/docs',
+            '/static/swagger.json',
+            config={'app_name': "TicketAI API"}
+        )
+        app.register_blueprint(swaggerui_blueprint)
+        logger.info("✅ Swagger UI initialized at /docs")
+    except ImportError:
+        logger.warning("⚠️ flask_swagger_ui not installed. /docs will not be available.")
+
     # Request Tracing
     from uuid import uuid4
 
