@@ -259,3 +259,52 @@ body {
         background-color: transparent;
     }
 }
+
+/* Premium Gradient Text */
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel:hover {
+    border-color: rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.15);
+}
+
+/* Custom Scrollbar for Vibecoding */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(5, 5, 5, 0.8); 
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3); 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.6); 
+}
+
+/* Animations */
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(102, 126, 234, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(102, 126, 234, 0.2); }
+}
+
+.glow-effect {
+  animation: glow 3s infinite;
+}
