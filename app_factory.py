@@ -76,10 +76,9 @@ def create_app(test_config=None):
     # Swagger UI
     try:
         from flask_swagger_ui import get_swaggerui_blueprint
+
         swaggerui_blueprint = get_swaggerui_blueprint(
-            '/docs',
-            '/static/swagger.json',
-            config={'app_name': "TicketAI API"}
+            "/docs", "/static/swagger.json", config={"app_name": "TicketAI API"}
         )
         app.register_blueprint(swaggerui_blueprint)
         logger.info("✅ Swagger UI initialized at /docs")
