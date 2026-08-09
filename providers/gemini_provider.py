@@ -1,5 +1,7 @@
 import google.generativeai as genai
 import os
+import json
+import re
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -28,25 +30,33 @@ class GeminiClassifier:
 
         genai.configure(api_key=api_key)
 
-        # Use Gemini 2.0 Flash (Stable) for best performance and reliability
-        try:
-            self.model = genai.GenerativeModel("gemini-2.0-flash")
-            logger.info("Using gemini-2.0-flash")
-        except:
+        # Try active Gemini models (2.5-flash primary, with fallbacks)
+        models_to_try = [
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-flash-latest",
+        ]
+        self.model = None
+        for m_name in models_to_try:
             try:
-                self.model = genai.GenerativeModel("gemini-flash-latest")
-                logger.info("Using gemini-flash-latest")
-            except:
-                self.model = genai.GenerativeModel("gemini-pro-latest")
-                logger.info("Using gemini-pro-latest")
+                self.model = genai.GenerativeModel(m_name)
+                logger.info(f"Using {m_name}")
+                break
+            except Exception as e:
+                logger.warning(f"Failed to init model {m_name}: {e}")
+
+        if not self.model:
+            self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(2),
+        wait=wait_exponential(multiplier=1, min=1, max=3),
         retry=retry_if_exception_type((Exception,)),
     )
     def classify(self, ticket_text: str, extra_examples: str = "") -> dict:
         """Classify with retry logic and comprehensive prompt"""
+        result_text = ""
         try:
             prompt = format_classification_prompt(
                 ticket_text, provider="gemini", extra_examples=extra_examples
@@ -58,15 +68,11 @@ class GeminiClassifier:
                     "temperature": 0.1,
                     "top_p": 0.95,
                     "top_k": 40,
-                    "max_output_tokens": 100,
+                    "max_output_tokens": 500,
                 },
             )
 
             result_text = response.text.strip()
-
-            # Parse JSON response
-            import json
-            import re
 
             # Extract JSON from markdown code blocks if present
             json_match = re.search(
