@@ -7,7 +7,7 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 def index():
     """Render the main page."""
-    demo_key = os.getenv("MASTER_API_KEY", "local-master-key")
+    demo_key = os.getenv("MASTER_API_KEY") or "local-master-key"
     return render_template("index.html", demo_api_key=demo_key)
 
 
