@@ -156,17 +156,15 @@ class MultiProvider:
             logger.info(f"✅ Rule Engine matched (fallback): {rule_match['category']}")
             return self._post_process_result(rule_match, ticket_text)
 
-        # If we get here, all providers failed
-        if self.allow_providerless:
-            logger.info("Rule-only mode: returning fallback classification")
-            fallback_result = {
-                "category": "Other",
-                "subcategory": "Unclassified",
-                "confidence": 0.5,
-                "provider": "fallback_rule_engine",
-            }
-            return self._post_process_result(fallback_result, ticket_text)
-        raise Exception("All providers failed")
+        # If all AI providers and rule engine fail, return fallback classification gracefully
+        logger.info("Returning graceful fallback classification")
+        fallback_result = {
+            "category": "Other",
+            "subcategory": "Unclassified",
+            "confidence": 0.5,
+            "provider": "fallback_rule_engine",
+        }
+        return self._post_process_result(fallback_result, ticket_text)
 
     def classify_with_gemini(self, ticket_text: str, extra_examples: str = "") -> Dict:
         """Classify using Gemini provider"""
