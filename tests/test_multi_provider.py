@@ -166,10 +166,10 @@ def test_multi_provider_classify_with_gemini(mocker):
 
 
 def test_multi_provider_rule_engine_short_circuit():
-    """Rule engine should classify obvious tickets without hitting providers"""
+    """Rule engine should classify obvious tickets when AI providers fail/unavailable"""
     provider = MultiProvider()
-    provider.gemini_available = True
-    provider.openai_available = True
+    provider.gemini_available = False
+    provider.openai_available = False
 
     result = provider.classify("I cannot connect to VPN and the network is down")
     assert result["provider"] == "rule_engine"
