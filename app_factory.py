@@ -83,7 +83,9 @@ def create_app(test_config=None):
         app.register_blueprint(swaggerui_blueprint)
         logger.info("✅ Swagger UI initialized at /docs")
     except ImportError:
-        logger.warning("⚠️ flask_swagger_ui not installed. /docs will not be available.")
+        logger.warning(
+            "⚠️ flask_swagger_ui not installed. /docs will not be available."
+        )
 
     # Request Tracing
     from uuid import uuid4
