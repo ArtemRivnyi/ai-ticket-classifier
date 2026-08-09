@@ -136,6 +136,7 @@ def test_multi_provider_classify_no_providers(mocker):
             provider.gemini_available = False
             provider.openai_available = False
             provider.allow_providerless = False  # Explicitly set to False
+            provider.rule_classifier.classify = Mock(return_value=None)
 
             with pytest.raises(Exception, match="All providers failed"):
                 provider.classify("Test ticket")
