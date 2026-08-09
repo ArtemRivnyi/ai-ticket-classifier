@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setLoading(true);
 
             try {
-                const apiKey = window.DEMO_API_KEY;
+                const apiKey = window.DEMO_API_KEY || 'local-master-key';
 
                 const response = await fetch('/api/v1/classify', {
                     method: 'POST',
@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (skeletonLoader) skeletonLoader.classList.remove('hidden');
 
             try {
-                const apiKey = window.DEMO_API_KEY;
+                const apiKey = window.DEMO_API_KEY || 'local-master-key';
 
                 const response = await fetch('/api/v1/classify/batch-csv', {
                     method: 'POST',

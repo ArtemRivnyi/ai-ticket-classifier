@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, render_template
 
 main_bp = Blueprint("main", __name__)
@@ -6,7 +7,8 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 def index():
     """Render the main page."""
-    return render_template("index.html")
+    demo_key = os.getenv("MASTER_API_KEY", "local-master-key")
+    return render_template("index.html", demo_api_key=demo_key)
 
 
 @main_bp.route("/about")
