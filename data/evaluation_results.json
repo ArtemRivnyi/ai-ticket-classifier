@@ -1,0 +1,285 @@
+{
+  "accuracy": 93.33333333333333,
+  "total": 30,
+  "correct": 28,
+  "avg_latency": 0.13726666666666668,
+  "metrics": {
+    "accuracy": 93.33333333333333,
+    "total_tickets": 30,
+    "correct_tickets": 28,
+    "avg_latency": 0.13726666666666668,
+    "timestamp": "2026-10-20 23:04:31"
+  },
+  "results": [
+    {
+      "ticket": "I cannot log in to my account even after resetting my password.",
+      "text": "I cannot log in to my account even after resetting my password.",
+      "expected_category": "Authentication Issue",
+      "predicted_category": "Authentication Issue",
+      "confidence": 0.98,
+      "latency": 0.009,
+      "correct": true
+    },
+    {
+      "ticket": "The payment for my subscription failed with error code 404.",
+      "text": "The payment for my subscription failed with error code 404.",
+      "expected_category": "Billing Issue",
+      "predicted_category": "Billing Issue",
+      "confidence": 0.99,
+      "latency": 0.007,
+      "correct": true
+    },
+    {
+      "ticket": "My internet connection keeps dropping every 10 minutes.",
+      "text": "My internet connection keeps dropping every 10 minutes.",
+      "expected_category": "Network Issue",
+      "predicted_category": "Network Issue",
+      "confidence": 0.96,
+      "latency": 0.012,
+      "correct": true
+    },
+    {
+      "ticket": "I need a refund for the last month, I did not use the service.",
+      "text": "I need a refund for the last month, I did not use the service.",
+      "expected_category": "Billing Issue",
+      "predicted_category": "Billing Issue",
+      "confidence": 0.97,
+      "latency": 0.008,
+      "correct": true
+    },
+    {
+      "ticket": "How do I change my profile picture?",
+      "text": "How do I change my profile picture?",
+      "expected_category": "General Question",
+      "predicted_category": "General Question",
+      "confidence": 0.94,
+      "latency": 0.015,
+      "correct": true
+    },
+    {
+      "ticket": "The application crashes when I try to export the report to PDF.",
+      "text": "The application crashes when I try to export the report to PDF.",
+      "expected_category": "Bug/Technical Issue",
+      "predicted_category": "Bug/Technical Issue",
+      "confidence": 0.99,
+      "latency": 0.011,
+      "correct": true
+    },
+    {
+      "ticket": "I am not receiving any email notifications from the platform.",
+      "text": "I am not receiving any email notifications from the platform.",
+      "expected_category": "Notification Issue",
+      "predicted_category": "Notification Issue",
+      "confidence": 0.92,
+      "latency": 0.38,
+      "correct": true
+    },
+    {
+      "ticket": "Is there a way to integrate this with Slack?",
+      "text": "Is there a way to integrate this with Slack?",
+      "expected_category": "Feature Request",
+      "predicted_category": "Feature Request",
+      "confidence": 0.95,
+      "latency": 0.41,
+      "correct": true
+    },
+    {
+      "ticket": "My laptop screen is flickering and then goes black.",
+      "text": "My laptop screen is flickering and then goes black.",
+      "expected_category": "Hardware Issue",
+      "predicted_category": "Hardware Issue",
+      "confidence": 0.99,
+      "latency": 0.009,
+      "correct": true
+    },
+    {
+      "ticket": "I forgot my password and the reset link is expired.",
+      "text": "I forgot my password and the reset link is expired.",
+      "expected_category": "Authentication Issue",
+      "predicted_category": "Authentication Issue",
+      "confidence": 0.98,
+      "latency": 0.008,
+      "correct": true
+    },
+    {
+      "ticket": "The API is returning 500 Internal Server Error for all requests.",
+      "text": "The API is returning 500 Internal Server Error for all requests.",
+      "expected_category": "Bug/Technical Issue",
+      "predicted_category": "Bug/Technical Issue",
+      "confidence": 0.99,
+      "latency": 0.006,
+      "correct": true
+    },
+    {
+      "ticket": "Can I upgrade my plan to the Enterprise tier?",
+      "text": "Can I upgrade my plan to the Enterprise tier?",
+      "expected_category": "General Question",
+      "predicted_category": "General Question",
+      "confidence": 0.91,
+      "latency": 0.014,
+      "correct": true
+    },
+    {
+      "ticket": "The printer is not connecting to the network.",
+      "text": "The printer is not connecting to the network.",
+      "expected_category": "Hardware Issue",
+      "predicted_category": "Hardware Issue",
+      "confidence": 0.93,
+      "latency": 0.013,
+      "correct": true
+    },
+    {
+      "ticket": "I was charged twice for the same invoice.",
+      "text": "I was charged twice for the same invoice.",
+      "expected_category": "Billing Issue",
+      "predicted_category": "Billing Issue",
+      "confidence": 0.99,
+      "latency": 0.007,
+      "correct": true
+    },
+    {
+      "ticket": "Where can I find the documentation for the new API?",
+      "text": "Where can I find the documentation for the new API?",
+      "expected_category": "General Question",
+      "predicted_category": "General Question",
+      "confidence": 0.96,
+      "latency": 0.011,
+      "correct": true
+    },
+    {
+      "ticket": "The mobile app freezes on the splash screen.",
+      "text": "The mobile app freezes on the splash screen.",
+      "expected_category": "Bug/Technical Issue",
+      "predicted_category": "Bug/Technical Issue",
+      "confidence": 0.97,
+      "latency": 0.42,
+      "correct": true
+    },
+    {
+      "ticket": "I want to request a new feature: Dark Mode.",
+      "text": "I want to request a new feature: Dark Mode.",
+      "expected_category": "Feature Request",
+      "predicted_category": "Feature Request",
+      "confidence": 0.98,
+      "latency": 0.395,
+      "correct": true
+    },
+    {
+      "ticket": "My account has been locked due to suspicious activity.",
+      "text": "My account has been locked due to suspicious activity.",
+      "expected_category": "Authentication Issue",
+      "predicted_category": "Authentication Issue",
+      "confidence": 0.99,
+      "latency": 0.008,
+      "correct": true
+    },
+    {
+      "ticket": "The integration with Salesforce is not syncing data.",
+      "text": "The integration with Salesforce is not syncing data.",
+      "expected_category": "Integration Issue",
+      "predicted_category": "Integration Issue",
+      "confidence": 0.94,
+      "latency": 0.46,
+      "correct": true
+    },
+    {
+      "ticket": "VPN connection drops when connecting from home office.",
+      "text": "VPN connection drops when connecting from home office.",
+      "expected_category": "Network Issue",
+      "predicted_category": "Network Issue",
+      "confidence": 0.95,
+      "latency": 0.01,
+      "correct": true
+    },
+    {
+      "ticket": "How do I export my invoice history for tax reporting?",
+      "text": "How do I export my invoice history for tax reporting?",
+      "expected_category": "Billing Issue",
+      "predicted_category": "Billing Issue",
+      "confidence": 0.96,
+      "latency": 0.012,
+      "correct": true
+    },
+    {
+      "ticket": "Mouse cursor disappears after waking up from sleep mode.",
+      "text": "Mouse cursor disappears after waking up from sleep mode.",
+      "expected_category": "Hardware Issue",
+      "predicted_category": "Hardware Issue",
+      "confidence": 0.93,
+      "latency": 0.014,
+      "correct": true
+    },
+    {
+      "ticket": "Can we add single sign-on (SSO) with Okta?",
+      "text": "Can we add single sign-on (SSO) with Okta?",
+      "expected_category": "Feature Request",
+      "predicted_category": "Feature Request",
+      "confidence": 0.97,
+      "latency": 0.43,
+      "correct": true
+    },
+    {
+      "ticket": "Database connection pool timeout during peak hours.",
+      "text": "Database connection pool timeout during peak hours.",
+      "expected_category": "Bug/Technical Issue",
+      "predicted_category": "Bug/Technical Issue",
+      "confidence": 0.98,
+      "latency": 0.008,
+      "correct": true
+    },
+    {
+      "ticket": "Request for keyboard replacement due to stuck keys.",
+      "text": "Request for keyboard replacement due to stuck keys.",
+      "expected_category": "Hardware Issue",
+      "predicted_category": "Hardware Issue",
+      "confidence": 0.95,
+      "latency": 0.011,
+      "correct": true
+    },
+    {
+      "ticket": "SSL certificate error when accessing staging domain.",
+      "text": "SSL certificate error when accessing staging domain.",
+      "expected_category": "Security Issue",
+      "predicted_category": "Bug/Technical Issue",
+      "confidence": 0.72,
+      "latency": 0.49,
+      "correct": false
+    },
+    {
+      "ticket": "Please add French and Spanish localization support.",
+      "text": "Please add French and Spanish localization support.",
+      "expected_category": "Feature Request",
+      "predicted_category": "Feature Request",
+      "confidence": 0.98,
+      "latency": 0.41,
+      "correct": true
+    },
+    {
+      "ticket": "Payment gateway timeout on checkout completion.",
+      "text": "Payment gateway timeout on checkout completion.",
+      "expected_category": "Billing Issue",
+      "predicted_category": "Billing Issue",
+      "confidence": 0.99,
+      "latency": 0.007,
+      "correct": true
+    },
+    {
+      "ticket": "Automated backup job failed with permission denied.",
+      "text": "Automated backup job failed with permission denied.",
+      "expected_category": "Infrastructure Issue",
+      "predicted_category": "Bug/Technical Issue",
+      "confidence": 0.75,
+      "latency": 0.51,
+      "correct": false
+    },
+    {
+      "ticket": "What are the recommended browser versions supported?",
+      "text": "What are the recommended browser versions supported?",
+      "expected_category": "General Question",
+      "predicted_category": "General Question",
+      "confidence": 0.95,
+      "latency": 0.013,
+      "correct": true
+    }
+  ]
+}

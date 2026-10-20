@@ -88,18 +88,16 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="/" class="flex items-center gap-2 group">
-                        <div
-                            class="bg-indigo-600 text-white p-2 rounded-lg group-hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/30">
-                            <span class="text-xl">🎫</span>
+                        <div class="bg-indigo-600 text-white p-1.5 rounded-lg group-hover:bg-indigo-700 transition shadow-lg shadow-indigo-500/30 flex items-center justify-center w-8 h-8">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
                         </div>
                         <span
                             class="text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">Ticket<span
                                 class="text-indigo-600 dark:text-indigo-400">AI</span></span>
                     </a>
                     <!-- System Status Indicator -->
-                    <span id="systemStatus"
-                        class="ml-3 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 hidden md:inline-block">
-                        ● Checking System...
+                    <span id="systemStatus" class="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 hidden md:inline-flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>System Operational
                     </span>
                 </div>
                 <div class="flex items-center space-x-1">
@@ -546,6 +544,20 @@
         window.DEMO_API_KEY = "{{ demo_api_key }}";
     </script>
     <script src="/static/js/app.js?v=2.6.3"></script>
+
+    <script>
+        window.addEventListener('beforeunload', () => {
+            try { sessionStorage.setItem('ticketai_home_scroll', String(window.scrollY)); } catch {}
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const saved = sessionStorage.getItem('ticketai_home_scroll');
+                if (saved && Number(saved) > 40) {
+                    window.scrollTo({ top: Number(saved), behavior: 'instant' });
+                }
+            } catch {}
+        });
+    </script>
 </body>
 
 </html>
