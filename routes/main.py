@@ -3,7 +3,6 @@ import json
 import time
 from flask import Blueprint, render_template, jsonify
 
-
 main_bp = Blueprint("main", __name__)
 
 
@@ -78,7 +77,9 @@ def cookies():
 @main_bp.route("/api/evaluation/results", methods=["GET"])
 def get_evaluation_results():
     """Return precomputed evaluation benchmark metrics."""
-    data_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "evaluation_results.json")
+    data_file = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "data", "evaluation_results.json"
+    )
     if os.path.exists(data_file):
         try:
             with open(data_file, "r", encoding="utf-8") as f:
@@ -87,19 +88,26 @@ def get_evaluation_results():
         except Exception:
             pass
 
-    return jsonify({
-        "accuracy": 93.3,
-        "total": 30,
-        "correct": 28,
-        "avg_latency": 0.245,
-        "results": []
-    }), 200
+    return (
+        jsonify(
+            {
+                "accuracy": 93.3,
+                "total": 30,
+                "correct": 28,
+                "avg_latency": 0.245,
+                "results": [],
+            }
+        ),
+        200,
+    )
 
 
 @main_bp.route("/api/evaluation/run", methods=["POST", "GET"])
 def run_evaluation():
     """Trigger evaluation run and return live benchmark results."""
-    data_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "evaluation_results.json")
+    data_file = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "data", "evaluation_results.json"
+    )
     if os.path.exists(data_file):
         try:
             with open(data_file, "r", encoding="utf-8") as f:
@@ -110,10 +118,15 @@ def run_evaluation():
         except Exception:
             pass
 
-    return jsonify({
-        "accuracy": 93.3,
-        "total": 30,
-        "correct": 28,
-        "avg_latency": 0.245,
-        "results": []
-    }), 200
+    return (
+        jsonify(
+            {
+                "accuracy": 93.3,
+                "total": 30,
+                "correct": 28,
+                "avg_latency": 0.245,
+                "results": [],
+            }
+        ),
+        200,
+    )
